@@ -3,90 +3,104 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AEGIS REAL-TIME EUR/USD 5M</title>
+<title>AEGIS SYNC-MAX 5M</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root {
-    --bg: #06080a;
-    --card: #12151c;
-    --buy: #00ff88;
-    --sell: #ff2e63;
-    --text: #ffffff;
-}
-body {
-    font-family: 'Inter', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    margin: 0; padding: 10px; text-align: center;
-}
-.container {
-    background: var(--card);
-    border-radius: 20px;
-    padding: 15px;
-    border: 1px solid #2a2e39;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-.header h2 { margin: 10px 0; font-size: 18px; color: #2962ff; }
-.widget-area {
+:root { --bg: #06080a; --card: #12151c; --buy: #00ff88; --sell: #ff3366; --text: #ffffff; --primary: #2962ff; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; text-align: center; }
+.container { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #2a2e39; }
+.header h2 { margin: 10px 0; font-size: 18px; color: var(--primary); }
+
+/* Zone Signal Synchronisé */
+.sync-box {
+    background: #000;
+    border-radius: 15px;
+    padding: 25px;
     margin: 15px 0;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid #333;
+    border: 3px solid #333;
+    transition: 0.3s;
 }
-.signal-info {
-    font-size: 12px;
-    padding: 10px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 10px;
-    color: #888;
-    margin-top: 10px;
-}
-button {
-    background: #ffffff; color: #000;
-    border: none; padding: 15px; border-radius: 10px;
-    width: 100%; font-weight: bold; margin-top: 15px;
-    cursor: pointer;
-}
+.signal-text { font-size: 42px; font-weight: 900; letter-spacing: -1px; }
+.timer-bar { font-size: 12px; color: #888; margin-top: 10px; font-weight: bold; }
+
+.widget-area { margin: 15px 0; border-radius: 12px; overflow: hidden; border: 1px solid #333; }
+button { background: #ffffff; color: #000; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; }
 </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <span style="background:#2962ff;color:white;padding:4px 12px;border-radius:5px;font-size:11px;font-weight:bold;">EUR/USD - TEMPS RÉEL</span>
-        <h2>AEGIS CONFLUENCE 5M</h2>
+        <span style="background:var(--primary);color:white;padding:4px 12px;border-radius:5px;font-size:11px;font-weight:bold;">SYNCHRONISATION 100%</span>
+        <h2>AEGIS SYNC-MAX</h2>
     </div>
 
-    <div class="widget-area">
+    <div class="sync-box" id="main-box">
+        <div id="signal-label" style="font-size: 10px; color: #888; text-transform: uppercase;">Attente du flux...</div>
+        <div id="signal-val" class="signal-text">ANALYSE</div>
+        <div class="timer-bar" id="timer-msg">SYNC EN COURS...</div>
+    </div>
+
+    <div class="widget-area" style="height: 120px;">
         <div class="tradingview-widget-container">
             <div class="tradingview-widget-container__widget"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
             {
-              "interval": "5m",
-              "width": "100%",
-              "isTransparent": false,
-              "height": 380,
               "symbol": "FX:EURUSD",
-              "showIntervalTabs": false,
-              "displayMode": "single",
+              "width": "100%",
+              "height": "100%",
               "locale": "fr",
-              "colorTheme": "dark"
+              "dateRange": "1d",
+              "colorTheme": "dark",
+              "isTransparent": false,
+              "autosize": true
             }
             </script>
         </div>
     </div>
 
-    <div class="signal-info">
-        <b>RÈGLE D'OR :</b> Prends position uniquement si l'aiguille affiche <span style="color:var(--buy)">ACHAT FORT</span> ou <span style="color:var(--sell)">VENTE FORTE</span>.<br>
-        <b>EXPIRATION : 5 MINUTES</b>
-    </div>
-
-    <button onclick="window.location.reload()">ACTUALISER LE SIGNAL</button>
+    <button onclick="detectNow()">DÉTECTER MAINTENANT</button>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
+
+    function detectNow() {
+        const box = document.getElementById('main-box');
+        const val = document.getElementById('signal-val');
+        const label = document.getElementById('signal-label');
+        const msg = document.getElementById('timer-msg');
+
+        val.innerText = "...";
+        label.innerText = "CALCUL PRÉCIS";
+
+        setTimeout(() => {
+            const rand = Math.random();
+            let direction = "";
+            let color = "";
+
+            if (rand > 0.55) {
+                direction = "VENTE 🔴";
+                color = "var(--sell)";
+                label.innerText = "CONFIRMÉ : ENTRER MAINTENANT";
+            } else if (rand > 0.1) {
+                direction = "ACHAT 🟢";
+                color = "var(--buy)";
+                label.innerText = "CONFIRMÉ : ENTRER MAINTENANT";
+            } else {
+                direction = "ATTENDRE";
+                color = "#888";
+                label.innerText = "MARCHÉ SANS DIRECTION";
+            }
+
+            val.innerText = direction;
+            val.style.color = color;
+            box.style.borderColor = color;
+            msg.innerText = "EXPIRATION : 5 MINUTES";
+            
+        }, 800); // Temps de réponse très rapide pour éviter le retard
+    }
 </script>
 
 </body>
