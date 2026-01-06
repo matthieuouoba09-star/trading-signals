@@ -1,77 +1,90 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AEGIS REAL-TIME PRO</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root { --bg: #06080a; --card: #12151c; --primary: #2962ff; --text: #ffffff; --safe: #00ff88; --risk: #ff3366; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; text-align: center; }
-        .container { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #2a2e39; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .pair-badge { background: #2962ff; color: white; padding: 4px 12px; border-radius: 5px; font-size: 12px; font-weight: bold; }
-        
-        /* Nouveau Radar de Tendance */
-        .trend-radar { background: #1a1e26; border-radius: 12px; padding: 10px; margin: 15px 0; border: 1px solid #333; display: flex; justify-content: space-around; align-items: center; }
-        .trend-title { font-size: 10px; color: #8b949e; text-transform: uppercase; margin-bottom: 5px; }
-        .trend-value { font-weight: bold; font-size: 14px; }
-
-        .widget-area { margin: 15px 0; border-radius: 12px; overflow: hidden; border: 1px solid #333; }
-        .instruction-card { background: rgba(41, 98, 255, 0.05); border-left: 4px solid var(--primary); padding: 12px; border-radius: 6px; font-size: 11px; text-align: left; }
-        button { background: #ffffff; color: #000; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; margin-top: 15px; cursor: pointer; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEGIS REAL-TIME EUR/USD 5M</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root {
+    --bg: #06080a;
+    --card: #12151c;
+    --buy: #00ff88;
+    --sell: #ff2e63;
+    --nosignal: #888888;
+    --text: #ffffff;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0; padding: 10px; text-align: center;
+}
+.container {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 15px;
+    border: 1px solid #2a2e39;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.header h2 { margin: 10px 0; font-size: 18px; }
+#signal-display {
+    font-size: 16px; font-weight: bold;
+    padding: 10px; border-radius: 10px;
+    border: 1px solid #333;
+}
+button {
+    background: #ffffff; color: #000;
+    border: none; padding: 15px; border-radius: 10px;
+    width: 100%; font-weight: bold; margin-top: 15px;
+    cursor: pointer;
+}
+</style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <span class="pair-badge">EUR/USD - TEMPS RÉEL</span>
-        <h2 style="margin: 10px 0; font-size: 18px;">AEGIS ALGO V9</h2>
+        <span style="background:#2962ff;color:white;padding:4px 12px;border-radius:5px;font-size:12px;font-weight:bold;">EUR/USD - MARCHÉ RÉEL</span>
+        <h2>AEGIS CONFLUENCE 5M</h2>
     </div>
 
-    <div class="trend-radar">
-        <div>
-            <div class="trend-title">Tendance Globale</div>
-            <div class="trend-value" style="color: var(--safe)">HAUSSIÈRE ↑</div>
-        </div>
-        <div style="width: 1px; height: 30px; background: #333;"></div>
-        <div>
-            <div class="trend-title">Fiabilité du Signal</div>
-            <div class="trend-value" style="color: var(--primary)">ÉLEVÉE ⭐</div>
-        </div>
+    <div id="signal-display">
+        PRIX ACTUEL : --<br>
+        SIGNAL : --<br>
+        EXPIRATION : 5 MINUTES
     </div>
 
-    <div class="widget-area">
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
-            {
-              "interval": "1m",
-              "width": "100%",
-              "isTransparent": false,
-              "height": 380,
-              "symbol": "FX:EURUSD",
-              "showIntervalTabs": true,
-              "displayMode": "single",
-              "locale": "fr",
-              "colorTheme": "dark"
-            }
-            </script>
-        </div>
-    </div>
-
-    <div class="instruction-card">
-        🛡️ <b>FILTRE ANTI-PERTE :</b><br>
-        Ne prends un <b>ACHAT</b> que si l'aiguille est à droite ET que la tendance globale est HAUSSIÈRE.<br>
-        Ne prends une <b>VENTE</b> que si l'aiguille est à gauche ET que la tendance globale est BAISSIÈRE.
-    </div>
-
-    <button onclick="window.location.reload()">ACTUALISER L'ANALYSE</button>
+    <button onclick="window.location.reload()">ACTUALISER MANUELLEMENT</button>
 </div>
 
 <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+const tg = window.Telegram.WebApp;
+tg.expand();
+
+// === FONCTION POUR METTRE À JOUR LE SIGNAL ===
+function updateSignal(price, signal){
+    const display = document.getElementById('signal-display');
+    let color;
+    if(signal === "ACHAT") color = "var(--buy)";
+    else if(signal === "VENTE") color = "var(--sell)";
+    else color = "var(--nosignal)";
+
+    display.innerHTML = `PRIX ACTUEL : ${price}<br>SIGNAL : <span style="color:${color}">${signal}</span><br>EXPIRATION : 5 MINUTES`;
+}
+
+// === SIMULATION DE FLUX (pour test avant webhook)
+setInterval(() => {
+    const price = (1.0840 + Math.random()*0.002).toFixed(5);
+    const signals = ["ACHAT", "VENTE", "NO SIGNAL"];
+    const signal = signals[Math.floor(Math.random()*signals.length)];
+    updateSignal(price, signal);
+}, 300000); // 300 000 ms = 5 minutes
+
+// === WEBHOOK TRADINGVIEW (EXEMPLE)
+// Remplacer l’intervalle setInterval par ton webhook réel
+// Exemple : fetch("TON_URL_WEBHOOK?signal=ACHAT&price=1.08452")
+// puis updateSignal(price, signal)
 </script>
 
 </body>
