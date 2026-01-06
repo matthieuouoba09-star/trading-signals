@@ -3,106 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AEGIS OTC V7 - CONFLUENCE</title>
+    <title>AEGIS REAL-TIME EUR/USD</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #05070a; --card: #0f1218; --primary: #00f2ff; --buy: #00ff88; --sell: #ff2e63; --no-trade: #4b5966; --text: #ffffff; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; }
-        .app { width: 100%; max-width: 380px; background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #1f262e; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-        .otc-header { text-align: center; border-bottom: 1px solid #1a1f26; padding-bottom: 15px; margin-bottom: 20px; }
-        .otc-header h1 { font-size: 18px; color: var(--primary); margin: 5px 0; text-transform: uppercase; letter-spacing: 2px; }
-        .screen { height: 260px; background: rgba(0,0,0,0.6); border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #1a1f26; margin-bottom: 20px; position: relative; }
-        .signal-title { font-size: 32px; font-weight: 900; margin-bottom: 10px; }
-        .indicator-status { width: 90%; font-size: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 10px; }
-        .status-box { background: #0a0d11; padding: 6px; border-radius: 4px; border: 1px solid #1a1f26; color: #7e8c9a; }
-        .status-box.active { color: var(--primary); border-color: var(--primary); }
-        button { background: #ffffff; color: #000; border: none; padding: 18px; border-radius: 12px; width: 100%; font-weight: 900; font-size: 16px; cursor: pointer; transition: 0.2s; }
-        button:active { transform: scale(0.98); }
-        .loader { width: 30px; height: 30px; border: 3px solid #1a1f26; border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        :root { --bg: #06080a; --card: #12151c; --primary: #2962ff; --text: #ffffff; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; text-align: center; }
+        .container { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #2a2e39; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .header { margin-bottom: 15px; }
+        .pair-badge { background: #2962ff; color: white; padding: 4px 12px; border-radius: 5px; font-size: 12px; font-weight: bold; }
+        .widget-area { margin: 15px 0; border-radius: 12px; overflow: hidden; border: 1px solid #333; }
+        .instruction-card { background: rgba(41, 98, 255, 0.1); border: 1px solid var(--primary); padding: 12px; border-radius: 10px; font-size: 11px; line-height: 1.5; text-align: left; }
+        button { background: #ffffff; color: #000; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; margin-top: 15px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="app">
-    <div class="otc-header">
-        <div style="font-size: 9px; color: #ff2e63; font-weight: bold;">LIVE EUR/USD OTC</div>
-        <h1>AEGIS ALGO V7</h1>
+<div class="container">
+    <div class="header">
+        <span class="pair-badge">EUR/USD - MARCHÉ RÉEL</span>
+        <h2 style="margin: 10px 0; font-size: 18px;">ANALYSEUR STRATÉGIQUE V8</h2>
     </div>
 
-    <div class="screen" id="display">
-        <div style="color: #3d4956; font-size: 13px;">EN ATTENTE D'ANALYSE...</div>
+    <div class="widget-area">
+        <div class="tradingview-widget-container">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+            {
+              "interval": "1m",
+              "width": "100%",
+              "isTransparent": false,
+              "height": 380,
+              "symbol": "FX:EURUSD",
+              "showIntervalTabs": true,
+              "displayMode": "single",
+              "locale": "fr",
+              "colorTheme": "dark"
+            }
+            </script>
+        </div>
     </div>
 
-    <button id="btn" onclick="checkConfluence()">ANALYSER LE MARCHÉ</button>
-
-    <div style="margin-top: 15px; font-size: 9px; color: #4b5966; text-align: center; line-height: 1.4;">
-        RSI(8) • Williams(8) • Keltner(8,1) • MACD(8,26,8)<br>
-        <b>RÈGLE : MINIMUM 3 INDICATEURS + MACD OBLIGATOIRE</b>
+    <div class="instruction-card">
+        🎯 <b>APPLICATION DE TA STRATÉGIE (Période 8) :</b><br>
+        • Attends que l'aiguille touche <b>"ACHAT FORT"</b> ou <b>"VENTE FORTE"</b>.<br>
+        • Vérifie que le RSI et le MACD confirment sur le graphique.<br>
+        • Prends position pour <b>1 MINUTE</b> sur ton broker.
     </div>
+
+    <button onclick="window.location.reload()">ACTUALISER LE FLUX RÉEL</button>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-
-    function checkConfluence() {
-        const display = document.getElementById('display');
-        const btn = document.getElementById('btn');
-        btn.disabled = true;
-
-        display.innerHTML = `<div class="loader"></div><p style="font-size:11px; margin-top:15px; color:var(--primary)">VÉRIFICATION DES CONDITIONS...</p>`;
-
-        setTimeout(() => {
-            const chance = Math.random();
-            let resultHTML = "";
-
-            if (chance > 0.7) { // 30% de chance de trouver un signal parfait (Réalisme)
-                const isBuy = Math.random() > 0.5;
-                const color = isBuy ? 'var(--buy)' : 'var(--sell)';
-                const type = isBuy ? 'CALL (ACHAT)' : 'PUT (VENTE)';
-                
-                resultHTML = `
-                    <div style="font-size: 10px; color: ${color}; letter-spacing: 2px;">CONFLUENCE VALIDÉE</div>
-                    <div class="signal-title" style="color: ${color}">${type}</div>
-                    <div class="indicator-status">
-                        <div class="status-box active">RSI: ${isBuy ? 'REBOND 30' : 'REJET 70'}</div>
-                        <div class="status-box active">MACD: CONFIRMÉ</div>
-                        <div class="status-box active">KELTNER: REJET</div>
-                        <div class="status-box active">WILLIAMS: OK</div>
-                    </div>
-                    <div style="margin-top:15px; font-weight:bold; font-size:12px; color:white; background:${color}44; padding:5px 15px; border-radius:5px;">
-                        EXPIRATION : 1 MINUTE
-                    </div>
-                `;
-            } else if (chance > 0.5) { // Continuation
-                 resultHTML = `
-                    <div style="font-size: 10px; color: var(--sell); letter-spacing: 2px;">CASSURE DE FORCE</div>
-                    <div class="signal-title" style="color: var(--sell)">VENTE CONT.</div>
-                    <div class="indicator-status">
-                        <div class="status-box active">RSI: CASSE 30</div>
-                        <div class="status-box active">MACD: BAISSIER</div>
-                        <div class="status-box active">KELTNER: CASSURE</div>
-                        <div class="status-box active">WILLIAMS: BAISSIER</div>
-                    </div>
-                `;
-            } else { // Pas assez d'indicateurs ou MACD plat
-                resultHTML = `
-                    <div class="signal-title" style="color: var(--no-trade)">NO TRADE</div>
-                    <div style="font-size: 12px; color: #6e7a8a;">Indicateurs non-alignés ou MACD plat</div>
-                    <div class="indicator-status">
-                        <div class="status-box">RSI: NEUTRE</div>
-                        <div class="status-box">MACD: INVALIDE</div>
-                        <div class="status-box">KELTNER: MILIEU</div>
-                        <div class="status-box">WILLIAMS: OK</div>
-                    </div>
-                `;
-            }
-
-            display.innerHTML = resultHTML;
-            btn.disabled = false;
-        }, 3000);
-    }
 </script>
+
 </body>
 </html>
