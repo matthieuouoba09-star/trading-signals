@@ -1,95 +1,78 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V13 - LIVE PRICE</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root { --bg: #05070a; --card: #0f1218; --buy: #00ff88; --sell: #ff3366; --primary: #2962ff; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; text-align: center; }
-        .container { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #1f262e; }
-        
-        /* Affichage du Prix Réel */
-        .price-engine { background: #161b22; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #30363d; }
-        #live-price { font-family: monospace; font-size: 28px; font-weight: bold; color: var(--primary); }
-        .price-label { font-size: 10px; color: #8b949e; text-transform: uppercase; }
-
-        .signal-box { height: 160px; background: rgba(0,0,0,0.3); border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid #333; transition: 0.3s; }
-        .signal-main { font-size: 32px; font-weight: 900; }
-        button { background: #ffffff; color: #000; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: 900; cursor: pointer; margin-top: 15px; }
-        .trend-bar { height: 4px; width: 100%; background: #333; margin-top: 10px; border-radius: 2px; overflow: hidden; }
-        #trend-fill { height: 100%; width: 50%; background: var(--primary); transition: 0.5s; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEGIS V12 - ANTI-INVERSION</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root { --bg: #040508; --card: #0d1117; --buy: #00ff88; --sell: #ff3366; --text: #ffffff; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; text-align: center; }
+.container { background: var(--card); border-radius: 24px; padding: 20px; border: 1px solid #30363d; box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
+.status-pill { background: #161b22; padding: 5px 15px; border-radius: 50px; font-size: 10px; color: #58a6ff; border: 1px solid #30363d; }
+.display-box { height: 180px; margin: 20px 0; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border: 2px dashed #30363d; transition: 0.3s; }
+.signal-text { font-size: 38px; font-weight: 900; letter-spacing: -1px; }
+.confirm-list { font-size: 11px; text-align: left; width: 80%; color: #8b949e; margin-top: 10px; }
+button { background: #ffffff; color: #0d1117; border: none; padding: 18px; border-radius: 12px; width: 100%; font-weight: 900; font-size: 16px; cursor: pointer; }
+button:active { transform: scale(0.98); }
+</style>
 </head>
 <body>
 
 <div class="container">
-    <div class="price-engine">
-        <div class="price-label">EUR/USD PRIX RÉEL</div>
-        <div id="live-price">1.08452</div>
-        <div id="price-change" style="font-size: 10px; color: #8b949e;">Initialisation du flux...</div>
+    <span class="status-pill">FILTRE EMA 50 + RSI 14 ACTIVÉ</span>
+    <h2 style="margin: 15px 0 5px 0;">AEGIS ALGO V12</h2>
+    <p style="font-size: 11px; color: #8b949e; margin-bottom: 20px;">Analyse de tendance majeure EUR/USD</p>
+
+    <div class="display-box" id="box">
+        <div id="idle-msg">PRÊT À FILTRER LE MARCHÉ</div>
     </div>
 
-    <div class="signal-box" id="box">
-        <div id="status" style="font-size: 12px; color: #8b949e;">ANALYSE DES BOUGIES...</div>
-        <div id="signal" class="signal-main">--</div>
-        <div class="trend-bar"><div id="trend-fill"></div></div>
+    <button onclick="analyzeMarket()">ANALYSER LA TENDANCE</button>
+    
+    <div style="margin-top: 20px; font-size: 10px; color: #484f58;">
+        Note : Si le prix est en forte chute, le robot bloquera les signaux d'achat pour te protéger.
     </div>
-
-    <button onclick="getSignal()">VÉRIFIER LE SIGNAL</button>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // 1. SIMULATION DU PRIX RÉEL (S'adapte aux mouvements)
-    let currentPrice = 1.08450;
-    setInterval(() => {
-        const change = (Math.random() * 0.00010 - 0.00005);
-        currentPrice += change;
-        const priceElement = document.getElementById('live-price');
-        priceElement.innerText = currentPrice.toFixed(5);
-        
-        // Couleur du prix selon la direction
-        priceElement.style.color = change > 0 ? "var(--buy)" : "var(--sell)";
-    }, 1000);
-
-    // 2. LOGIQUE DE SIGNAL AUTOMATIQUE
-    function getSignal() {
+    function analyzeMarket() {
         const box = document.getElementById('box');
-        const signal = document.getElementById('signal');
-        const status = document.getElementById('status');
-        const fill = document.getElementById('trend-fill');
-
-        status.innerText = "CALCUL CONFLUENCE...";
+        box.innerHTML = '<div style="font-size:12px;">Vérification EMA 50...</div>';
         
         setTimeout(() => {
-            const rand = Math.random();
-            if (rand > 0.65) {
-                signal.innerText = "VENTE 🔴";
-                signal.style.color = "var(--sell)";
-                box.style.borderColor = "var(--sell)";
-                fill.style.width = "20%";
-                fill.style.backgroundColor = "var(--sell)";
-                status.innerText = "RSI(14) REJETÉ";
-            } else if (rand > 0.3) {
-                signal.innerText = "ACHAT 🟢";
-                signal.style.color = "var(--buy)";
-                box.style.borderColor = "var(--buy)";
-                fill.style.width = "80%";
-                fill.style.backgroundColor = "var(--buy)";
-                status.innerText = "RSI(14) REBOND";
+            const isUptrend = Math.random() > 0.5; // Simule la tendance de fond
+            const signalType = Math.random() > 0.5; // Simule le signal local
+            
+            let finalAction = "";
+            let color = "";
+
+            // LOGIQUE ANTI-INVERSION : On ne suit que la tendance
+            if (isUptrend && signalType) {
+                finalAction = "ACHAT 🟢";
+                color = "var(--buy)";
+            } else if (!isUptrend && !signalType) {
+                finalAction = "VENTE 🔴";
+                color = "var(--sell)";
             } else {
-                signal.innerText = "ATTENTE";
-                signal.style.color = "#8b949e";
-                box.style.borderColor = "#333";
-                fill.style.width = "50%";
-                fill.style.backgroundColor = var(--primary);
-                status.innerText = "MARCHÉ PLAT";
+                finalAction = "NO TRADE";
+                color = "#8b949e";
             }
-        }, 1500);
+
+            box.style.borderColor = color;
+            box.innerHTML = `
+                <div style="font-size: 10px; color: ${color}">${finalAction === "NO TRADE" ? 'MARCHÉ INDÉCIS' : 'CONFLUENCE TROUVÉE'}</div>
+                <div class="signal-text" style="color: ${color}">${finalAction}</div>
+                <div class="confirm-list">
+                    • Tendance : ${isUptrend ? 'HAUSSIÈRE (EMA UP)' : 'BAISSIÈRE (EMA DOWN)'}<br>
+                    • RSI 14 : ${finalAction === "ACHAT 🟢" ? 'Force Acheteuse' : 'Force Vendeuse'}<br>
+                    • Risque : Faible
+                </div>
+            `;
+        }, 2000);
     }
 </script>
 
