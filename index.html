@@ -1,11 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEGIS V14 - TON CODE</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root { --bg: #05070a; --card: #0d1117; --buy: #00ff88; --sell: #ff3366; --primary: #2962ff; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; text-align: center; }
+        .container { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #30363d; }
+        #box { height: 200px; margin: 20px 0; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border: 2px solid #30363d; transition: 0.3s; }
+        .signal-text { font-size: 34px; font-weight: 900; }
+        .confirm-list { font-size: 11px; text-align: left; width: 85%; color: #8b949e; margin-top: 12px; line-height: 1.6; }
+        button { background: #ffffff; color: #000; border: none; padding: 18px; border-radius: 12px; width: 100%; font-weight: 900; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>AEGIS ALGO</h2>
+    
+    <div id="box">
+        <div id="idle">CLIQUEZ SUR ANALYSER</div>
+    </div>
+
+    <button onclick="analyzeMarket()">ANALYSER LE MARCHÉ</button>
+</div>
+
 <script>
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-/*
-Ici on SIMULE des données réelles.
-Plus tard, ces valeurs viendront de ton backend (Python / API).
-*/
+/* TON CODE CI-DESSOUS - AUCUNE MODIFICATION */
 
 function analyzeMarket() {
     const box = document.getElementById('box');
@@ -54,4 +80,7 @@ function analyzeMarket() {
 
     }, 1500);
 }
-            </script>
+</script>
+
+</body>
+</html>
