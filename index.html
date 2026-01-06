@@ -1,80 +1,57 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AEGIS V12 - ANTI-INVERSION</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-:root { --bg: #040508; --card: #0d1117; --buy: #00ff88; --sell: #ff3366; --text: #ffffff; }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; text-align: center; }
-.container { background: var(--card); border-radius: 24px; padding: 20px; border: 1px solid #30363d; box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
-.status-pill { background: #161b22; padding: 5px 15px; border-radius: 50px; font-size: 10px; color: #58a6ff; border: 1px solid #30363d; }
-.display-box { height: 180px; margin: 20px 0; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border: 2px dashed #30363d; transition: 0.3s; }
-.signal-text { font-size: 38px; font-weight: 900; letter-spacing: -1px; }
-.confirm-list { font-size: 11px; text-align: left; width: 80%; color: #8b949e; margin-top: 10px; }
-button { background: #ffffff; color: #0d1117; border: none; padding: 18px; border-radius: 12px; width: 100%; font-weight: 900; font-size: 16px; cursor: pointer; }
-button:active { transform: scale(0.98); }
-</style>
-</head>
-<body>
-
-<div class="container">
-    <span class="status-pill">FILTRE EMA 50 + RSI 14 ACTIVÉ</span>
-    <h2 style="margin: 15px 0 5px 0;">AEGIS ALGO V12</h2>
-    <p style="font-size: 11px; color: #8b949e; margin-bottom: 20px;">Analyse de tendance majeure EUR/USD</p>
-
-    <div class="display-box" id="box">
-        <div id="idle-msg">PRÊT À FILTRER LE MARCHÉ</div>
-    </div>
-
-    <button onclick="analyzeMarket()">ANALYSER LA TENDANCE</button>
-    
-    <div style="margin-top: 20px; font-size: 10px; color: #484f58;">
-        Note : Si le prix est en forte chute, le robot bloquera les signaux d'achat pour te protéger.
-    </div>
-</div>
-
 <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+const tg = window.Telegram.WebApp;
+tg.expand();
 
-    function analyzeMarket() {
-        const box = document.getElementById('box');
-        box.innerHTML = '<div style="font-size:12px;">Vérification EMA 50...</div>';
-        
-        setTimeout(() => {
-            const isUptrend = Math.random() > 0.5; // Simule la tendance de fond
-            const signalType = Math.random() > 0.5; // Simule le signal local
-            
-            let finalAction = "";
-            let color = "";
+/*
+Ici on SIMULE des données réelles.
+Plus tard, ces valeurs viendront de ton backend (Python / API).
+*/
 
-            // LOGIQUE ANTI-INVERSION : On ne suit que la tendance
-            if (isUptrend && signalType) {
-                finalAction = "ACHAT 🟢";
-                color = "var(--buy)";
-            } else if (!isUptrend && !signalType) {
-                finalAction = "VENTE 🔴";
-                color = "var(--sell)";
-            } else {
-                finalAction = "NO TRADE";
-                color = "#8b949e";
-            }
+function analyzeMarket() {
+    const box = document.getElementById('box');
+    box.innerHTML = '<div style="font-size:12px;">Analyse EMA 50 & RSI 14…</div>';
+    box.style.borderColor = '#30363d';
 
-            box.style.borderColor = color;
-            box.innerHTML = `
-                <div style="font-size: 10px; color: ${color}">${finalAction === "NO TRADE" ? 'MARCHÉ INDÉCIS' : 'CONFLUENCE TROUVÉE'}</div>
-                <div class="signal-text" style="color: ${color}">${finalAction}</div>
-                <div class="confirm-list">
-                    • Tendance : ${isUptrend ? 'HAUSSIÈRE (EMA UP)' : 'BAISSIÈRE (EMA DOWN)'}<br>
-                    • RSI 14 : ${finalAction === "ACHAT 🟢" ? 'Force Acheteuse' : 'Force Vendeuse'}<br>
-                    • Risque : Faible
-                </div>
-            `;
-        }, 2000);
-    }
-</script>
+    setTimeout(() => {
 
-</body>
-</html>
+        // ===== DONNÉES (À REMPLACER PAR API PLUS TARD) =====
+        const ema50Trend = "UP";   // "UP" ou "DOWN"
+        const rsi14 = 27;          // valeur RSI réelle normalement
+        const priceDirection = "DOWN"; // mouvement local
+
+        // ===== LOGIQUE ANTI-INVERSION =====
+        let finalAction = "NO TRADE";
+        let color = "#8b949e";
+        let reason = "Conflit de signaux";
+
+        if (ema50Trend === "UP" && rsi14 < 30) {
+            finalAction = "ACHAT 🟢";
+            color = "var(--buy)";
+            reason = "Pullback haussier confirmé";
+        }
+
+        if (ema50Trend === "DOWN" && rsi14 > 70) {
+            finalAction = "VENTE 🔴";
+            color = "var(--sell)";
+            reason = "Rejet baissier confirmé";
+        }
+
+        // ===== AFFICHAGE =====
+        box.style.borderColor = color;
+        box.innerHTML = `
+            <div style="font-size: 10px; color: ${color}">
+                ${finalAction === "NO TRADE" ? "MARCHÉ BLOQUÉ" : "CONFLUENCE VALIDÉE"}
+            </div>
+            <div class="signal-text" style="color: ${color}">
+                ${finalAction}
+            </div>
+            <div class="confirm-list">
+                • Tendance EMA 50 : ${ema50Trend === "UP" ? "HAUSSIÈRE" : "BAISSIÈRE"}<br>
+                • RSI 14 : ${rsi14}<br>
+                • Décision : ${reason}
+            </div>
+        `;
+
+    }, 1500);
+}
+            </script>
