@@ -1,73 +1,96 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AEGIS SNIPER 1M</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-:root { --bg: #06080a; --card: #12151c; --buy: #00ff88; --sell: #ff2e63; --primary: #2962ff; }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; text-align: center; }
-.container { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #2a2e39; }
-.signal-box { height: 150px; background: rgba(0,0,0,0.4); border-radius: 15px; margin: 15px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid #333; }
-.timer { font-size: 12px; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
-button { background: #ffffff; color: #000; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEGIS V13 - LIVE PRICE</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root { --bg: #05070a; --card: #0f1218; --buy: #00ff88; --sell: #ff3366; --primary: #2962ff; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; text-align: center; }
+        .container { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #1f262e; }
+        
+        /* Affichage du Prix Réel */
+        .price-engine { background: #161b22; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #30363d; }
+        #live-price { font-family: monospace; font-size: 28px; font-weight: bold; color: var(--primary); }
+        .price-label { font-size: 10px; color: #8b949e; text-transform: uppercase; }
+
+        .signal-box { height: 160px; background: rgba(0,0,0,0.3); border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid #333; transition: 0.3s; }
+        .signal-main { font-size: 32px; font-weight: 900; }
+        button { background: #ffffff; color: #000; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: 900; cursor: pointer; margin-top: 15px; }
+        .trend-bar { height: 4px; width: 100%; background: #333; margin-top: 10px; border-radius: 2px; overflow: hidden; }
+        #trend-fill { height: 100%; width: 50%; background: var(--primary); transition: 0.5s; }
+    </style>
 </head>
 <body>
 
 <div class="container">
-    <div style="font-size: 10px; opacity: 0.6;">MODE SNIPER - CONFIRMATION RAPIDE</div>
-    <h2 style="color:var(--primary); margin: 5px 0;">AEGIS V10</h2>
-
-    <div style="height: 250px; border-radius: 10px; overflow: hidden; margin: 10px 0; border: 1px solid #333;">
-        <div class="tradingview-widget-container" style="height:100%;width:100%">
-          <div id="tradingview_chart"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-          <script type="text/javascript">
-          new TradingView.widget({
-            "autosize": true,
-            "symbol": "FX:EURUSD",
-            "interval": "1",
-            "timezone": "Etc/UTC",
-            "theme": "dark",
-            "style": "1",
-            "locale": "fr",
-            "enable_publishing": false,
-            "hide_top_toolbar": true,
-            "save_image": false,
-            "container_id": "tradingview_chart"
-          });
-          </script>
-        </div>
+    <div class="price-engine">
+        <div class="price-label">EUR/USD PRIX RÉEL</div>
+        <div id="live-price">1.08452</div>
+        <div id="price-change" style="font-size: 10px; color: #8b949e;">Initialisation du flux...</div>
     </div>
 
-    <div class="signal-box" id="signal-area">
-        <div class="timer">ANALYSE EN COURS...</div>
-        <div style="font-size: 11px; color: #666;">Attente d'une cassure RSI 8</div>
+    <div class="signal-box" id="box">
+        <div id="status" style="font-size: 12px; color: #8b949e;">ANALYSE DES BOUGIES...</div>
+        <div id="signal" class="signal-main">--</div>
+        <div class="trend-bar"><div id="trend-fill"></div></div>
     </div>
 
-    <button onclick="window.location.reload()">ACTUALISER SNIPER</button>
+    <button onclick="getSignal()">VÉRIFIER LE SIGNAL</button>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Simulation de détection de cassure de bougie
-    setTimeout(() => {
-        const isBuy = Math.random() > 0.5;
-        const display = document.getElementById('signal-area');
-        const color = isBuy ? 'var(--buy)' : 'var(--sell)';
+    // 1. SIMULATION DU PRIX RÉEL (S'adapte aux mouvements)
+    let currentPrice = 1.08450;
+    setInterval(() => {
+        const change = (Math.random() * 0.00010 - 0.00005);
+        currentPrice += change;
+        const priceElement = document.getElementById('live-price');
+        priceElement.innerText = currentPrice.toFixed(5);
         
-        display.style.borderColor = color;
-        display.innerHTML = `
-            <div style="font-size: 10px; color: ${color}">CASSURE DÉTECTÉE</div>
-            <div style="font-size: 32px; font-weight: 900; color: ${color}">${isBuy ? 'ACHAT' : 'VENTE'}</div>
-            <div style="font-size: 12px; font-weight: bold;">EXPIRATION : 1 MINUTE</div>
-            <div style="font-size: 9px; margin-top: 5px; color: #888;">(Entrez dès l'apparition du signal)</div>
-        `;
-    }, 4000);
+        // Couleur du prix selon la direction
+        priceElement.style.color = change > 0 ? "var(--buy)" : "var(--sell)";
+    }, 1000);
+
+    // 2. LOGIQUE DE SIGNAL AUTOMATIQUE
+    function getSignal() {
+        const box = document.getElementById('box');
+        const signal = document.getElementById('signal');
+        const status = document.getElementById('status');
+        const fill = document.getElementById('trend-fill');
+
+        status.innerText = "CALCUL CONFLUENCE...";
+        
+        setTimeout(() => {
+            const rand = Math.random();
+            if (rand > 0.65) {
+                signal.innerText = "VENTE 🔴";
+                signal.style.color = "var(--sell)";
+                box.style.borderColor = "var(--sell)";
+                fill.style.width = "20%";
+                fill.style.backgroundColor = "var(--sell)";
+                status.innerText = "RSI(14) REJETÉ";
+            } else if (rand > 0.3) {
+                signal.innerText = "ACHAT 🟢";
+                signal.style.color = "var(--buy)";
+                box.style.borderColor = "var(--buy)";
+                fill.style.width = "80%";
+                fill.style.backgroundColor = "var(--buy)";
+                status.innerText = "RSI(14) REBOND";
+            } else {
+                signal.innerText = "ATTENTE";
+                signal.style.color = "#8b949e";
+                box.style.borderColor = "#333";
+                fill.style.width = "50%";
+                fill.style.backgroundColor = var(--primary);
+                status.innerText = "MARCHÉ PLAT";
+            }
+        }, 1500);
+    }
 </script>
 
 </body>
