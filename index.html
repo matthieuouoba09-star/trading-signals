@@ -11,7 +11,6 @@
     --card: #12151c;
     --buy: #00ff88;
     --sell: #ff2e63;
-    --nosignal: #888888;
     --text: #ffffff;
 }
 body {
@@ -27,11 +26,20 @@ body {
     border: 1px solid #2a2e39;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
-.header h2 { margin: 10px 0; font-size: 18px; }
-#signal-display {
-    font-size: 16px; font-weight: bold;
-    padding: 10px; border-radius: 10px;
+.header h2 { margin: 10px 0; font-size: 18px; color: #2962ff; }
+.widget-area {
+    margin: 15px 0;
+    border-radius: 12px;
+    overflow: hidden;
     border: 1px solid #333;
+}
+.signal-info {
+    font-size: 12px;
+    padding: 10px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    color: #888;
+    margin-top: 10px;
 }
 button {
     background: #ffffff; color: #000;
@@ -45,46 +53,40 @@ button {
 
 <div class="container">
     <div class="header">
-        <span style="background:#2962ff;color:white;padding:4px 12px;border-radius:5px;font-size:12px;font-weight:bold;">EUR/USD - MARCHÉ RÉEL</span>
+        <span style="background:#2962ff;color:white;padding:4px 12px;border-radius:5px;font-size:11px;font-weight:bold;">EUR/USD - TEMPS RÉEL</span>
         <h2>AEGIS CONFLUENCE 5M</h2>
     </div>
 
-    <div id="signal-display">
-        PRIX ACTUEL : --<br>
-        SIGNAL : --<br>
-        EXPIRATION : 5 MINUTES
+    <div class="widget-area">
+        <div class="tradingview-widget-container">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+            {
+              "interval": "5m",
+              "width": "100%",
+              "isTransparent": false,
+              "height": 380,
+              "symbol": "FX:EURUSD",
+              "showIntervalTabs": false,
+              "displayMode": "single",
+              "locale": "fr",
+              "colorTheme": "dark"
+            }
+            </script>
+        </div>
     </div>
 
-    <button onclick="window.location.reload()">ACTUALISER MANUELLEMENT</button>
+    <div class="signal-info">
+        <b>RÈGLE D'OR :</b> Prends position uniquement si l'aiguille affiche <span style="color:var(--buy)">ACHAT FORT</span> ou <span style="color:var(--sell)">VENTE FORTE</span>.<br>
+        <b>EXPIRATION : 5 MINUTES</b>
+    </div>
+
+    <button onclick="window.location.reload()">ACTUALISER LE SIGNAL</button>
 </div>
 
 <script>
-const tg = window.Telegram.WebApp;
-tg.expand();
-
-// === FONCTION POUR METTRE À JOUR LE SIGNAL ===
-function updateSignal(price, signal){
-    const display = document.getElementById('signal-display');
-    let color;
-    if(signal === "ACHAT") color = "var(--buy)";
-    else if(signal === "VENTE") color = "var(--sell)";
-    else color = "var(--nosignal)";
-
-    display.innerHTML = `PRIX ACTUEL : ${price}<br>SIGNAL : <span style="color:${color}">${signal}</span><br>EXPIRATION : 5 MINUTES`;
-}
-
-// === SIMULATION DE FLUX (pour test avant webhook)
-setInterval(() => {
-    const price = (1.0840 + Math.random()*0.002).toFixed(5);
-    const signals = ["ACHAT", "VENTE", "NO SIGNAL"];
-    const signal = signals[Math.floor(Math.random()*signals.length)];
-    updateSignal(price, signal);
-}, 300000); // 300 000 ms = 5 minutes
-
-// === WEBHOOK TRADINGVIEW (EXEMPLE)
-// Remplacer l’intervalle setInterval par ton webhook réel
-// Exemple : fetch("TON_URL_WEBHOOK?signal=ACHAT&price=1.08452")
-// puis updateSignal(price, signal)
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 </script>
 
 </body>
