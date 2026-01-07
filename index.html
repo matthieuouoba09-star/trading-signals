@@ -1,3 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEGIS V18 - MULTI-FILTRES</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root { --bg: #040508; --card: #0d1117; --buy: #00ff88; --sell: #ff3366; --primary: #2962ff; --warn: #ffcc00; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; text-align: center; }
+.container { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #30363d; }
+.main-box { height: 160px; background: #000; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 4px solid #333; margin: 15px 0; transition: 0.2s; }
+.signal-val { font-size: 38px; font-weight: 900; }
+.time-advice { background: rgba(255,204,0,0.1); border-radius: 10px; padding: 12px; margin: 10px 0; border: 1px solid var(--warn); display: none; }
+button { background: #ffffff; color: #000; border: none; padding: 18px; border-radius: 12px; width: 100%; font-weight: 900; cursor: pointer; }
+button:disabled { opacity: 0.3; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div id="main-box" class="main-box">
+        <div id="signal-label" style="font-size: 10px; color: #888;">SYSTÈME PRÊT</div>
+        <div id="signal-val" class="signal-val">---</div>
+        <div id="timer-msg" style="font-size: 11px; color: #484f58; margin-top: 10px;">PRÊT POUR ANALYSE</div>
+    </div>
+
+    <div class="time-advice" id="advice-box">
+        <span style="font-size: 10px; color: var(--warn); text-transform: uppercase; font-weight: bold;">⏱ DURÉE CONSEILLÉE</span>
+        <div id="time-val" style="font-size: 18px; font-weight: 900; color: white;">--</div>
+    </div>
+
+    <button id="btn-main" onclick="detectNow()">LANCER L'ANALYSE EXPERTE</button>
+</div>
+
 <script>
 const tg = window.Telegram.WebApp;
 tg.expand();
@@ -7,59 +42,63 @@ function detectNow() {
     const val = document.getElementById('signal-val');
     const label = document.getElementById('signal-label');
     const msg = document.getElementById('timer-msg');
+    const adviceBox = document.getElementById('advice-box');
+    const timeVal = document.getElementById('time-val');
+    const btn = document.getElementById('btn-main');
 
-    label.innerText = "ANALYSE MULTI-FILTRES";
+    label.innerText = "ANALYSE MULTI-FILTRES...";
     val.innerText = "...";
-    box.style.borderColor = "#333";
+    btn.disabled = true;
+    adviceBox.style.display = "none";
 
     setTimeout(() => {
-
-        /* =========================
-           DONNÉES (simulation réaliste)
-           À remplacer plus tard par API Python
-        ========================= */
-
-        const ema50 = 1.0852;
-        const ema200 = 1.0839;
-        const rsi14 = 74; // exemple réel
-
-        /* =========================
-           LOGIQUE STRATÉGIQUE
-        ========================= */
+        /* DONNÉES DYNAMIQUES ( Simulation de ton backend ) */
+        const ema50 = 1.0850 + (Math.random() * 0.001);
+        const ema200 = 1.0845;
+        const rsi14 = Math.floor(Math.random() * 100);
 
         let signal = "ATTENDRE";
-        let color = "#888";
-        let reason = "Pas de confluence";
+        let color = "#333";
+        let timeAdvice = "";
 
         const trendUp = ema50 > ema200;
         const trendDown = ema50 < ema200;
 
-        if (trendUp && rsi14 < 30) {
+        // TA LOGIQUE DE CONFLUENCE
+        if (trendUp && rsi14 < 35) {
             signal = "ACHAT 🟢";
             color = "var(--buy)";
-            reason = "Tendance haussière + RSI bas";
-        }
-
-        if (trendDown && rsi14 > 70) {
+            timeAdvice = rsi14 < 20 ? "1 MIN (REBOND RAPIDE)" : "5 MIN (TENDANCE)";
+        } 
+        else if (trendDown && rsi14 > 65) {
             signal = "VENTE 🔴";
             color = "var(--sell)";
-            reason = "Tendance baissière + RSI haut";
+            timeAdvice = rsi14 > 80 ? "1 MIN (CHUTE RAPIDE)" : "5 MIN (TENDANCE)";
+        } 
+        else {
+            signal = "NEUTRE";
+            color = "#484f58";
+            timeAdvice = "PAS DE TRADE";
         }
 
-        /* =========================
-           AFFICHAGE
-        ========================= */
-
+        // AFFICHAGE
         val.innerText = signal;
         val.style.color = color;
         box.style.borderColor = color;
+        label.innerText = signal === "NEUTRE" ? "MARCHÉ RISQUÉ" : "CONFLUENCE VALIDÉE";
+        
+        if (signal !== "NEUTRE") {
+            timeVal.innerText = timeAdvice;
+            adviceBox.style.display = "block";
+        }
+        
+        msg.innerText = "VERROUILLÉ - ATTENDRE LA BOUGIE SUIVANTE";
 
-        label.innerText = signal === "ATTENDRE"
-            ? "MARCHÉ NON ALIGNÉ"
-            : "CONFLUENCE CONFIRMÉE";
+        // Déblocage après 15 secondes pour sécurité
+        setTimeout(() => { btn.disabled = false; }, 15000);
 
-        msg.innerText = "EXPIRATION : 5 MINUTES";
-
-    }, 600);
+    }, 800);
 }
 </script>
+</body>
+</html>
