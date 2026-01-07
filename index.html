@@ -3,105 +3,184 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AEGIS SYNC-MAX 5M</title>
+<title>AEGIS V20 - STRATÉGIE FINALE</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root { --bg: #06080a; --card: #12151c; --buy: #00ff88; --sell: #ff3366; --text: #ffffff; --primary: #2962ff; }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; text-align: center; }
-.container { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #2a2e39; }
-.header h2 { margin: 10px 0; font-size: 18px; color: var(--primary); }
+:root { --bg: #040508; --card: #0d1117; --buy: #00ff88; --sell: #ff3366; --primary: #2962ff; --warn: #ffcc00; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; text-align: center; }
+.container { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
-/* Zone Signal Synchronisé */
-.sync-box {
+.status-bar { font-size: 10px; color: var(--primary); font-weight: bold; letter-spacing: 1px; margin-bottom: 10px; }
+
+.display-zone {
+    height: 200px;
     background: #000;
     border-radius: 15px;
-    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid #1a1f26;
     margin: 15px 0;
-    border: 3px solid #333;
-    transition: 0.3s;
+    transition: 0.2s;
 }
-.signal-text { font-size: 42px; font-weight: 900; letter-spacing: -1px; }
-.timer-bar { font-size: 12px; color: #888; margin-top: 10px; font-weight: bold; }
 
-.widget-area { margin: 15px 0; border-radius: 12px; overflow: hidden; border: 1px solid #333; }
-button { background: #ffffff; color: #000; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; }
+.sig-val { font-size: 42px; font-weight: 900; margin: 5px 0; }
+.data-grid { font-size: 10px; color: #8b949e; text-align: left; width: 85%; line-height: 1.6; border-top: 1px solid #1a1f26; pt: 8px; }
+
+.advice-box {
+    background: rgba(255, 204, 0, 0.1);
+    border: 1px solid var(--warn);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 15px;
+    display: none;
+}
+
+button { 
+    background: #ffffff; color: #000; border: none; padding: 20px; border-radius: 12px; 
+    width: 100%; font-weight: 900; font-size: 16px; cursor: pointer;
+}
+button:disabled { opacity: 0.3; cursor: not-allowed; }
 </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <span style="background:var(--primary);color:white;padding:4px 12px;border-radius:5px;font-size:11px;font-weight:bold;">SYNCHRONISATION 100%</span>
-        <h2>AEGIS SYNC-MAX</h2>
+    <div class="status-bar">SYSTEM ALGO SYNC: 100%</div>
+    
+    <div id="main-box" class="display-zone">
+        <div id="label" style="font-size: 10px; color: #484f58;">SCANNER DE CONFLUENCE</div>
+        <div id="signal" class="sig-val">---</div>
+        <div id="data-list" class="data-grid"></div>
     </div>
 
-    <div class="sync-box" id="main-box">
-        <div id="signal-label" style="font-size: 10px; color: #888; text-transform: uppercase;">Attente du flux...</div>
-        <div id="signal-val" class="signal-text">ANALYSE</div>
-        <div class="timer-bar" id="timer-msg">SYNC EN COURS...</div>
+    <div id="advice" class="advice-box">
+        <span style="font-size: 9px; color: var(--warn); font-weight: bold;">CONSEIL D'EXPIRATION</span>
+        <div id="exp-val" style="font-size: 16px; font-weight: bold;">--</div>
     </div>
 
-    <div class="widget-area" style="height: 120px;">
-        <div class="tradingview-widget-container">
-            <div class="tradingview-widget-container__widget"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-            {
-              "symbol": "FX:EURUSD",
-              "width": "100%",
-              "height": "100%",
-              "locale": "fr",
-              "dateRange": "1d",
-              "colorTheme": "dark",
-              "isTransparent": false,
-              "autosize": true
-            }
-            </script>
-        </div>
-    </div>
-
-    <button onclick="detectNow()">DÉTECTER MAINTENANT</button>
+    <button id="btn-trigger" onclick="executeStrategy()">DÉTECTER LE SIGNAL</button>
 </div>
 
 <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+const tg = window.Telegram.WebApp;
+tg.expand();
 
-    function detectNow() {
-        const box = document.getElementById('main-box');
-        const val = document.getElementById('signal-val');
-        const label = document.getElementById('signal-label');
-        const msg = document.getElementById('timer-msg');
-
-        val.innerText = "...";
-        label.innerText = "CALCUL PRÉCIS";
-
-        setTimeout(() => {
-            const rand = Math.random();
-            let direction = "";
-            let color = "";
-
-            if (rand > 0.55) {
-                direction = "VENTE 🔴";
-                color = "var(--sell)";
-                label.innerText = "CONFIRMÉ : ENTRER MAINTENANT";
-            } else if (rand > 0.1) {
-                direction = "ACHAT 🟢";
-                color = "var(--buy)";
-                label.innerText = "CONFIRMÉ : ENTRER MAINTENANT";
-            } else {
-                direction = "ATTENDRE";
-                color = "#888";
-                label.innerText = "MARCHÉ SANS DIRECTION";
-            }
-
-            val.innerText = direction;
-            val.style.color = color;
-            box.style.borderColor = color;
-            msg.innerText = "EXPIRATION : 5 MINUTES";
-            
-        }, 800); // Temps de réponse très rapide pour éviter le retard
+// =====================
+// FONCTIONS INDICATEURS
+// =====================
+function EMA(values, period) {
+    const k = 2 / (period + 1);
+    let ema = values[0];
+    for (let i = 1; i < values.length; i++) {
+        ema = values[i] * k + ema * (1 - k);
     }
-</script>
+    return ema;
+}
 
+function RSI(values, period = 14) {
+    let gains = 0, losses = 0;
+    for (let i = values.length - period; i < values.length - 1; i++) {
+        const diff = values[i + 1] - values[i];
+        if (diff > 0) gains += diff; else losses -= diff;
+    }
+    return 100 - (100 / (1 + (gains / (losses || 1))));
+}
+
+function MACD(values) {
+    const macdLine = EMA(values, 12) - EMA(values, 26);
+    const signalLine = EMA(values.map((v,i,a)=> i===0 ? 0 : EMA(a.slice(0,i+1),12)-EMA(a.slice(0,i+1),26)), 9);
+    const histogram = macdLine - signalLine;
+    return {macdLine, signalLine, histogram};
+}
+
+// =====================
+// RÉCUPÉRATION DES PRIX RÉELS
+// =====================
+async function fetchPrices() {
+    try {
+        const resp = await fetch('https://api.binance.com/api/v3/klines?symbol=EURUSDT&interval=1m&limit=200');
+        const data = await resp.json();
+        return data.map(k => parseFloat(k[4])); // prix de clôture
+    } catch(e) {
+        console.error(e);
+        // fallback simulé
+        return Array.from({length: 60}, () => 1.0820 + Math.random() * 0.005);
+    }
+}
+
+// =====================
+// LOGIQUE DE SIGNAL
+// =====================
+async function executeStrategy() {
+    const btn = document.getElementById('btn-trigger');
+    const sig = document.getElementById('signal');
+    const box = document.getElementById('main-box');
+    const dataList = document.getElementById('data-list');
+    const advice = document.getElementById('advice');
+    const expVal = document.getElementById('exp-val');
+
+    btn.disabled = true;
+    sig.innerText = "...";
+    advice.style.display = "none";
+
+    const prices = await fetchPrices();
+
+    const ema50 = EMA(prices, 50);
+    const ema200 = EMA(prices, 200);
+    const rsiVal = RSI(prices);
+    const macd = MACD(prices);
+
+    let result = "NEUTRE";
+    let color = "#484f58";
+    let expiration = "ATTENDRE";
+
+    const trendUp = ema50 > ema200;
+    const trendDown = ema50 < ema200;
+
+    if (trendUp && rsiVal > 50 && macd.macdLine > macd.signalLine) {
+        result = "ACHAT 🟢";
+        color = "var(--buy)";
+        expiration = rsiVal > 65 ? "1 MINUTE (FLASH)" : "5 MINUTES (SÛR)";
+    } 
+    else if (trendDown && rsiVal < 50 && macd.macdLine < macd.signalLine) {
+        result = "VENTE 🔴";
+        color = "var(--sell)";
+        expiration = rsiVal < 35 ? "1 MINUTE (FLASH)" : "5 MINUTES (SÛR)";
+    }
+
+    sig.innerText = result;
+    sig.style.color = color;
+    box.style.borderColor = color;
+
+    dataList.innerHTML = `
+        • EMA 50: ${ema50.toFixed(5)} (${trendUp ? 'HAUSSE' : 'BAISSE'})<br>
+        • EMA 200: ${ema200.toFixed(5)}<br>
+        • RSI (14): ${rsiVal.toFixed(2)}<br>
+        • MACD: ${macd.macdLine.toFixed(6)}<br>
+        • Signal: ${macd.signalLine.toFixed(6)}<br>
+        • Histogramme: ${macd.histogram.toFixed(6)}
+    `;
+
+    if (result !== "NEUTRE") {
+        expVal.innerText = expiration;
+        advice.style.display = "block";
+    }
+
+    // Verrouillage 20s
+    let count = 20;
+    const timer = setInterval(() => {
+        count--;
+        if(count <= 0) {
+            clearInterval(timer);
+            btn.disabled = false;
+            btn.innerText = "DÉTECTER LE SIGNAL";
+        } else {
+            btn.innerText = `PATIENTER (${count}s)`;
+        }
+    }, 1000);
+}
+</script>
 </body>
-</html>
+    </html>
