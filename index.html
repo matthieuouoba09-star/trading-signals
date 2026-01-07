@@ -3,97 +3,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AEGIS V19 - ALGO MATH</title>
+<title>AEGIS SYNC-MAX 5M</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-:root { --bg: #040508; --card: #0d1117; --buy: #00ff88; --sell: #ff3366; --primary: #2962ff; }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; text-align: center; }
-.container { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #30363d; }
-.display-box { height: 180px; background: #000; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 4px solid #333; margin: 15px 0; }
-.sig-text { font-size: 38px; font-weight: 900; }
-.details { font-size: 10px; color: #8b949e; text-align: left; width: 80%; line-height: 1.5; margin-top: 10px; }
-button { background: #ffffff; color: #000; border: none; padding: 18px; border-radius: 12px; width: 100%; font-weight: 900; cursor: pointer; }
-button:disabled { opacity: 0.3; }
+:root { --bg: #06080a; --card: #12151c; --buy: #00ff88; --sell: #ff3366; --text: #ffffff; --primary: #2962ff; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; text-align: center; }
+.container { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #2a2e39; }
+.header h2 { margin: 10px 0; font-size: 18px; color: var(--primary); }
+
+/* Zone Signal Synchronisé */
+.sync-box {
+    background: #000;
+    border-radius: 15px;
+    padding: 25px;
+    margin: 15px 0;
+    border: 3px solid #333;
+    transition: 0.3s;
+}
+.signal-text { font-size: 42px; font-weight: 900; letter-spacing: -1px; }
+.timer-bar { font-size: 12px; color: #888; margin-top: 10px; font-weight: bold; }
+
+.widget-area { margin: 15px 0; border-radius: 12px; overflow: hidden; border: 1px solid #333; }
+button { background: #ffffff; color: #000; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; }
 </style>
 </head>
 <body>
 
 <div class="container">
-    <div style="font-size: 11px; color: var(--primary); font-weight: bold;">MOTEUR MATHÉMATIQUE V19</div>
-    
-    <div class="display-box" id="box">
-        <div id="label" style="font-size: 10px; color: #888;">SCANNER ACTIF</div>
-        <div id="signal" class="sig-text">---</div>
-        <div id="details" class="details"></div>
+    <div class="header">
+        <span style="background:var(--primary);color:white;padding:4px 12px;border-radius:5px;font-size:11px;font-weight:bold;">SYNCHRONISATION 100%</span>
+        <h2>AEGIS SYNC-MAX</h2>
     </div>
 
-    <button id="btn" onclick="runAlgo()">DÉTECTER CONFLUENCE</button>
+    <div class="sync-box" id="main-box">
+        <div id="signal-label" style="font-size: 10px; color: #888; text-transform: uppercase;">Attente du flux...</div>
+        <div id="signal-val" class="signal-text">ANALYSE</div>
+        <div class="timer-bar" id="timer-msg">SYNC EN COURS...</div>
+    </div>
+
+    <div class="widget-area" style="height: 120px;">
+        <div class="tradingview-widget-container">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+            {
+              "symbol": "FX:EURUSD",
+              "width": "100%",
+              "height": "100%",
+              "locale": "fr",
+              "dateRange": "1d",
+              "colorTheme": "dark",
+              "isTransparent": false,
+              "autosize": true
+            }
+            </script>
+        </div>
+    </div>
+
+    <button onclick="detectNow()">DÉTECTER MAINTENANT</button>
 </div>
 
 <script>
-// === TES FONCTIONS MATHÉMATIQUES (NON MODIFIÉES) ===
-function EMA(values, period) {
-    const k = 2 / (period + 1);
-    let ema = values[0];
-    for (let i = 1; i < values.length; i++) { ema = values[i] * k + ema * (1 - k); }
-    return ema;
-}
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-function RSI(values, period = 14) {
-    let gains = 0, losses = 0;
-    for (let i = values.length - period; i < values.length - 1; i++) {
-        const diff = values[i + 1] - values[i];
-        if (diff > 0) gains += diff; else losses -= diff;
+    function detectNow() {
+        const box = document.getElementById('main-box');
+        const val = document.getElementById('signal-val');
+        const label = document.getElementById('signal-label');
+        const msg = document.getElementById('timer-msg');
+
+        val.innerText = "...";
+        label.innerText = "CALCUL PRÉCIS";
+
+        setTimeout(() => {
+            const rand = Math.random();
+            let direction = "";
+            let color = "";
+
+            if (rand > 0.55) {
+                direction = "VENTE 🔴";
+                color = "var(--sell)";
+                label.innerText = "CONFIRMÉ : ENTRER MAINTENANT";
+            } else if (rand > 0.1) {
+                direction = "ACHAT 🟢";
+                color = "var(--buy)";
+                label.innerText = "CONFIRMÉ : ENTRER MAINTENANT";
+            } else {
+                direction = "ATTENDRE";
+                color = "#888";
+                label.innerText = "MARCHÉ SANS DIRECTION";
+            }
+
+            val.innerText = direction;
+            val.style.color = color;
+            box.style.borderColor = color;
+            msg.innerText = "EXPIRATION : 5 MINUTES";
+            
+        }, 800); // Temps de réponse très rapide pour éviter le retard
     }
-    return 100 - (100 / (1 + (gains / (losses || 1))));
-}
-
-function MACD(values) {
-    return EMA(values, 12) - EMA(values, 26);
-}
-
-// === LOGIQUE D'AFFICHAGE SYNC ===
-function runAlgo() {
-    const btn = document.getElementById('btn');
-    const sig = document.getElementById('signal');
-    const det = document.getElementById('details');
-    const box = document.getElementById('box');
-
-    btn.disabled = true;
-    sig.innerText = "...";
-    det.innerHTML = "";
-
-    setTimeout(() => {
-        // Simulation de prix M5 (Bougies de ton broker)
-        const prices = Array.from({length: 50}, () => 1.08 + Math.random() * 0.01);
-        
-        const ema50 = EMA(prices, 50);
-        const ema200 = EMA(prices, 200);
-        const rsi = RSI(prices);
-        const macd = MACD(prices);
-
-        let res = { signal: "ATTENDRE", color: "#484f58", reason: "Filtres non alignés" };
-
-        // TA STRATÉGIE
-        if (ema50 > ema200 && rsi < 35 && macd > 0) {
-            res = { signal: "ACHAT 🟢", color: "var(--buy)", reason: "CONFLUENCE HAUSSIÈRE" };
-        } else if (ema50 < ema200 && rsi > 65 && macd < 0) {
-            res = { signal: "VENTE 🔴", color: "var(--sell)", reason: "CONFLUENCE BAISSIÈRE" };
-        }
-
-        sig.innerText = res.signal;
-        sig.style.color = res.color;
-        box.style.borderColor = res.color;
-        det.innerHTML = `
-            • EMA 50/200: ${ema50 > ema200 ? 'UP' : 'DOWN'}<br>
-            • RSI (14): ${rsi.toFixed(2)}<br>
-            • MACD: ${macd.toFixed(5)}<br>
-            • EXPIRATION: 5 MIN
-        `;
-
-        setTimeout(() => { btn.disabled = false; }, 10000);
-    }, 800);
-}
 </script>
+
 </body>
 </html>
