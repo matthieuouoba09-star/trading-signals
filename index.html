@@ -1,135 +1,151 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AEGIS V23 - AUTO SNIPER CONSEIL</title>
+<title>aegis v23 - auto sniper conseil</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <style>
 :root { --bg:#05070a; --card:#12151c; --buy:#00ff88; --sell:#ff3366; --primary:#2962ff; }
-body { font-family:Inter,sans-serif; background:var(--bg); color:white; margin:0; padding:10px; text-align:center; }
+body { font-family:inter,sans-serif; background:var(--bg); color:white; margin:0; padding:10px; text-align:center; }
 .container { background:var(--card); border-radius:20px; padding:20px; border:1px solid #2a2e39; }
 .status-badge { padding:5px 12px; border-radius:50px; font-size:10px; border:1px solid #333; }
 .active { color:var(--buy); border-color:var(--buy); background:rgba(0,255,136,.1); }
 .display-zone { height:220px; background:#000; border-radius:15px; display:flex; flex-direction:column; justify-content:center; align-items:center; border:4px solid #1a1f26; margin:15px 0; position:relative; }
 .price-live { position:absolute; top:10px; right:15px; font-family:monospace; font-size:12px; color:var(--primary); }
 .sig-text { font-size:40px; font-weight:900; }
-.advice-card { margin-top:10px; background:#1a1f26; border-radius:10px; padding:10px; border-left:4px solid var(--primary); display:none; text-align:center; }
+.advice-card { margin-top:10px; background:#1a1f26; border-radius:10px; padding:10px; border-left:4px solid var(--primary); display:none; }
 button { background:white; color:black; padding:18px; border-radius:12px; width:100%; font-weight:900; border:none; cursor:pointer; }
 .btn-stop { background:var(--sell); color:white; margin-top:10px; font-size:12px; display:none; }
 </style>
 </head>
-<body>
 
+<body>
 <div class="container">
-  <div id="badge" class="status-badge">SYSTÈME EN ATTENTE</div>
+
+  <div id="badge" class="status-badge">système en attente</div>
 
   <div class="display-zone" id="box">
-    <div class="price-live" id="price">EUR/USD: 1.08200</div>
-    <div id="signal" class="sig-text">VEILLE</div>
-    <div style="font-size:11px;color:#666">EMA 5 / EMA 5 / RSI 5</div>
+    <div class="price-live" id="price">eur/usd otc : 1.08200</div>
+    <div id="signal" class="sig-text">veille</div>
+    <div style="font-size:11px;color:#666">ema 5 / ema 10 / rsi 5</div>
   </div>
 
   <div id="advice" class="advice-card">
     <div id="trade-advice" style="font-weight:bold;font-size:16px;"></div>
+    <div id="trade-price" style="margin-top:5px;font-size:13px;color:#aaa;"></div>
   </div>
 
-  <button id="startBtn" onclick="startBot()">ACTIVER LA SURVEILLANCE</button>
-  <button id="stopBtn" class="btn-stop" onclick="stopBot()">ARRÊTER LE ROBOT</button>
+  <button id="startbtn" onclick="startbot()">activer la surveillance</button>
+  <button id="stopbtn" class="btn-stop" onclick="stopbot()">arrêter le robot</button>
+
 </div>
 
 <script>
-const tg = window.Telegram.WebApp; tg.expand();
-let running=false, loop;
+const tg = window.Telegram.WebApp;
+tg.expand();
 
-// ====== INDICATEURS ======
-function EMA(values, period) {
-  const k = 2/(period+1);
-  let ema = values[0];
-  for(let i=1;i<values.length;i++){
-    ema = values[i]*k + ema*(1-k);
+let running = false;
+let loop;
+let currentPrice = 1.08200;
+
+// ===== INDICATEURS =====
+function ema(values, period) {
+  const k = 2 / (period + 1);
+  let e = values[0];
+  for (let i = 1; i < values.length; i++) {
+    e = values[i] * k + e * (1 - k);
   }
-  return ema;
+  return e;
 }
 
-function RSI(values, period=5){
-  let gains=0, losses=0;
-  for(let i=values.length-period;i<values.length-1;i++){
-    const diff = values[i+1]-values[i];
-    if(diff>0) gains+=diff; else losses-=diff;
+function rsi(values, period = 5) {
+  let gains = 0, losses = 0;
+  for (let i = values.length - period; i < values.length - 1; i++) {
+    const diff = values[i + 1] - values[i];
+    if (diff > 0) gains += diff;
+    else losses -= diff;
   }
-  return 100-(100/(1+(gains/(losses||1))));
+  return 100 - (100 / (1 + (gains / (losses || 1))));
 }
 
-// ====== PRIX SIMULÉ ======
-setInterval(()=>{
-  const p=(1.082 + Math.random()*0.001).toFixed(5);
-  document.getElementById("price").innerText = "EUR/USD: "+p;
-},500);
+// ===== PRIX LIVE (SIMULÉ OTC) =====
+setInterval(() => {
+  currentPrice = 1.082 + Math.random() * 0.001;
+  document.getElementById("price").innerText =
+    "eur/usd otc : " + currentPrice.toFixed(5);
+}, 500);
 
-// ====== BOT ======
-function startBot(){
-  running=true;
+// ===== BOT =====
+function startbot() {
+  running = true;
   document.getElementById("badge").classList.add("active");
-  document.getElementById("badge").innerText="AUTO-SNIPER ACTIF";
-  document.getElementById("startBtn").style.display="none";
-  document.getElementById("stopBtn").style.display="block";
-  loop = setInterval(scanMarket,3000);
+  document.getElementById("badge").innerText = "auto-sniper actif";
+  document.getElementById("startbtn").style.display = "none";
+  document.getElementById("stopbtn").style.display = "block";
+  loop = setInterval(scanmarket, 3000);
 }
 
-function stopBot(){
-  running=false;
+function stopbot() {
+  running = false;
   clearInterval(loop);
   location.reload();
 }
 
-function scanMarket(){
-  if(!running) return;
-  const prices = Array.from({length:20},()=>1.082 + Math.random()*0.001);
-  const emaFast = EMA(prices,5);
-  const emaSlow = EMA(prices,5);
-  const rsiVal = RSI(prices,5);
-  const last = prices[prices.length-1];
-  const prev = prices[prices.length-2];
+function scanmarket() {
+  if (!running) return;
 
-  let signal="VEILLE", color="#888", adviceText="";
+  const prices = Array.from({ length: 20 }, () => currentPrice + (Math.random() - 0.5) * 0.0008);
 
-  if(emaFast>emaSlow && rsiVal>55 && last>prev){
-    signal="ACHAT 🟢";
-    color="var(--buy)";
-    adviceText = (rsiVal>65) ? "1 MINUTE (FLASH)" : "5 MINUTES (SÛR)";
-  } else if(emaFast<emaSlow && rsiVal<45 && last<prev){
-    signal="VENTE 🔴";
-    color="var(--sell)";
-    adviceText = (rsiVal<35) ? "1 MINUTE (FLASH)" : "5 MINUTES (SÛR)";
-  } else {
-    adviceText="ATTENDRE";
+  const emaFast = ema(prices, 5);
+  const emaSlow = ema(prices, 10);
+  const rsiVal = rsi(prices, 5);
+
+  let signal = "veille";
+  let color = "#888";
+  let advice = "attendre";
+  let pause = 0;
+
+  if (emaFast > emaSlow && rsiVal > 60) {
+    signal = "achat 🟢";
+    color = "var(--buy)";
+    advice = rsiVal > 70 ? "1 minute (flash)" : "5 minutes (sûr)";
   }
 
-  showSignal(signal,color,adviceText);
+  if (emaFast < emaSlow && rsiVal < 40) {
+    signal = "vente 🔴";
+    color = "var(--sell)";
+    advice = rsiVal < 30 ? "1 minute (flash)" : "5 minutes (sûr)";
+  }
+
+  showSignal(signal, color, advice);
 }
 
-function showSignal(txt,col,adviceText){
-  const sig=document.getElementById("signal");
-  const box=document.getElementById("box");
-  const advice=document.getElementById("advice");
-  const trade=document.getElementById("trade-advice");
+function showSignal(signal, color, advice) {
+  const sig = document.getElementById("signal");
+  const box = document.getElementById("box");
+  const adviceBox = document.getElementById("advice");
+  const adviceTxt = document.getElementById("trade-advice");
+  const priceTxt = document.getElementById("trade-price");
 
-  sig.innerText=txt;
-  sig.style.color=col;
-  box.style.borderColor=col;
+  sig.innerText = signal;
+  sig.style.color = color;
+  box.style.borderColor = color;
 
-  trade.innerText=adviceText;
-  advice.style.display="block";
+  if (advice !== "attendre") {
+    adviceBox.style.display = "block";
+    adviceTxt.innerText = "Conseil : " + advice;
+    priceTxt.innerText = "Prix au signal : " + currentPrice.toFixed(5);
 
-  try{navigator.vibrate(300);}catch(e){}
+    pause = advice.includes("1 minute") ? 60000 : 300000;
 
-  // Pause selon le conseil
-  clearInterval(loop);
-  let pause = (adviceText.includes("1 MINUTE")) ? 60000 : (adviceText.includes("5 MINUTES")) ? 300000 : 0;
-  setTimeout(()=>{ if(running) loop=setInterval(scanMarket,3000); }, pause);
+    clearInterval(loop);
+    setTimeout(() => {
+      if (running) loop = setInterval(scanmarket, 3000);
+    }, pause);
+  }
 }
 </script>
-
 </body>
 </html>
