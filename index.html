@@ -3,135 +3,130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AEGIS V23 - AUTO SNIPER</title>
+<title>AEGIS V23 - AUTO SNIPER FAST</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <style>
-    :root { --bg: #05070a; --card: #12151c; --buy: #00ff88; --sell: #ff3366; --primary: #2962ff; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; text-align: center; }
-    .container { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #2a2e39; }
-    
-    .status-badge { display: inline-block; padding: 5px 12px; border-radius: 50px; font-size: 10px; font-weight: bold; margin-bottom: 15px; border: 1px solid #333; }
-    .active { background: rgba(0, 255, 136, 0.1); color: var(--buy); border-color: var(--buy); }
+:root { --bg:#05070a; --card:#12151c; --buy:#00ff88; --sell:#ff3366; --primary:#2962ff; }
+body { font-family:Inter,sans-serif; background:var(--bg); color:white; margin:0; padding:10px; text-align:center; }
+.container { background:var(--card); border-radius:20px; padding:20px; border:1px solid #2a2e39; }
+.status-badge { padding:5px 12px; border-radius:50px; font-size:10px; border:1px solid #333; }
+.active { color:var(--buy); border-color:var(--buy); background:rgba(0,255,136,.1); }
 
-    .display-zone {
-        height: 220px;
-        background: #000;
-        border-radius: 15px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border: 4px solid #1a1f26;
-        margin: 15px 0;
-        position: relative;
-    }
+.display-zone {
+  height:220px; background:#000; border-radius:15px;
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  border:4px solid #1a1f26; margin:15px 0; position:relative;
+}
 
-    .price-live { position: absolute; top: 10px; right: 15px; font-family: monospace; color: var(--primary); font-size: 12px; }
-    .sig-text { font-size: 40px; font-weight: 900; }
-    .loader { border: 2px solid #333; border-top: 2px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin-bottom: 10px; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.price-live { position:absolute; top:10px; right:15px; font-family:monospace; font-size:12px; color:var(--primary); }
+.sig-text { font-size:40px; font-weight:900; }
 
-    .advice-card { background: #1a1f26; border-radius: 10px; padding: 12px; margin-top: 10px; display: none; border-left: 4px solid var(--primary); }
-
-    button { 
-        background: #ffffff; color: #000; border: none; padding: 18px; border-radius: 12px; 
-        width: 100%; font-weight: 900; font-size: 16px; cursor: pointer;
-    }
-    .btn-stop { background: #ff3366; color: white; margin-top: 10px; font-size: 12px; padding: 10px; display: none; }
+button { background:white; color:black; padding:18px; border-radius:12px; width:100%; font-weight:900; border:none; cursor:pointer; }
+.btn-stop { background:var(--sell); color:white; margin-top:10px; font-size:12px; display:none; }
 </style>
 </head>
+
 <body>
-
 <div class="container">
-    <div id="badge" class="status-badge">SYSTÈME EN ATTENTE</div>
-    
-    <div class="display-zone" id="box">
-        <div class="price-live" id="live-price">EUR/USD: 1.08241</div>
-        <div id="loading-ui" style="display:none;"><div class="loader"></div><div style="font-size:10px; color:#888;">ANALYSE DU FLUX...</div></div>
-        <div id="sig-output" class="sig-text">VEILLE</div>
-        <div id="msg-bottom" style="font-size: 11px; color: #484f58; margin-top: 10px;">PRÊT À SURVEILLER</div>
-    </div>
+  <div id="badge" class="status-badge">SYSTÈME EN ATTENTE</div>
 
-    <div id="advice" class="advice-card">
-        <div style="font-size: 10px; color: #8b949e; text-align: left;">ORDRE AUTOMATIQUE :</div>
-        <div id="order-details" style="font-size: 15px; font-weight: bold; text-align: left; color: var(--buy);"></div>
-    </div>
+  <div class="display-zone" id="box">
+    <div class="price-live" id="price">EUR/USD: 1.08200</div>
+    <div id="signal" class="sig-text">VEILLE</div>
+    <div style="font-size:11px;color:#666">EMA 9 / EMA 21 / RSI 7</div>
+  </div>
 
-    <button id="btn-start" onclick="toggleAutoMode()">ACTIVER LA SURVEILLANCE</button>
-    <button id="btn-stop" class="btn-stop" onclick="stopAutoMode()">ARRÊTER LE ROBOT</button>
+  <button id="startBtn" onclick="startBot()">ACTIVER LA SURVEILLANCE</button>
+  <button id="stopBtn" class="btn-stop" onclick="stopBot()">ARRÊTER LE ROBOT</button>
 </div>
 
 <script>
-    let isWatching = false;
-    let watchInterval;
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+const tg = window.Telegram.WebApp; tg.expand();
+let running = false, loop;
 
-    // Simulation du prix réel (Boucle)
-    setInterval(() => {
-        const p = (1.08200 + Math.random() * 0.00100).toFixed(5);
-        document.getElementById('live-price').innerText = "EUR/USD OTC: " + p;
-    }, 500);
+// ====== OUTILS ======
+function EMA(values, period) {
+  const k = 2 / (period + 1);
+  let ema = values[0];
+  for (let i = 1; i < values.length; i++) {
+    ema = values[i] * k + ema * (1 - k);
+  }
+  return ema;
+}
 
-    function toggleAutoMode() {
-        isWatching = true;
-        document.getElementById('btn-start').style.display = 'none';
-        document.getElementById('btn-stop').style.display = 'block';
-        document.getElementById('badge').classList.add('active');
-        document.getElementById('badge').innerText = "SURVEILLANCE ACTIVE 1M";
-        document.getElementById('loading-ui').style.display = 'block';
-        document.getElementById('sig-output').style.display = 'none';
-        
-        // Le robot scanne toutes les 3 secondes
-        watchInterval = setInterval(checkMarket, 3000);
-    }
+function RSI(values, period = 7) {
+  let gains = 0, losses = 0;
+  for (let i = values.length - period; i < values.length - 1; i++) {
+    const diff = values[i + 1] - values[i];
+    if (diff > 0) gains += diff;
+    else losses -= diff;
+  }
+  return 100 - (100 / (1 + gains / (losses || 1)));
+}
 
-    function stopAutoMode() {
-        isWatching = false;
-        clearInterval(watchInterval);
-        location.reload(); // Reset propre
-    }
+// ====== PRIX SIMULÉ ======
+setInterval(() => {
+  const p = (1.082 + Math.random()*0.001).toFixed(5);
+  document.getElementById("price").innerText = "EUR/USD: " + p;
+}, 500);
 
-    function checkMarket() {
-        // Logique mathématique de détection (90% de précision)
-        const rand = Math.random();
-        
-        // On simule une probabilité : le signal ne tombe pas tout le temps
-        // Il ne tombe que si rand est très haut ou très bas (Confluence)
-        if (rand > 0.92 || rand < 0.08) {
-            const direction = rand > 0.5 ? "ACHAT 🟢" : "VENTE 🔴";
-            const color = rand > 0.5 ? "var(--buy)" : "var(--sell)";
-            
-            showSignal(direction, color);
-            
-            // On arrête de scanner pendant 1 minute pour laisser le trade se faire
-            clearInterval(watchInterval);
-            setTimeout(() => {
-                if(isWatching) watchInterval = setInterval(checkMarket, 3000);
-            }, 60000); 
-        }
-    }
+// ====== BOT ======
+function startBot() {
+  running = true;
+  document.getElementById("badge").classList.add("active");
+  document.getElementById("badge").innerText = "AUTO-SNIPER ACTIF";
+  document.getElementById("startBtn").style.display = "none";
+  document.getElementById("stopBtn").style.display = "block";
+  loop = setInterval(scanMarket, 3000);
+}
 
-    function showSignal(dir, col) {
-        const sig = document.getElementById('sig-output');
-        const box = document.getElementById('box');
-        const loader = document.getElementById('loading-ui');
-        const advice = document.getElementById('advice');
-        const details = document.getElementById('order-details');
+function stopBot() {
+  running = false;
+  clearInterval(loop);
+  location.reload();
+}
 
-        loader.style.display = 'none';
-        sig.style.display = 'block';
-        sig.innerText = dir;
-        sig.style.color = col;
-        box.style.borderColor = col;
-        
-        advice.style.display = 'block';
-        details.style.color = col;
-        details.innerText = "ENTRÉE : MAINTENANT | DURÉE : 1 MIN";
-        
-        // Alerte sonore pour te prévenir
-        try { window.navigator.vibrate(500); } catch(e) {}
-    }
+function scanMarket() {
+  if (!running) return;
+
+  // Génération prix (exemple)
+  const prices = Array.from({length:30}, () => 1.082 + Math.random()*0.001);
+
+  const ema9  = EMA(prices, 9);
+  const ema21 = EMA(prices, 21);
+  const rsi7  = RSI(prices, 7);
+
+  const last = prices[prices.length-1];
+  const prev = prices[prices.length-2];
+
+  // ACHAT RAPIDE
+  if (ema9 > ema21 && rsi7 > 52 && rsi7 < 68 && last > prev) {
+    showSignal("ACHAT 🟢", "var(--buy)");
+  }
+
+  // VENTE RAPIDE
+  else if (ema9 < ema21 && rsi7 < 48 && rsi7 > 32 && last < prev) {
+    showSignal("VENTE 🔴", "var(--sell)");
+  }
+}
+
+function showSignal(txt, col) {
+  const sig = document.getElementById("signal");
+  const box = document.getElementById("box");
+
+  sig.innerText = txt;
+  sig.style.color = col;
+  box.style.borderColor = col;
+
+  try { navigator.vibrate(300); } catch(e) {}
+
+  // Pause 1 minute après signal
+  clearInterval(loop);
+  setTimeout(() => {
+    if (running) loop = setInterval(scanMarket, 3000);
+  }, 60000);
+}
 </script>
 </body>
 </html>
