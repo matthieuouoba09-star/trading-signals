@@ -1,4 +1,4 @@
-<!doctype html>
+here<!doctype html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
@@ -15,35 +15,33 @@ body { font-family:inter,sans-serif; background:var(--bg); color:white; margin:0
 .display-zone { height:220px; background:#000; border-radius:15px; display:flex; flex-direction:column; justify-content:center; align-items:center; border:4px solid #1a1f26; margin:15px 0; position:relative; }
 .price-live { position:absolute; top:10px; right:15px; font-family:monospace; font-size:12px; color:var(--primary); }
 .sig-text { font-size:40px; font-weight:900; }
-.advice-card { margin-top:10px; background:#1a1f26; border-radius:10px; padding:10px; border-left:4px solid var(--primary); display:none; }
+.advice-card { margin-top:10px; background:#1a1f26; border-radius:10px; padding:10px; border-left:4px solid var(--primary); display:none; text-align:center; }
 button { background:white; color:black; padding:18px; border-radius:12px; width:100%; font-weight:900; border:none; cursor:pointer; }
 .btn-stop { background:var(--sell); color:white; margin-top:10px; font-size:12px; display:none; }
 </style>
 </head>
 
 <body>
-<div class="container">
 
+<div class="container">
   <div id="badge" class="status-badge">système en attente</div>
 
   <div class="display-zone" id="box">
     <div class="price-live" id="price">eur/usd otc : 1.08200</div>
     <div id="signal" class="sig-text">veille</div>
-    <div style="font-size:11px;color:#666">ema 5 / ema 10 / rsi 5</div>
+    <div style="font-size:11px;color:#666">ema 5 / ema 5 / rsi 5</div>
   </div>
 
   <div id="advice" class="advice-card">
     <div id="trade-advice" style="font-weight:bold;font-size:16px;"></div>
-    <div id="trade-price" style="margin-top:5px;font-size:13px;color:#aaa;"></div>
   </div>
 
   <button id="startbtn" onclick="startbot()">activer la surveillance</button>
   <button id="stopbtn" class="btn-stop" onclick="stopbot()">arrêter le robot</button>
-
 </div>
 
 <script>
-const tg = window.Telegram.WebApp;
+const tg = window.Telegram.WebApp; 
 tg.expand();
 
 let running = false;
@@ -70,7 +68,7 @@ function rsi(values, period = 5) {
   return 100 - (100 / (1 + (gains / (losses || 1))));
 }
 
-// ===== PRIX LIVE (SIMULÉ OTC) =====
+// ===== PRIX LIVE =====
 setInterval(() => {
   currentPrice = 1.082 + Math.random() * 0.001;
   document.getElementById("price").innerText =
@@ -78,7 +76,7 @@ setInterval(() => {
 }, 500);
 
 // ===== BOT =====
-function startbot() {
+function startbot(){
   running = true;
   document.getElementById("badge").classList.add("active");
   document.getElementById("badge").innerText = "auto-sniper actif";
@@ -87,19 +85,22 @@ function startbot() {
   loop = setInterval(scanmarket, 3000);
 }
 
-function stopbot() {
+function stopbot(){
   running = false;
   clearInterval(loop);
   location.reload();
 }
 
-function scanmarket() {
-  if (!running) return;
+function scanmarket(){
+  if(!running) return;
 
-  const prices = Array.from({ length: 20 }, () => currentPrice + (Math.random() - 0.5) * 0.0008);
+  const prices = Array.from(
+    { length: 20 },
+    () => currentPrice + (Math.random() - 0.5) * 0.001
+  );
 
   const emaFast = ema(prices, 5);
-  const emaSlow = ema(prices, 10);
+  const emaSlow = ema(prices, 5);
   const rsiVal = rsi(prices, 5);
 
   let signal = "veille";
@@ -107,45 +108,55 @@ function scanmarket() {
   let advice = "attendre";
   let pause = 0;
 
-  if (emaFast > emaSlow && rsiVal > 60) {
+  if (emaFast > emaSlow && rsiVal > 55) {
     signal = "achat 🟢";
     color = "var(--buy)";
-    advice = rsiVal > 70 ? "1 minute (flash)" : "5 minutes (sûr)";
+
+    if (rsiVal >= 80) advice = "3 secondes";
+    else if (rsiVal >= 70) advice = "15 secondes";
+    else if (rsiVal >= 60) advice = "1 minute";
+    else advice = "5 minutes";
   }
 
-  if (emaFast < emaSlow && rsiVal < 40) {
+  if (emaFast < emaSlow && rsiVal < 45) {
     signal = "vente 🔴";
     color = "var(--sell)";
-    advice = rsiVal < 30 ? "1 minute (flash)" : "5 minutes (sûr)";
+
+    if (rsiVal <= 20) advice = "3 secondes";
+    else if (rsiVal <= 30) advice = "15 secondes";
+    else if (rsiVal <= 40) advice = "1 minute";
+    else advice = "5 minutes";
   }
 
   showSignal(signal, color, advice);
 }
 
-function showSignal(signal, color, advice) {
+function showSignal(txt, col, advicetext){
   const sig = document.getElementById("signal");
   const box = document.getElementById("box");
-  const adviceBox = document.getElementById("advice");
-  const adviceTxt = document.getElementById("trade-advice");
-  const priceTxt = document.getElementById("trade-price");
+  const advice = document.getElementById("advice");
+  const trade = document.getElementById("trade-advice");
 
-  sig.innerText = signal;
-  sig.style.color = color;
-  box.style.borderColor = color;
+  sig.innerText = txt;
+  sig.style.color = col;
+  box.style.borderColor = col;
 
-  if (advice !== "attendre") {
-    adviceBox.style.display = "block";
-    adviceTxt.innerText = "Conseil : " + advice;
-    priceTxt.innerText = "Prix au signal : " + currentPrice.toFixed(5);
+  trade.innerText = advicetext;
+  advice.style.display = "block";
 
-    pause = advice.includes("1 minute") ? 60000 : 300000;
+  clearInterval(loop);
 
-    clearInterval(loop);
-    setTimeout(() => {
-      if (running) loop = setInterval(scanmarket, 3000);
-    }, pause);
-  }
+  if (advicetext === "3 secondes") pause = 3000;
+  else if (advicetext === "15 secondes") pause = 15000;
+  else if (advicetext === "1 minute") pause = 60000;
+  else if (advicetext === "5 minutes") pause = 300000;
+  else pause = 0;
+
+  setTimeout(() => {
+    if (running) loop = setInterval(scanmarket, 3000);
+  }, pause);
 }
 </script>
+
 </body>
 </html>
