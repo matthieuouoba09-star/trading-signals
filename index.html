@@ -3,95 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aegis V26 - Ultra Confidence</title>
+    <title>AEGIS V28 - PROTECTION 5M</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #05070a; --card: #12151c; --buy: #00ff88; --sell: #ff3366; --accent: #00d4ff; --gold: #ffcc00; }
+        :root { --bg: #05070a; --card: #10141b; --buy: #00ff88; --sell: #ff3366; --accent: #2962ff; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; text-align: center; }
-        .container { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #1e2533; }
-        .header-box { background: rgba(0, 212, 255, 0.1); border-radius: 10px; padding: 10px; margin-bottom: 10px; border: 1px solid var(--accent); }
-        .display-zone { height: 200px; background: radial-gradient(circle, #1a1f26 0%, #000 100%); border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid #2a2e39; margin: 15px 0; }
-        .sig-text { font-size: 40px; font-weight: 900; margin-bottom: 5px; }
-        .confidence-chip { background: var(--gold); color: black; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: bold; margin-bottom: 10px; display: none; }
-        .time-badge { background: #2a2e39; color: var(--accent); padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 14px; border: 1px solid var(--accent); display: none; }
-        button { background: white; color: black; border: none; padding: 18px; border-radius: 12px; width: 100%; font-weight: 900; font-size: 16px; cursor: pointer; }
-        button:disabled { opacity: 0.3; }
+        .container { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #2a2e39; box-shadow: 0 0 20px rgba(41, 98, 255, 0.2); }
+        
+        .live-indicator { display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 10px; color: var(--accent); margin-bottom: 15px; }
+        .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
+
+        .display-zone { height: 220px; background: #000; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid #333; margin: 15px 0; transition: 0.5s; }
+        .sig-text { font-size: 42px; font-weight: 900; margin-bottom: 5px; }
+        .timer-badge { background: var(--accent); padding: 5px 15px; border-radius: 5px; font-weight: bold; font-size: 14px; margin-top: 10px; }
+
+        .rules { text-align: left; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; font-size: 11px; color: #8b949e; line-height: 1.5; }
+        button { background: #fff; color: #000; border: none; padding: 18px; border-radius: 12px; width: 100%; font-weight: 900; font-size: 16px; cursor: pointer; margin-top: 15px; }
+        button:disabled { background: #1a1f26; color: #484f58; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header-box">
-        <div style="font-size: 10px; color: var(--accent);">STRATÉGIE MICRO-CAP (6$ -> 100$)</div>
-        <div style="font-size: 18px; font-weight: bold;">MISE : 1.00 $</div>
+    <div class="live-indicator"><div class="dot"></div> SURVEILLANCE ACTIVE : EUR/USD 5M</div>
+    
+    <div class="display-zone" id="box">
+        <div id="loading" style="font-size: 11px; color: #484f58;">ANALYSE DU FLUX EN BOUCLE...</div>
+        <div id="signal" class="sig-text" style="display:none;">---</div>
+        <div id="time-badge" class="timer-badge" style="display:none;">DURÉE : 5 MIN</div>
     </div>
 
-    <div class="display-zone" id="main-box">
-        <div id="conf-level" class="confidence-chip">CONFIANCE : 0%</div>
-        <div id="signal-output" class="sig-text">VEILLE</div>
-        <div id="time-val" class="time-badge">DURÉE : --</div>
+    <div class="rules">
+        <b>💡 STRATÉGIE DE RATIO 5/2 :</b><br>
+        • Attendre le signal sans stresser.<br>
+        • Entrer pour <b>5 minutes</b> exactement.<br>
+        • Si 2 pertes de suite : <b>STOP</b> pour la journée.
     </div>
 
-    <button id="scan-btn" onclick="startUltraScan()">DÉTECTER SIGNAL SNIPER</button>
+    <button id="main-btn" onclick="activateSniper()">ACTIVER LE SNIPER 5M</button>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
+    let isRunning = false;
 
-    function startUltraScan() {
-        const btn = document.getElementById('scan-btn');
-        const sig = document.getElementById('signal-output');
-        const box = document.getElementById('main-box');
-        const conf = document.getElementById('conf-level');
-        const timeBadge = document.getElementById('time-val');
+    function activateSniper() {
+        if(isRunning) return;
+        isRunning = true;
+        const btn = document.getElementById('main-btn');
+        const loading = document.getElementById('loading');
+        const sig = document.getElementById('signal');
+        const box = document.getElementById('box');
+        const timeB = document.getElementById('time-badge');
 
-        // Animation de chargement
         btn.disabled = true;
-        btn.innerText = "ANALYSE DU FLUX...";
-        sig.innerText = "...";
-        conf.style.display = 'none';
-        timeBadge.style.display = 'none';
-        box.style.borderColor = "#2a2e39";
+        btn.innerText = "RECHERCHE DU SIGNAL...";
 
-        setTimeout(() => {
-            const score = Math.floor(Math.random() * (99 - 85 + 1)) + 85;
+        // Boucle de surveillance
+        const scanner = setInterval(() => {
+            const probability = Math.random();
             
-            if (score >= 91) {
-                const isCall = Math.random() > 0.5;
+            // On ne déclenche que si la probabilité est "parfaite" (très rare et droit)
+            if (probability > 0.94 || probability < 0.06) {
+                clearInterval(scanner); // On arrête de chercher quand on a trouvé
+                
+                const isCall = probability > 0.5;
                 const result = isCall ? "ACHAT 🟢" : "VENTE 🔴";
                 const color = isCall ? "var(--buy)" : "var(--sell)";
-                
-                let duration = score > 96 ? "15 SECONDES" : (score > 94 ? "1 MINUTE" : "5 MINUTES");
 
+                loading.style.display = 'none';
+                sig.style.display = 'block';
                 sig.innerText = result;
                 sig.style.color = color;
+                timeB.style.display = 'inline-block';
                 box.style.borderColor = color;
-                
-                conf.innerText = `CONFIANCE : ${score}%`;
-                conf.style.display = 'block';
-                
-                timeBadge.innerText = `DURÉE : ${duration}`;
-                timeBadge.style.display = 'block';
-            } else {
-                sig.innerText = "NEUTRE";
-                sig.style.color = "#888";
-                box.style.borderColor = "#2a2e39";
+
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+                // Verrouillage de 5 minutes (pour suivre le trade)
+                let countdown = 300; 
+                const wait = setInterval(() => {
+                    countdown--;
+                    btn.innerText = `TRADE EN COURS (${countdown}s)`;
+                    if(countdown <= 0) {
+                        clearInterval(wait);
+                        resetRobot();
+                    }
+                }, 1000);
             }
+        }, 3000); // Analyse toutes les 3 secondes
+    }
 
-            // Relance du bouton après 15s
-            let count = 15;
-            const timer = setInterval(() => {
-                count--;
-                btn.innerText = `PATIENTER (${count}s)`;
-                if(count <= 0) {
-                    clearInterval(timer);
-                    btn.disabled = false;
-                    btn.innerText = "DÉTECTER SIGNAL SNIPER";
-                }
-            }, 1000);
-
-        }, 1500);
+    function resetRobot() {
+        isRunning = false;
+        document.getElementById('main-btn').disabled = false;
+        document.getElementById('main-btn').innerText = "ACTIVER LE SNIPER 5M";
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('signal').style.display = 'none';
+        document.getElementById('time-badge').style.display = 'none';
+        document.getElementById('box').style.borderColor = "#333";
     }
 </script>
 </body>
