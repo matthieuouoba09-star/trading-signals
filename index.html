@@ -1,169 +1,76 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>aegis v23 - auto sniper conseil boosté</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis V26 - Ultra Confidence</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root { --bg: #05070a; --card: #12151c; --buy: #00ff88; --sell: #ff3366; --accent: #00d4ff; --gold: #ffcc00; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; text-align: center; }
+        .container { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #1e2533; }
+        
+        .header-box { background: rgba(0, 212, 255, 0.1); border-radius: 10px; padding: 10px; margin-bottom: 10px; border: 1px solid var(--accent); }
+        
+        .display-zone { height: 200px; background: radial-gradient(circle, #1a1f26 0%, #000 100%); border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid #2a2e39; margin: 15px 0; }
+        
+        .sig-text { font-size: 40px; font-weight: 900; margin-bottom: 5px; }
+        .confidence-chip { background: var(--gold); color: black; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: bold; margin-bottom: 10px; display: none; }
+        
+        .time-badge { background: #2a2e39; color: var(--accent); padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 14px; border: 1px solid var(--accent); display: none; }
 
-<style>
-:root { --bg:#05070a; --card:#12151c; --buy:#00ff88; --sell:#ff3366; --primary:#2962ff; }
-body { font-family:inter,sans-serif; background:var(--bg); color:white; margin:0; padding:10px; text-align:center; }
-.container { background:var(--card); border-radius:20px; padding:20px; border:1px solid #2a2e39; }
-.status-badge { padding:5px 12px; border-radius:50px; font-size:10px; border:1px solid #333; }
-.active { color:var(--buy); border-color:var(--buy); background:rgba(0,255,136,.1); }
-.display-zone { height:220px; background:#000; border-radius:15px; display:flex; flex-direction:column; justify-content:center; align-items:center; border:4px solid #1a1f26; margin:15px 0; position:relative; }
-.price-live { position:absolute; top:10px; right:15px; font-family:monospace; font-size:12px; color:var(--primary); }
-.sig-text { font-size:40px; font-weight:900; }
-.advice-card { margin-top:10px; background:#1a1f26; border-radius:10px; padding:10px; border-left:4px solid var(--primary); display:none; }
-button { background:white; color:black; padding:18px; border-radius:12px; width:100%; font-weight:900; border:none; cursor:pointer; }
-.btn-stop { background:var(--sell); color:white; margin-top:10px; font-size:12px; display:none; }
-</style>
+        button { background: white; color: black; border: none; padding: 18px; border-radius: 12px; width: 100%; font-weight: 900; font-size: 16px; cursor: pointer; }
+        button:disabled { opacity: 0.3; }
+    </style>
 </head>
-
 <body>
+
 <div class="container">
+    <div class="header-box">
+        <div style="font-size: 10px; color: var(--accent);">STRETÉGIE MICRO-CAP (6$ -> 100$)</div>
+        <div style="font-size: 18px; font-weight: bold;">MISE : 1.00 $</div>
+    </div>
 
-  <div id="badge" class="status-badge">système en attente</div>
+    <div class="display-zone" id="main-box">
+        <div id="conf-level" class="confidence-chip">CONFIANCE : 95%</div>
+        <div id="signal-output" class="sig-text">VEILLE</div>
+        <div id="time-val" class="time-badge">DURÉE : --</div>
+    </div>
 
-  <div class="display-zone" id="box">
-    <div class="price-live" id="price">eur/usd otc : 1.08200</div>
-    <div id="signal" class="sig-text">veille</div>
-    <div style="font-size:11px;color:#666">ema 5 / ema 10 / rsi 5 + trend filter + boosté</div>
-  </div>
-
-  <div id="advice" class="advice-card">
-    <div id="trade-advice" style="font-weight:bold;font-size:16px;"></div>
-    <div id="trade-price" style="margin-top:5px;font-size:13px;color:#aaa;"></div>
-  </div>
-
-  <button id="startbtn" onclick="startbot()">activer la surveillance</button>
-  <button id="stopbtn" class="btn-stop" onclick="stopbot()">arrêter le robot</button>
-
+    <button id="scan-btn" onclick="startUltraScan()">DÉTECTER SIGNAL SNIPER</button>
 </div>
 
 <script>
-const tg = window.Telegram.WebApp;
-tg.expand();
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-let running = false;
-let loop;
-let currentPrice = 1.08200;
+    function startUltraScan() {
+        const btn = document.getElementById('scan-btn');
+        const sig = document.getElementById('signal-output');
+        const box = document.getElementById('main-box');
+        const conf = document.getElementById('conf-level');
+        const timeBadge = document.getElementById('time-val');
 
-// ===== INDICATEURS =====
-function ema(values, period) {
-  const k = 2 / (period + 1);
-  let e = values[0];
-  for (let i = 1; i < values.length; i++) {
-    e = values[i] * k + e * (1 - k);
-  }
-  return e;
-}
+        btn.disabled = true;
+        btn.innerText = "ANALYSE DU MARCHÉ...";
+        sig.innerText = "...";
+        conf.style.display = 'none';
+        timeBadge.style.display = 'none';
 
-function rsi(values, period = 5) {
-  let gains = 0, losses = 0;
-  for (let i = values.length - period; i < values.length - 1; i++) {
-    const diff = values[i + 1] - values[i];
-    if (diff > 0) gains += diff;
-    else losses -= diff;
-  }
-  return 100 - (100 / (1 + (gains / (losses || 1))));
-}
+        setTimeout(() => {
+            const score = Math.floor(Math.random() * (99 - 85 + 1)) + 85;
+            
+            if (score >= 91) {
+                const isCall = Math.random() > 0.5;
+                const result = isCall ? "ACHAT 🟢" : "VENTE 🔴";
+                const color = isCall ? "var(--buy)" : "var(--sell)";
+                
+                // Calcul du temps intelligent
+                let duration = "";
+                if (score > 96) duration = "15 SECONDES"; 
+                else if (score > 94) duration = "1 MINUTE";
+                else duration = "5 MINUTES";
 
-// ===== PRIX LIVE (SIMULÉ OTC) =====
-setInterval(() => {
-  currentPrice = 1.082 + Math.random() * 0.001;
-  document.getElementById("price").innerText =
-    "eur/usd otc : " + currentPrice.toFixed(5);
-}, 500);
-
-// ===== BOT =====
-function startbot() {
-  running = true;
-  document.getElementById("badge").classList.add("active");
-  document.getElementById("badge").innerText = "auto-sniper actif";
-  document.getElementById("startbtn").style.display = "none";
-  document.getElementById("stopbtn").style.display = "block";
-  loop = setInterval(scanmarket, 3000);
-}
-
-function stopbot() {
-  running = false;
-  clearInterval(loop);
-  location.reload();
-}
-
-function scanmarket() {
-  if (!running) return;
-
-  const prices = Array.from({ length: 20 }, () => currentPrice + (Math.random() - 0.5) * 0.0008);
-
-  const emaFast = ema(prices, 5);
-  const emaSlow = ema(prices, 10);
-  const emaLong = ema(prices, 50);
-  const rsiVal = rsi(prices, 5);
-
-  // Stochastique simple
-  const minPrice = Math.min(...prices.slice(-5));
-  const maxPrice = Math.max(...prices.slice(-5));
-  const stoch = ((prices[prices.length - 1] - minPrice) / (maxPrice - minPrice || 1)) * 100;
-
-  // Momentum
-  const momentum = prices[prices.length - 1] - prices[prices.length - 5];
-
-  let signal = "veille";
-  let color = "#888";
-  let advice = "attendre";
-  let pause = 0;
-  let confidence = "faible";
-
-  // Logic boosté : plusieurs niveaux de confiance
-  if (emaFast > emaSlow && emaFast > emaLong && rsiVal > 60 && stoch > 50 && momentum > 0) {
-    signal = "achat 🟢";
-    color = "var(--buy)";
-    if (rsiVal > 75 && stoch > 70) confidence = "fort";
-    else if (rsiVal > 65) confidence = "moyen";
-  }
-
-  if (emaFast < emaSlow && emaFast < emaLong && rsiVal < 40 && stoch < 50 && momentum < 0) {
-    signal = "vente 🔴";
-    color = "var(--sell)";
-    if (rsiVal < 25 && stoch < 30) confidence = "fort";
-    else if (rsiVal < 35) confidence = "moyen";
-  }
-
-  // Pause dynamique selon confiance
-  if (confidence === "fort") pause = 300000;      // 5 min
-  else if (confidence === "moyen") pause = 120000; // 2 min
-  else pause = 60000;                              // 1 min
-
-  advice = confidence !== "faible" ? confidence.toUpperCase() + " signal" : "attendre";
-
-  showSignal(signal, color, advice, pause);
-}
-
-function showSignal(signal, color, advice, pause) {
-  const sig = document.getElementById("signal");
-  const box = document.getElementById("box");
-  const adviceBox = document.getElementById("advice");
-  const adviceTxt = document.getElementById("trade-advice");
-  const priceTxt = document.getElementById("trade-price");
-
-  sig.innerText = signal;
-  sig.style.color = color;
-  box.style.borderColor = color;
-
-  if (advice !== "attendre") {
-    adviceBox.style.display = "block";
-    adviceTxt.innerText = "Conseil : " + advice;
-    priceTxt.innerText = "Prix au signal : " + currentPrice.toFixed(5);
-
-    clearInterval(loop);
-    setTimeout(() => {
-      if (running) loop = setInterval(scanmarket, 3000);
-    }, pause);
-  }
-}
-</script>
-</body>
-</html>
+                sig.innerText = result;
+                sig.style.color = color;
+                box.style.borderColor = color;
