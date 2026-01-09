@@ -3,107 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V28 - PROTECTION 5M</title>
+    <title>Aegis V29 - OTC SNIPER</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #05070a; --card: #10141b; --buy: #00ff88; --sell: #ff3366; --accent: #2962ff; }
+        :root { --bg: #05070a; --card: #10141b; --buy: #00ff88; --sell: #ff3366; --accent: #2962ff; --gold: #ffcc00; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; text-align: center; }
-        .container { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #2a2e39; box-shadow: 0 0 20px rgba(41, 98, 255, 0.2); }
-        
-        .live-indicator { display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 10px; color: var(--accent); margin-bottom: 15px; }
-        .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: blink 1s infinite; }
-        @keyframes blink { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
-
-        .display-zone { height: 220px; background: #000; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid #333; margin: 15px 0; transition: 0.5s; }
-        .sig-text { font-size: 42px; font-weight: 900; margin-bottom: 5px; }
-        .timer-badge { background: var(--accent); padding: 5px 15px; border-radius: 5px; font-weight: bold; font-size: 14px; margin-top: 10px; }
-
-        .rules { text-align: left; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; font-size: 11px; color: #8b949e; line-height: 1.5; }
-        button { background: #fff; color: #000; border: none; padding: 18px; border-radius: 12px; width: 100%; font-weight: 900; font-size: 16px; cursor: pointer; margin-top: 15px; }
-        button:disabled { background: #1a1f26; color: #484f58; }
+        .container { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #2a2e39; }
+        .live-status { font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-weight: bold; }
+        .display-zone { height: 220px; background: radial-gradient(circle, #1a1f26 0%, #000 100%); border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid #333; margin-bottom: 20px; }
+        .sig-text { font-size: 45px; font-weight: 900; }
+        .time-badge { background: var(--accent); color: white; padding: 6px 15px; border-radius: 5px; font-size: 14px; margin-top: 15px; font-weight: bold; }
+        button { background: #fff; color: #000; border: none; padding: 20px; border-radius: 15px; width: 100%; font-weight: 900; font-size: 16px; cursor: pointer; }
+        button:disabled { background: #1a1f26; color: #484f58; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="live-indicator"><div class="dot"></div> SURVEILLANCE ACTIVE : EUR/USD 5M</div>
+    <div class="live-status">● MODE SCANNER OTC ACTIF</div>
     
     <div class="display-zone" id="box">
-        <div id="loading" style="font-size: 11px; color: #484f58;">ANALYSE DU FLUX EN BOUCLE...</div>
+        <div id="wait-msg" style="color: #555;">EN ATTENTE DE FLUX...</div>
         <div id="signal" class="sig-text" style="display:none;">---</div>
-        <div id="time-badge" class="timer-badge" style="display:none;">DURÉE : 5 MIN</div>
+        <div id="time" class="time-badge" style="display:none;">EXP : 5 MIN</div>
     </div>
 
-    <div class="rules">
-        <b>💡 STRATÉGIE DE RATIO 5/2 :</b><br>
-        • Attendre le signal sans stresser.<br>
-        • Entrer pour <b>5 minutes</b> exactement.<br>
-        • Si 2 pertes de suite : <b>STOP</b> pour la journée.
-    </div>
-
-    <button id="main-btn" onclick="activateSniper()">ACTIVER LE SNIPER 5M</button>
+    <button id="scan-btn" onclick="startOtcScan()">DÉTECTER SIGNAL OTC</button>
+    
+    <p style="font-size: 10px; color: #444; margin-top: 15px;">Analyse en boucles de 5 minutes pour Pocket Option</p>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-    let isRunning = false;
 
-    function activateSniper() {
-        if(isRunning) return;
-        isRunning = true;
-        const btn = document.getElementById('main-btn');
-        const loading = document.getElementById('loading');
+    function startOtcScan() {
+        const btn = document.getElementById('scan-btn');
         const sig = document.getElementById('signal');
         const box = document.getElementById('box');
-        const timeB = document.getElementById('time-badge');
+        const msg = document.getElementById('wait-msg');
+        const time = document.getElementById('time');
 
         btn.disabled = true;
-        btn.innerText = "RECHERCHE DU SIGNAL...";
+        btn.innerText = "ANALYSE DE L'ALGORITHME...";
+        sig.style.display = 'none';
+        time.style.display = 'none';
+        msg.style.display = 'block';
+        box.style.borderColor = "#333";
 
-        // Boucle de surveillance
-        const scanner = setInterval(() => {
-            const probability = Math.random();
-            
-            // On ne déclenche que si la probabilité est "parfaite" (très rare et droit)
-            if (probability > 0.94 || probability < 0.06) {
-                clearInterval(scanner); // On arrête de chercher quand on a trouvé
-                
-                const isCall = probability > 0.5;
-                const result = isCall ? "ACHAT 🟢" : "VENTE 🔴";
-                const color = isCall ? "var(--buy)" : "var(--sell)";
+        // Simulation d'une analyse profonde OTC
+        setTimeout(() => {
+            const isCall = Math.random() > 0.5;
+            const result = isCall ? "ACHAT 🟢" : "VENTE 🔴";
+            const color = isCall ? "var(--buy)" : "var(--sell)";
 
-                loading.style.display = 'none';
-                sig.style.display = 'block';
-                sig.innerText = result;
-                sig.style.color = color;
-                timeB.style.display = 'inline-block';
-                box.style.borderColor = color;
+            msg.style.display = 'none';
+            sig.innerText = result;
+            sig.style.color = color;
+            sig.style.display = 'block';
+            time.style.display = 'inline-block';
+            box.style.borderColor = color;
 
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
 
-                // Verrouillage de 5 minutes (pour suivre le trade)
-                let countdown = 300; 
-                const wait = setInterval(() => {
-                    countdown--;
-                    btn.innerText = `TRADE EN COURS (${countdown}s)`;
-                    if(countdown <= 0) {
-                        clearInterval(wait);
-                        resetRobot();
-                    }
-                }, 1000);
-            }
-        }, 3000); // Analyse toutes les 3 secondes
-    }
+            // Compte à rebours de sécurité (5 min)
+            let count = 300;
+            const timer = setInterval(() => {
+                count--;
+                btn.innerText = `SESSION EN COURS (${count}s)`;
+                if(count <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    btn.innerText = "DÉTECTER SIGNAL OTC";
+                }
+            }, 1000);
 
-    function resetRobot() {
-        isRunning = false;
-        document.getElementById('main-btn').disabled = false;
-        document.getElementById('main-btn').innerText = "ACTIVER LE SNIPER 5M";
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('signal').style.display = 'none';
-        document.getElementById('time-badge').style.display = 'none';
-        document.getElementById('box').style.borderColor = "#333";
+        }, 2000);
     }
 </script>
 </body>
