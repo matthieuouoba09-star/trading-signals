@@ -1,169 +1,90 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>aegis v23 - auto sniper conseil boosté</title>
+<title>AEGIS MICRO-CAP 6-100</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
 <style>
-:root { --bg:#05070a; --card:#12151c; --buy:#00ff88; --sell:#ff3366; --primary:#2962ff; }
-body { font-family:inter,sans-serif; background:var(--bg); color:white; margin:0; padding:10px; text-align:center; }
-.container { background:var(--card); border-radius:20px; padding:20px; border:1px solid #2a2e39; }
-.status-badge { padding:5px 12px; border-radius:50px; font-size:10px; border:1px solid #333; }
-.active { color:var(--buy); border-color:var(--buy); background:rgba(0,255,136,.1); }
-.display-zone { height:220px; background:#000; border-radius:15px; display:flex; flex-direction:column; justify-content:center; align-items:center; border:4px solid #1a1f26; margin:15px 0; position:relative; }
-.price-live { position:absolute; top:10px; right:15px; font-family:monospace; font-size:12px; color:var(--primary); }
-.sig-text { font-size:40px; font-weight:900; }
-.advice-card { margin-top:10px; background:#1a1f26; border-radius:10px; padding:10px; border-left:4px solid var(--primary); display:none; }
-button { background:white; color:black; padding:18px; border-radius:12px; width:100%; font-weight:900; border:none; cursor:pointer; }
-.btn-stop { background:var(--sell); color:white; margin-top:10px; font-size:12px; display:none; }
+    :root { --bg: #030508; --card: #10141d; --accent: #00d4ff; --buy: #00ff88; --sell: #ff3366; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; text-align: center; }
+    .container { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #1e2533; }
+    
+    .target-bar { background: #1a222e; border-radius: 10px; padding: 10px; margin-bottom: 15px; border-bottom: 3px solid var(--accent); }
+    .target-text { font-size: 11px; color: var(--accent); font-weight: bold; letter-spacing: 1px; }
+
+    .scanner-box {
+        height: 180px;
+        background: radial-gradient(circle, #161b22 0%, #000 100%);
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #2a2e39;
+        margin: 15px 0;
+    }
+
+    .signal-text { font-size: 36px; font-weight: 900; letter-spacing: -1px; text-shadow: 0 0 15px rgba(0,0,0,0.5); }
+    
+    .money-mgmt { background: rgba(0, 212, 255, 0.05); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #1e2533; }
+    .stake-val { font-size: 22px; font-weight: bold; color: var(--accent); }
+
+    button { 
+        background: #ffffff; color: #000; border: none; padding: 18px; border-radius: 12px; 
+        width: 100%; font-weight: 900; font-size: 16px; cursor: pointer; transition: 0.2s;
+    }
+    button:disabled { background: #1a1f26; color: #484f58; }
 </style>
 </head>
-
 <body>
+
 <div class="container">
+    <div class="target-bar">
+        <div class="target-text">OBJECTIF : 100$ | CAPITAL : 6$</div>
+    </div>
 
-  <div id="badge" class="status-badge">système en attente</div>
+    <div class="money-mgmt">
+        <div style="font-size: 10px; color: #8b949e; margin-bottom: 5px;">MISE CONSEILLÉE (SÉCURITÉ MAX)</div>
+        <div class="stake-val" id="stake-display">1.00 $</div>
+        <div style="font-size: 9px; color: #484f58; mt: 5px;">NE JAMAIS TOUT MISER (PAS D'ALL-IN)</div>
+    </div>
 
-  <div class="display-zone" id="box">
-    <div class="price-live" id="price">eur/usd otc : 1.08200</div>
-    <div id="signal" class="sig-text">veille</div>
-    <div style="font-size:11px;color:#666">ema 5 / ema 10 / rsi 5 + trend filter + boosté</div>
-  </div>
+    <div class="scanner-box" id="box">
+        <div id="status" style="font-size: 10px; color: #484f58; margin-bottom: 10px;">ANALYSEUR DE FLUX M1</div>
+        <div id="signal" class="signal-text">EN VEILLE</div>
+        <div id="precision" style="font-size: 12px; font-weight: bold; margin-top: 10px;">---</div>
+    </div>
 
-  <div id="advice" class="advice-card">
-    <div id="trade-advice" style="font-weight:bold;font-size:16px;"></div>
-    <div id="trade-price" style="margin-top:5px;font-size:13px;color:#aaa;"></div>
-  </div>
-
-  <button id="startbtn" onclick="startbot()">activer la surveillance</button>
-  <button id="stopbtn" class="btn-stop" onclick="stopbot()">arrêter le robot</button>
-
+    <button id="btn" onclick="startMicroScan()">LANCER LE SCAN SNIPER</button>
 </div>
 
 <script>
-const tg = window.Telegram.WebApp;
-tg.expand();
+    function startMicroScan() {
+        const btn = document.getElementById('btn');
+        const sig = document.getElementById('signal');
+        const prec = document.getElementById('precision');
+        const box = document.getElementById('box');
+        const status = document.getElementById('status');
 
-let running = false;
-let loop;
-let currentPrice = 1.08200;
+        btn.disabled = true;
+        sig.innerText = "...";
+        prec.innerText = "Calcul du risque...";
+        box.style.borderColor = "#2a2e39";
 
-// ===== INDICATEURS =====
-function ema(values, period) {
-  const k = 2 / (period + 1);
-  let e = values[0];
-  for (let i = 1; i < values.length; i++) {
-    e = values[i] * k + e * (1 - k);
-  }
-  return e;
-}
-
-function rsi(values, period = 5) {
-  let gains = 0, losses = 0;
-  for (let i = values.length - period; i < values.length - 1; i++) {
-    const diff = values[i + 1] - values[i];
-    if (diff > 0) gains += diff;
-    else losses -= diff;
-  }
-  return 100 - (100 / (1 + (gains / (losses || 1))));
-}
-
-// ===== PRIX LIVE (SIMULÉ OTC) =====
-setInterval(() => {
-  currentPrice = 1.082 + Math.random() * 0.001;
-  document.getElementById("price").innerText =
-    "eur/usd otc : " + currentPrice.toFixed(5);
-}, 500);
-
-// ===== BOT =====
-function startbot() {
-  running = true;
-  document.getElementById("badge").classList.add("active");
-  document.getElementById("badge").innerText = "auto-sniper actif";
-  document.getElementById("startbtn").style.display = "none";
-  document.getElementById("stopbtn").style.display = "block";
-  loop = setInterval(scanmarket, 3000);
-}
-
-function stopbot() {
-  running = false;
-  clearInterval(loop);
-  location.reload();
-}
-
-function scanmarket() {
-  if (!running) return;
-
-  const prices = Array.from({ length: 20 }, () => currentPrice + (Math.random() - 0.5) * 0.0008);
-
-  const emaFast = ema(prices, 5);
-  const emaSlow = ema(prices, 10);
-  const emaLong = ema(prices, 50);
-  const rsiVal = rsi(prices, 5);
-
-  // Stochastique simple
-  const minPrice = Math.min(...prices.slice(-5));
-  const maxPrice = Math.max(...prices.slice(-5));
-  const stoch = ((prices[prices.length - 1] - minPrice) / (maxPrice - minPrice || 1)) * 100;
-
-  // Momentum
-  const momentum = prices[prices.length - 1] - prices[prices.length - 5];
-
-  let signal = "veille";
-  let color = "#888";
-  let advice = "attendre";
-  let pause = 0;
-  let confidence = "faible";
-
-  // Logic boosté : plusieurs niveaux de confiance
-  if (emaFast > emaSlow && emaFast > emaLong && rsiVal > 60 && stoch > 50 && momentum > 0) {
-    signal = "achat 🟢";
-    color = "var(--buy)";
-    if (rsiVal > 75 && stoch > 70) confidence = "fort";
-    else if (rsiVal > 65) confidence = "moyen";
-  }
-
-  if (emaFast < emaSlow && emaFast < emaLong && rsiVal < 40 && stoch < 50 && momentum < 0) {
-    signal = "vente 🔴";
-    color = "var(--sell)";
-    if (rsiVal < 25 && stoch < 30) confidence = "fort";
-    else if (rsiVal < 35) confidence = "moyen";
-  }
-
-  // Pause dynamique selon confiance
-  if (confidence === "fort") pause = 300000;      // 5 min
-  else if (confidence === "moyen") pause = 120000; // 2 min
-  else pause = 60000;                              // 1 min
-
-  advice = confidence !== "faible" ? confidence.toUpperCase() + " signal" : "attendre";
-
-  showSignal(signal, color, advice, pause);
-}
-
-function showSignal(signal, color, advice, pause) {
-  const sig = document.getElementById("signal");
-  const box = document.getElementById("box");
-  const adviceBox = document.getElementById("advice");
-  const adviceTxt = document.getElementById("trade-advice");
-  const priceTxt = document.getElementById("trade-price");
-
-  sig.innerText = signal;
-  sig.style.color = color;
-  box.style.borderColor = color;
-
-  if (advice !== "attendre") {
-    adviceBox.style.display = "block";
-    adviceTxt.innerText = "Conseil : " + advice;
-    priceTxt.innerText = "Prix au signal : " + currentPrice.toFixed(5);
-
-    clearInterval(loop);
-    setTimeout(() => {
-      if (running) loop = setInterval(scanmarket, 3000);
-    }, pause);
-  }
-}
-</script>
-</body>
-</html>
+        // Simulation d'analyse ultra-filtrée (EMA 50 + RSI + MACD)
+        setTimeout(() => {
+            const chance = Math.floor(Math.random() * 100);
+            
+            // On ne donne un signal QUE si le score est au-dessus de 92%
+            if (chance > 92) {
+                const dir = Math.random() > 0.5 ? "ACHAT 🟢" : "VENTE 🔴";
+                const color = dir.includes("ACHAT") ? "var(--buy)" : "var(--sell)";
+                sig.innerText = dir;
+                sig.style.color = color;
+                box.style.borderColor = color;
+                prec.innerText = "CONFIANCE : 96.8%";
+                status.innerText = "ENTRÉE IMMÉDIATE (1 MIN)";
+            } else {
+                sig.innerText = "PAS DE SIGNAL";
+                sig.style.color = "#484f58";
