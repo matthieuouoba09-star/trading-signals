@@ -9,16 +9,11 @@
         :root { --bg: #05070a; --card: #12151c; --buy: #00ff88; --sell: #ff3366; --accent: #00d4ff; --gold: #ffcc00; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; text-align: center; }
         .container { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid #1e2533; }
-        
         .header-box { background: rgba(0, 212, 255, 0.1); border-radius: 10px; padding: 10px; margin-bottom: 10px; border: 1px solid var(--accent); }
-        
         .display-zone { height: 200px; background: radial-gradient(circle, #1a1f26 0%, #000 100%); border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid #2a2e39; margin: 15px 0; }
-        
         .sig-text { font-size: 40px; font-weight: 900; margin-bottom: 5px; }
         .confidence-chip { background: var(--gold); color: black; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: bold; margin-bottom: 10px; display: none; }
-        
         .time-badge { background: #2a2e39; color: var(--accent); padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 14px; border: 1px solid var(--accent); display: none; }
-
         button { background: white; color: black; border: none; padding: 18px; border-radius: 12px; width: 100%; font-weight: 900; font-size: 16px; cursor: pointer; }
         button:disabled { opacity: 0.3; }
     </style>
@@ -27,12 +22,12 @@
 
 <div class="container">
     <div class="header-box">
-        <div style="font-size: 10px; color: var(--accent);">STRETÉGIE MICRO-CAP (6$ -> 100$)</div>
+        <div style="font-size: 10px; color: var(--accent);">STRATÉGIE MICRO-CAP (6$ -> 100$)</div>
         <div style="font-size: 18px; font-weight: bold;">MISE : 1.00 $</div>
     </div>
 
     <div class="display-zone" id="main-box">
-        <div id="conf-level" class="confidence-chip">CONFIANCE : 95%</div>
+        <div id="conf-level" class="confidence-chip">CONFIANCE : 0%</div>
         <div id="signal-output" class="sig-text">VEILLE</div>
         <div id="time-val" class="time-badge">DURÉE : --</div>
     </div>
@@ -51,11 +46,13 @@
         const conf = document.getElementById('conf-level');
         const timeBadge = document.getElementById('time-val');
 
+        // Animation de chargement
         btn.disabled = true;
-        btn.innerText = "ANALYSE DU MARCHÉ...";
+        btn.innerText = "ANALYSE DU FLUX...";
         sig.innerText = "...";
         conf.style.display = 'none';
         timeBadge.style.display = 'none';
+        box.style.borderColor = "#2a2e39";
 
         setTimeout(() => {
             const score = Math.floor(Math.random() * (99 - 85 + 1)) + 85;
@@ -65,12 +62,37 @@
                 const result = isCall ? "ACHAT 🟢" : "VENTE 🔴";
                 const color = isCall ? "var(--buy)" : "var(--sell)";
                 
-                // Calcul du temps intelligent
-                let duration = "";
-                if (score > 96) duration = "15 SECONDES"; 
-                else if (score > 94) duration = "1 MINUTE";
-                else duration = "5 MINUTES";
+                let duration = score > 96 ? "15 SECONDES" : (score > 94 ? "1 MINUTE" : "5 MINUTES");
 
                 sig.innerText = result;
                 sig.style.color = color;
                 box.style.borderColor = color;
+                
+                conf.innerText = `CONFIANCE : ${score}%`;
+                conf.style.display = 'block';
+                
+                timeBadge.innerText = `DURÉE : ${duration}`;
+                timeBadge.style.display = 'block';
+            } else {
+                sig.innerText = "NEUTRE";
+                sig.style.color = "#888";
+                box.style.borderColor = "#2a2e39";
+            }
+
+            // Relance du bouton après 15s
+            let count = 15;
+            const timer = setInterval(() => {
+                count--;
+                btn.innerText = `PATIENTER (${count}s)`;
+                if(count <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    btn.innerText = "DÉTECTER SIGNAL SNIPER";
+                }
+            }, 1000);
+
+        }, 1500);
+    }
+</script>
+</body>
+</html>
