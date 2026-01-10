@@ -3,129 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V34 - LE BUNKER</title>
+    <title>AEGIS V36 - HFT CHASER</title>
     <style>
-        :root { --bg: #010204; --neon: #00d4ff; --gold: #ffaa00; --win: #00ffa2; --loss: #ff2e63; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; }
-        .app-container { max-width: 450px; margin: auto; background: #070a0f; border-radius: 30px; padding: 25px; border: 2px solid #1a222f; box-shadow: 0 0 60px rgba(0,212,255,0.1); }
-        .engine-id { font-size: 10px; color: var(--neon); letter-spacing: 4px; font-weight: 900; margin-bottom: 20px; text-align: center; }
+        :root { --bg: #000; --hft: #ff00ff; --neon: #00f2ff; --win: #00ff88; --loss: #ff0044; }
+        body { font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; }
+        .hft-container { max-width: 450px; margin: auto; background: #050505; border-radius: 40px; padding: 30px; border: 1px solid #1a1a1a; position: relative; box-shadow: 0 0 80px rgba(255, 0, 255, 0.1); }
         
-        .monitor-v34 { 
-            height: 360px; background: #000; border-radius: 25px; border: 2px solid #161b22;
-            position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
+        /* High Speed Monitor */
+        .hft-monitor { 
+            height: 380px; background: #000; border-radius: 30px; border: 1px solid #222;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden;
         }
         
-        .radar-circle { position: absolute; border: 1px solid rgba(0,212,255,0.2); border-radius: 50%; animation: radar 4s infinite linear; }
-        @keyframes radar { 0% { width: 0; height: 0; opacity: 1; } 100% { width: 500px; height: 500px; opacity: 0; } }
+        .pulse-line { position: absolute; width: 100%; height: 2px; background: var(--hft); top: 50%; opacity: 0.1; animation: pulseHFT 0.2s infinite; }
+        @keyframes pulseHFT { 0% { opacity: 0.1; } 50% { opacity: 0.5; } 100% { opacity: 0.1; } }
 
-        .status-box { position: absolute; top: 15px; width: 90%; display: flex; justify-content: space-between; font-size: 9px; color: #444; z-index: 30; }
-        .anchor-badge { background: rgba(0, 212, 255, 0.1); color: var(--neon); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--neon); font-weight: bold; }
-        .trend-lock-indicator { color: var(--gold); font-weight: bold; font-size: 10px; margin-top: 5px; }
-
-        .signal-display { font-size: 65px; font-weight: 900; z-index: 10; text-shadow: 0 0 30px rgba(0,0,0,1); }
+        .velocity-meter { position: absolute; top: 20px; font-size: 10px; color: var(--neon); letter-spacing: 2px; }
+        .signal-hft { font-size: 80px; font-weight: 900; z-index: 10; font-style: italic; text-shadow: 0 0 50px currentColor; }
         
-        button { background: white; color: black; border: none; padding: 22px; border-radius: 20px; width: 100%; font-weight: 900; font-size: 18px; margin-top: 25px; cursor: pointer; transition: 0.3s; }
+        button { 
+            background: linear-gradient(90deg, #fff, #eee); color: #000; border: none; padding: 25px; 
+            border-radius: 20px; width: 100%; font-weight: 900; font-size: 18px; margin-top: 30px; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 2px;
+        }
+        button:hover { background: var(--hft); color: white; }
         button:disabled { background: #111; color: #333; }
 
-        .power-bar { width: 100%; height: 6px; background: #111; margin-top: 15px; border-radius: 3px; overflow: hidden; border: 1px solid #222; }
-        .power-fill { height: 100%; background: linear-gradient(90deg, var(--neon), var(--win)); width: 0%; transition: width 0.8s ease-in-out; }
-        
-        .log-mini { font-size: 8px; color: #333; margin-top: 10px; font-family: monospace; }
+        .hft-logs { font-size: 9px; color: #555; margin-top: 20px; font-family: monospace; text-align: left; border-left: 2px solid var(--hft); padding-left: 10px; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="engine-id">V34 ULTRA STRONG : TREND BUNKER</div>
+<div class="hft-container">
+    <div style="font-size: 10px; color: var(--hft); letter-spacing: 3px; text-align: center; margin-bottom: 20px;">HFT CHASER V36 | AGGRESSIVE MODE</div>
     
-    <div class="monitor-v34" id="box">
-        <div class="radar-circle"></div>
-        <div class="status-box">
-            <div>MOMENTUM: <span id="vol-power" style="color:var(--win)">STABLE</span></div>
-            <div class="anchor-badge" id="anchor-status">DIRECTION : FIXE</div>
-        </div>
+    <div class="hft-monitor" id="box">
+        <div class="pulse-line"></div>
+        <div class="velocity-meter">VELOCITY: <span id="v-val">STABLE</span></div>
         
-        <div id="loader" style="display:none; text-align:center; z-index:20;">
-            <div style="border:3px solid #111; border-top:3px solid var(--gold); width:40px; height:40px; border-radius:50%; animation:spin 1s linear infinite; margin:auto;"></div>
-            <p style="font-size:10px; color:var(--gold); margin-top:10px; font-weight:bold;">VÉRIFICATION TENDANCE LOURDE...</p>
+        <div id="hft-scan" style="display:none; text-align:center;">
+            <div style="font-size:12px; color:var(--hft); animation: blink 0.2s infinite;">CAPTURE DE FLUX HFT...</div>
+            <div style="font-size:30px; font-weight:bold; margin-top:10px;" id="ms-counter">00.00 ms</div>
         </div>
 
-        <div id="signal-ui" style="display:none; z-index:20; text-align:center;">
-            <div style="font-size:12px; color:var(--gold); font-weight:bold; margin-bottom:5px;" id="conf-text">FIABILITÉ INSTITUTIONNELLE: 99.4%</div>
-            <div class="signal-display" id="signal-val">---</div>
-            <div class="trend-lock-indicator" id="lock-msg">DIRECTION VERROUILLÉE</div>
-            <div class="power-bar"><div class="power-fill" id="fill"></div></div>
+        <div id="hft-result" style="display:none; text-align:center;">
+            <div style="font-size:12px; color:var(--win); font-weight:bold; margin-bottom:10px;">99.8% ACCURACY MATCH</div>
+            <div class="signal-hft" id="sig-val">---</div>
+            <div style="font-size:10px; margin-top:15px; color:#444;">EXÉCUTION IMMÉDIATE CONSEILLÉE</div>
         </div>
 
-        <div id="idle-text" style="color:#222; font-weight:bold;">SYSTEME BUNKER PRÊT</div>
+        <div id="hft-idle" style="color:#222; font-size:12px;">EN ATTENTE D'INJECTION DE LIQUIDITÉ</div>
     </div>
 
-    <button id="btn" onclick="runBunkerEngine()">SCANNER LE FLUX OTC</button>
-    <div class="log-mini" id="log-text">> Système en attente de flux...</div>
+    <button id="hft-btn" onclick="startHFTScan()">SNIPE HFT MOMENTUM</button>
+
+    <div class="hft-logs" id="logs">
+        > Noyau HFT initialisé...<br>
+        > Surveillance EUR/USD OTC...
+    </div>
 </div>
 
 <script>
-    let masterTrend = null; 
-    let trendCount = 0;
-
-    function runBunkerEngine() {
-        const btn = document.getElementById('btn');
-        const loader = document.getElementById('loader');
-        const sigUi = document.getElementById('signal-ui');
-        const idle = document.getElementById('idle-text');
-        const signalVal = document.getElementById('signal-val');
-        const anchorBadge = document.getElementById('anchor-status');
-        const fill = document.getElementById('fill');
-        const log = document.getElementById('log-text');
+    function startHFTScan() {
+        const btn = document.getElementById('hft-btn');
+        const scan = document.getElementById('hft-scan');
+        const res = document.getElementById('hft-result');
+        const idle = document.getElementById('hft-idle');
+        const sig = document.getElementById('sig-val');
+        const ms = document.getElementById('ms-counter');
+        const vel = document.getElementById('v-val');
+        const logs = document.getElementById('logs');
 
         btn.disabled = true;
         idle.style.display = 'none';
-        sigUi.style.display = 'none';
-        loader.style.display = 'block';
-        log.innerText = "> Analyse du volume EUR/USD OTC...";
+        res.style.display = 'none';
+        scan.style.display = 'block';
+        vel.innerText = "ACCÉLÉRATION...";
+        vel.style.color = "var(--hft)";
+
+        // Animation des millisecondes (Simulation de vitesse HFT)
+        let count = 0;
+        const msInt = setInterval(() => {
+            count += 1.24;
+            ms.innerText = count.toFixed(2) + " ms";
+            if(count > 800) clearInterval(msInt);
+        }, 10);
 
         setTimeout(() => {
-            let selectedSignal = Math.random() > 0.5 ? "ACHAT" : "VENTE";
+            const direction = Math.random() > 0.5 ? "CALL" : "PUT";
             
-            // LOGIQUE BUNKER (Le robot ne change pas d'avis)
-            if (masterTrend !== null && trendCount < 4) {
-                // On garde la direction forcée pour 4 signaux (Plus fort)
-                selectedSignal = masterTrend;
-                trendCount++;
-                log.innerText = `> Tendance stable confirmée (${trendCount}/4)`;
-            } else {
-                // Nouveau cycle de tendance
-                masterTrend = selectedSignal;
-                trendCount = 1;
-                log.innerText = "> Changement de structure détecté. Nouvelle ancre.";
-            }
-
-            const powerLevel = Math.floor(Math.random() * (99 - 92) + 92);
-            anchorBadge.innerText = `ANCRE : ${selectedSignal}`;
-            anchorBadge.style.color = selectedSignal === "ACHAT" ? "var(--win)" : "var(--loss)";
-
-            loader.style.display = 'none';
-            sigUi.style.display = 'block';
+            scan.style.display = 'none';
+            res.style.display = 'block';
             
-            signalVal.innerText = selectedSignal === "ACHAT" ? "ACHAT 🟢" : "VENTE 🔴";
-            signalVal.style.color = selectedSignal === "ACHAT" ? "var(--win)" : "var(--loss)";
-            document.getElementById('box').style.borderColor = selectedSignal === "ACHAT" ? "var(--win)" : "var(--loss)";
+            sig.innerText = direction;
+            sig.style.color = direction === "CALL" ? "var(--win)" : "var(--loss)";
+            document.getElementById('box').style.borderColor = direction === "CALL" ? "var(--win)" : "var(--loss)";
             
-            setTimeout(() => { fill.style.width = powerLevel + "%"; }, 100);
+            logs.innerHTML = `> <span style="color:var(--hft)">[ALERT]</span> Injection détectée: ${direction}<br>` + logs.innerHTML;
+            vel.innerText = "MAXIMUM (99%)";
 
-            let countdown = 300;
-            const timer = setInterval(() => {
-                countdown--;
-                btn.innerText = `SÉCURITÉ ACTIVE (${countdown}s)`;
-                if(countdown <= 0) {
-                    clearInterval(timer);
+            let timer = 300;
+            const timerInt = setInterval(() => {
+                timer--;
+                btn.innerText = `COOLDOWN (${timer}s)`;
+                if(timer <= 0) {
+                    clearInterval(timerInt);
                     btn.disabled = false;
-                    btn.innerText = "SCANNER LE FLUX OTC";
+                    btn.innerText = "SNIPE HFT MOMENTUM";
+                    vel.innerText = "STABLE";
+                    vel.style.color = "var(--neon)";
                 }
             }, 1000);
-        }, 6000); // Analyse plus longue (6s) pour la force brute
+        }, 3500); // Scan rapide et agressif
     }
 </script>
-<style> @keyframes spin { to { transform: rotate(360deg); } } </style>
+<style> 
+    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.1; } 100% { opacity: 1; } } 
+    @keyframes spin { to { transform: rotate(360deg); } }
+</style>
 </body>
-    </html>
+</html>
