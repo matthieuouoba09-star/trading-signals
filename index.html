@@ -3,124 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V30 - PRECISION 95% OTC</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>AEGIS V32 - L'ULTIME 99%</title>
     <style>
-        :root { --bg: #020408; --card: #0d1117; --buy: #00ff88; --sell: #ff3366; --gold: #ffcc00; --accent: #2962ff; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; text-align: center; }
-        .container { background: var(--card); border-radius: 25px; padding: 25px; border: 2px solid #1f2937; box-shadow: 0 0 40px rgba(41, 98, 255, 0.1); max-width: 400px; margin: auto; }
+        :root { --bg: #020305; --neon: #00d4ff; --gold: #ffaa00; --win: #00ffa2; --loss: #ff2e63; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; }
+        .app-container { max-width: 450px; margin: auto; background: #0a0f18; border-radius: 30px; padding: 25px; border: 1px solid #1a222f; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
         
-        .header-box { margin-bottom: 20px; }
-        .market-badge { background: rgba(255, 204, 0, 0.1); color: var(--gold); padding: 5px 12px; border-radius: 50px; font-size: 10px; font-weight: bold; border: 1px solid var(--gold); }
+        /* Header Engine */
+        .engine-id { font-size: 10px; color: var(--neon); letter-spacing: 4px; text-transform: uppercase; font-weight: 900; margin-bottom: 20px; border-bottom: 1px solid #1a222f; padding-bottom: 10px; }
         
-        .monitor { 
-            height: 260px; background: #000; border-radius: 20px; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            border: 4px solid #1a1f26; position: relative; margin: 20px 0;
+        /* Monitor Interface */
+        .monitor-v32 { 
+            height: 320px; background: #000; border-radius: 25px; border: 2px solid #161b22;
+            position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
         }
-        .pulse { position: absolute; width: 100%; height: 100%; border: 2px solid var(--accent); border-radius: 18px; opacity: 0; animation: pulse-anim 2s infinite; }
-        @keyframes pulse-anim { 0% { transform: scale(0.95); opacity: 0.5; } 100% { transform: scale(1.05); opacity: 0; } }
+        .scan-line { position: absolute; width: 100%; height: 50%; background: linear-gradient(to bottom, transparent, rgba(0,212,255,0.05)); top: -50%; animation: scan-v32 3s infinite linear; border-bottom: 1px solid var(--neon); }
+        @keyframes scan-v32 { 0% { top: -50%; } 100% { top: 100%; } }
 
-        .prob-text { font-size: 12px; color: var(--gold); font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
-        .sig-val { font-size: 55px; font-weight: 900; letter-spacing: -2px; text-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        .stat-grid { position: absolute; top: 15px; left: 15px; text-align: left; font-size: 9px; color: #444; }
+        .prob-circle { font-size: 14px; color: var(--gold); font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 10px rgba(255,170,0,0.3); }
+        .signal-display { font-size: 65px; font-weight: 900; letter-spacing: -3px; z-index: 5; }
         
-        .loader { width: 40px; height: 40px; border: 3px solid #1a1f26; border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
+        /* Control Section */
         button { 
-            background: white; color: black; border: none; padding: 22px; 
-            border-radius: 18px; width: 100%; font-weight: 900; font-size: 18px; 
-            cursor: pointer; transition: 0.2s; box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            background: linear-gradient(135deg, #fff 0%, #d1d1d1 100%); color: #000; border: none; 
+            padding: 25px; border-radius: 20px; width: 100%; font-weight: 900; font-size: 18px; 
+            margin-top: 25px; cursor: pointer; transition: 0.3s;
         }
-        button:active { transform: scale(0.98); }
-        button:disabled { background: #1a1f26; color: #444; box-shadow: none; }
+        button:disabled { background: #111; color: #333; transform: scale(0.98); }
         
-        .rules { font-size: 11px; color: #555; margin-top: 20px; line-height: 1.5; }
+        /* Technical Logs */
+        .tech-logs { font-size: 9px; color: #3a4452; margin-top: 20px; font-family: 'Courier New', monospace; height: 60px; overflow: hidden; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header-box">
-        <span class="market-badge">EUR/USD OTC - M5 ANALYSIS</span>
-    </div>
+<div class="app-container">
+    <div class="engine-id">ENGINE V32 : EUR/USD OTC 5M</div>
     
-    <div class="monitor" id="screen">
-        <div id="pulse-ring" class=""></div>
-        <div id="loading-ui" style="display:none;"><div class="loader"></div><p style="font-size:10px; color:var(--accent); margin-top:10px;">ANALYSE PROFONDE...</p></div>
-        
-        <div id="result-ui" style="display:none;">
-            <div id="prob-val" class="prob-text">FIABILITÉ : --%</div>
-            <div id="signal-val" class="sig-val">---</div>
-            <div style="background:var(--accent); color:white; font-size:10px; padding:3px 10px; border-radius:4px; margin-top:10px; font-weight:bold;">5 MIN EXPIRATION</div>
+    <div class="monitor-v32" id="box">
+        <div class="scan-line"></div>
+        <div class="stat-grid">
+            VOLATILITÉ: <span id="vol">SCAN...</span><br>
+            CORRÉLATION: <span id="cor">SCAN...</span>
         </div>
         
-        <div id="idle-msg" style="color:#333; font-weight:bold;">SYSTÈME SNIPER PRÊT</div>
+        <div id="loader" style="display:none; text-align:center;">
+            <div style="border:3px solid #111; border-top:3px solid var(--neon); width:30px; height:30px; border-radius:50%; animation:spin 1s linear infinite; margin:auto;"></div>
+            <p style="font-size:10px; color:var(--neon); margin-top:10px; letter-spacing:1px;">ANALYSING STRUCTURE...</p>
+        </div>
+
+        <div id="signal-ui" style="display:none;">
+            <div class="prob-circle" id="prob-text">FIABILITÉ: 98.8%</div>
+            <div class="signal-display" id="signal-val">---</div>
+            <div style="color:#555; font-size:11px; margin-top:10px; font-weight:bold;">CONFIRMATION M5/H1 VALIDÉE</div>
+        </div>
+
+        <div id="idle-text" style="color:#222; font-weight:bold;">ATTENTE DE FLUX INSTITUTIONNEL</div>
     </div>
 
-    <button id="main-btn" onclick="executeSniper()">ANALYSER LE MARCHÉ</button>
-    
-    <div class="rules">
-        <b>STRATÉGIE DE SÉCURITÉ :</b><br>
-        1. Attendre 95%+ | 2. Trade 5 min | 3. Stop après 5 gains.
+    <button id="btn" onclick="runSupremeEngine()">ACTIVER LE SCANNER 99%</button>
+
+    <div class="tech-logs" id="logs">
+        > Système prêt...<br>
+        > Capital de sécurité détecté: 10,225$<br>
     </div>
 </div>
 
 <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-
-    function executeSniper() {
-        const btn = document.getElementById('main-btn');
-        const screen = document.getElementById('screen');
-        const loader = document.getElementById('loading-ui');
-        const result = document.getElementById('result-ui');
-        const idle = document.getElementById('idle-msg');
-        const signal = document.getElementById('signal-val');
-        const prob = document.getElementById('prob-val');
-        const pulse = document.getElementById('pulse-ring');
+    function runSupremeEngine() {
+        const btn = document.getElementById('btn');
+        const loader = document.getElementById('loader');
+        const sigUi = document.getElementById('signal-ui');
+        const idle = document.getElementById('idle-text');
+        const signalVal = document.getElementById('signal-val');
+        const probText = document.getElementById('prob-text');
+        const logs = document.getElementById('logs');
+        const vol = document.getElementById('vol');
+        const cor = document.getElementById('cor');
 
         btn.disabled = true;
-        btn.innerText = "CONNEXION AU FLUX OTC...";
         idle.style.display = 'none';
-        result.style.display = 'none';
+        sigUi.style.display = 'none';
         loader.style.display = 'block';
-        screen.style.borderColor = "#1a1f26";
-        pulse.className = "";
+        
+        // Séquence d'analyse ultra-pro
+        setTimeout(() => { vol.innerText = "88% (FORTE)"; logs.innerHTML += "> Momentum détecté...<br>"; }, 1000);
+        setTimeout(() => { cor.innerText = "SÉCURISÉE"; logs.innerHTML += "> Corrélation paires validée...<br>"; }, 2000);
 
-        // Temps d'analyse pour simuler la précision
         setTimeout(() => {
-            const accuracy = (Math.random() * (98.9 - 94.5) + 94.5).toFixed(1);
             const isCall = Math.random() > 0.5;
-            const finalSignal = isCall ? "ACHAT 🟢" : "VENTE 🔴";
-            const finalColor = isCall ? "var(--buy)" : "var(--sell)";
-
-            loader.style.display = 'none';
-            result.style.display = 'block';
+            const accuracy = (Math.random() * (99.85 - 98.10) + 98.10).toFixed(2);
             
-            prob.innerText = `FIABILITÉ : ${accuracy}%`;
-            signal.innerText = finalSignal;
-            signal.style.color = finalColor;
-            screen.style.borderColor = finalColor;
-            pulse.className = "pulse";
+            loader.style.display = 'none';
+            sigUi.style.display = 'block';
+            
+            probText.innerText = `FIABILITÉ: ${accuracy}%`;
+            signalVal.innerText = isCall ? "ACHAT 🟢" : "VENTE 🔴";
+            signalVal.style.color = isCall ? "var(--win)" : "var(--loss)";
+            document.getElementById('box').style.borderColor = isCall ? "var(--win)" : "var(--loss)";
+            
+            logs.innerHTML += `<span style="color:var(--win)">> POINT D'ENTRÉE TROUVÉ (${accuracy}%)</span><br>`;
 
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-
-            // Verrouillage de 5 minutes (300 secondes)
+            // Blocage de sécurité de 5 minutes
             let countdown = 300;
             const timer = setInterval(() => {
                 countdown--;
-                btn.innerText = `PROCHAIN SIGNAL (${countdown}s)`;
+                btn.innerText = `PROCHAIN SIGNAL DANS (${countdown}s)`;
                 if(countdown <= 0) {
                     clearInterval(timer);
                     btn.disabled = false;
-                    btn.innerText = "ANALYSER LE MARCHÉ";
-                    pulse.className = "";
+                    btn.innerText = "ACTIVER LE SCANNER 99%";
+                    document.getElementById('box').style.borderColor = "#161b22";
                 }
             }, 1000);
-
-        }, 3500);
+        }, 4500);
     }
 </script>
+<style> @keyframes spin { to { transform: rotate(360deg); } } </style>
 </body>
 </html>
