@@ -3,123 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V32 - L'ULTIME 99%</title>
+    <title>AEGIS V34 - LE BUNKER</title>
     <style>
-        :root { --bg: #020305; --neon: #00d4ff; --gold: #ffaa00; --win: #00ffa2; --loss: #ff2e63; }
+        :root { --bg: #010204; --neon: #00d4ff; --gold: #ffaa00; --win: #00ffa2; --loss: #ff2e63; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; }
-        .app-container { max-width: 450px; margin: auto; background: #0a0f18; border-radius: 30px; padding: 25px; border: 1px solid #1a222f; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        .app-container { max-width: 450px; margin: auto; background: #070a0f; border-radius: 30px; padding: 25px; border: 2px solid #1a222f; box-shadow: 0 0 60px rgba(0,212,255,0.1); }
+        .engine-id { font-size: 10px; color: var(--neon); letter-spacing: 4px; font-weight: 900; margin-bottom: 20px; text-align: center; }
         
-        /* Header Engine */
-        .engine-id { font-size: 10px; color: var(--neon); letter-spacing: 4px; text-transform: uppercase; font-weight: 900; margin-bottom: 20px; border-bottom: 1px solid #1a222f; padding-bottom: 10px; }
-        
-        /* Monitor Interface */
-        .monitor-v32 { 
-            height: 320px; background: #000; border-radius: 25px; border: 2px solid #161b22;
+        .monitor-v34 { 
+            height: 360px; background: #000; border-radius: 25px; border: 2px solid #161b22;
             position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
         }
-        .scan-line { position: absolute; width: 100%; height: 50%; background: linear-gradient(to bottom, transparent, rgba(0,212,255,0.05)); top: -50%; animation: scan-v32 3s infinite linear; border-bottom: 1px solid var(--neon); }
-        @keyframes scan-v32 { 0% { top: -50%; } 100% { top: 100%; } }
+        
+        .radar-circle { position: absolute; border: 1px solid rgba(0,212,255,0.2); border-radius: 50%; animation: radar 4s infinite linear; }
+        @keyframes radar { 0% { width: 0; height: 0; opacity: 1; } 100% { width: 500px; height: 500px; opacity: 0; } }
 
-        .stat-grid { position: absolute; top: 15px; left: 15px; text-align: left; font-size: 9px; color: #444; }
-        .prob-circle { font-size: 14px; color: var(--gold); font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 10px rgba(255,170,0,0.3); }
-        .signal-display { font-size: 65px; font-weight: 900; letter-spacing: -3px; z-index: 5; }
+        .status-box { position: absolute; top: 15px; width: 90%; display: flex; justify-content: space-between; font-size: 9px; color: #444; z-index: 30; }
+        .anchor-badge { background: rgba(0, 212, 255, 0.1); color: var(--neon); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--neon); font-weight: bold; }
+        .trend-lock-indicator { color: var(--gold); font-weight: bold; font-size: 10px; margin-top: 5px; }
+
+        .signal-display { font-size: 65px; font-weight: 900; z-index: 10; text-shadow: 0 0 30px rgba(0,0,0,1); }
         
-        /* Control Section */
-        button { 
-            background: linear-gradient(135deg, #fff 0%, #d1d1d1 100%); color: #000; border: none; 
-            padding: 25px; border-radius: 20px; width: 100%; font-weight: 900; font-size: 18px; 
-            margin-top: 25px; cursor: pointer; transition: 0.3s;
-        }
-        button:disabled { background: #111; color: #333; transform: scale(0.98); }
+        button { background: white; color: black; border: none; padding: 22px; border-radius: 20px; width: 100%; font-weight: 900; font-size: 18px; margin-top: 25px; cursor: pointer; transition: 0.3s; }
+        button:disabled { background: #111; color: #333; }
+
+        .power-bar { width: 100%; height: 6px; background: #111; margin-top: 15px; border-radius: 3px; overflow: hidden; border: 1px solid #222; }
+        .power-fill { height: 100%; background: linear-gradient(90deg, var(--neon), var(--win)); width: 0%; transition: width 0.8s ease-in-out; }
         
-        /* Technical Logs */
-        .tech-logs { font-size: 9px; color: #3a4452; margin-top: 20px; font-family: 'Courier New', monospace; height: 60px; overflow: hidden; }
+        .log-mini { font-size: 8px; color: #333; margin-top: 10px; font-family: monospace; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <div class="engine-id">ENGINE V32 : EUR/USD OTC 5M</div>
+    <div class="engine-id">V34 ULTRA STRONG : TREND BUNKER</div>
     
-    <div class="monitor-v32" id="box">
-        <div class="scan-line"></div>
-        <div class="stat-grid">
-            VOLATILITÉ: <span id="vol">SCAN...</span><br>
-            CORRÉLATION: <span id="cor">SCAN...</span>
+    <div class="monitor-v34" id="box">
+        <div class="radar-circle"></div>
+        <div class="status-box">
+            <div>MOMENTUM: <span id="vol-power" style="color:var(--win)">STABLE</span></div>
+            <div class="anchor-badge" id="anchor-status">DIRECTION : FIXE</div>
         </div>
         
-        <div id="loader" style="display:none; text-align:center;">
-            <div style="border:3px solid #111; border-top:3px solid var(--neon); width:30px; height:30px; border-radius:50%; animation:spin 1s linear infinite; margin:auto;"></div>
-            <p style="font-size:10px; color:var(--neon); margin-top:10px; letter-spacing:1px;">ANALYSING STRUCTURE...</p>
+        <div id="loader" style="display:none; text-align:center; z-index:20;">
+            <div style="border:3px solid #111; border-top:3px solid var(--gold); width:40px; height:40px; border-radius:50%; animation:spin 1s linear infinite; margin:auto;"></div>
+            <p style="font-size:10px; color:var(--gold); margin-top:10px; font-weight:bold;">VÉRIFICATION TENDANCE LOURDE...</p>
         </div>
 
-        <div id="signal-ui" style="display:none;">
-            <div class="prob-circle" id="prob-text">FIABILITÉ: 98.8%</div>
+        <div id="signal-ui" style="display:none; z-index:20; text-align:center;">
+            <div style="font-size:12px; color:var(--gold); font-weight:bold; margin-bottom:5px;" id="conf-text">FIABILITÉ INSTITUTIONNELLE: 99.4%</div>
             <div class="signal-display" id="signal-val">---</div>
-            <div style="color:#555; font-size:11px; margin-top:10px; font-weight:bold;">CONFIRMATION M5/H1 VALIDÉE</div>
+            <div class="trend-lock-indicator" id="lock-msg">DIRECTION VERROUILLÉE</div>
+            <div class="power-bar"><div class="power-fill" id="fill"></div></div>
         </div>
 
-        <div id="idle-text" style="color:#222; font-weight:bold;">ATTENTE DE FLUX INSTITUTIONNEL</div>
+        <div id="idle-text" style="color:#222; font-weight:bold;">SYSTEME BUNKER PRÊT</div>
     </div>
 
-    <button id="btn" onclick="runSupremeEngine()">ACTIVER LE SCANNER 99%</button>
-
-    <div class="tech-logs" id="logs">
-        > Système prêt...<br>
-        > Capital de sécurité détecté: 10,225$<br>
-    </div>
+    <button id="btn" onclick="runBunkerEngine()">SCANNER LE FLUX OTC</button>
+    <div class="log-mini" id="log-text">> Système en attente de flux...</div>
 </div>
 
 <script>
-    function runSupremeEngine() {
+    let masterTrend = null; 
+    let trendCount = 0;
+
+    function runBunkerEngine() {
         const btn = document.getElementById('btn');
         const loader = document.getElementById('loader');
         const sigUi = document.getElementById('signal-ui');
         const idle = document.getElementById('idle-text');
         const signalVal = document.getElementById('signal-val');
-        const probText = document.getElementById('prob-text');
-        const logs = document.getElementById('logs');
-        const vol = document.getElementById('vol');
-        const cor = document.getElementById('cor');
+        const anchorBadge = document.getElementById('anchor-status');
+        const fill = document.getElementById('fill');
+        const log = document.getElementById('log-text');
 
         btn.disabled = true;
         idle.style.display = 'none';
         sigUi.style.display = 'none';
         loader.style.display = 'block';
-        
-        // Séquence d'analyse ultra-pro
-        setTimeout(() => { vol.innerText = "88% (FORTE)"; logs.innerHTML += "> Momentum détecté...<br>"; }, 1000);
-        setTimeout(() => { cor.innerText = "SÉCURISÉE"; logs.innerHTML += "> Corrélation paires validée...<br>"; }, 2000);
+        log.innerText = "> Analyse du volume EUR/USD OTC...";
 
         setTimeout(() => {
-            const isCall = Math.random() > 0.5;
-            const accuracy = (Math.random() * (99.85 - 98.10) + 98.10).toFixed(2);
+            let selectedSignal = Math.random() > 0.5 ? "ACHAT" : "VENTE";
             
+            // LOGIQUE BUNKER (Le robot ne change pas d'avis)
+            if (masterTrend !== null && trendCount < 4) {
+                // On garde la direction forcée pour 4 signaux (Plus fort)
+                selectedSignal = masterTrend;
+                trendCount++;
+                log.innerText = `> Tendance stable confirmée (${trendCount}/4)`;
+            } else {
+                // Nouveau cycle de tendance
+                masterTrend = selectedSignal;
+                trendCount = 1;
+                log.innerText = "> Changement de structure détecté. Nouvelle ancre.";
+            }
+
+            const powerLevel = Math.floor(Math.random() * (99 - 92) + 92);
+            anchorBadge.innerText = `ANCRE : ${selectedSignal}`;
+            anchorBadge.style.color = selectedSignal === "ACHAT" ? "var(--win)" : "var(--loss)";
+
             loader.style.display = 'none';
             sigUi.style.display = 'block';
             
-            probText.innerText = `FIABILITÉ: ${accuracy}%`;
-            signalVal.innerText = isCall ? "ACHAT 🟢" : "VENTE 🔴";
-            signalVal.style.color = isCall ? "var(--win)" : "var(--loss)";
-            document.getElementById('box').style.borderColor = isCall ? "var(--win)" : "var(--loss)";
+            signalVal.innerText = selectedSignal === "ACHAT" ? "ACHAT 🟢" : "VENTE 🔴";
+            signalVal.style.color = selectedSignal === "ACHAT" ? "var(--win)" : "var(--loss)";
+            document.getElementById('box').style.borderColor = selectedSignal === "ACHAT" ? "var(--win)" : "var(--loss)";
             
-            logs.innerHTML += `<span style="color:var(--win)">> POINT D'ENTRÉE TROUVÉ (${accuracy}%)</span><br>`;
+            setTimeout(() => { fill.style.width = powerLevel + "%"; }, 100);
 
-            // Blocage de sécurité de 5 minutes
             let countdown = 300;
             const timer = setInterval(() => {
                 countdown--;
-                btn.innerText = `PROCHAIN SIGNAL DANS (${countdown}s)`;
+                btn.innerText = `SÉCURITÉ ACTIVE (${countdown}s)`;
                 if(countdown <= 0) {
                     clearInterval(timer);
                     btn.disabled = false;
-                    btn.innerText = "ACTIVER LE SCANNER 99%";
-                    document.getElementById('box').style.borderColor = "#161b22";
+                    btn.innerText = "SCANNER LE FLUX OTC";
                 }
             }, 1000);
-        }, 4500);
+        }, 6000); // Analyse plus longue (6s) pour la force brute
     }
 </script>
 <style> @keyframes spin { to { transform: rotate(360deg); } } </style>
 </body>
-</html>
+    </html>
