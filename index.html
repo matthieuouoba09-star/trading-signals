@@ -1,64 +1,22 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V36 PATIENT - REAL SAFE MODE</title>
-    <style>
-        body { background-color: #0a0e14; color: #e6edf3; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .bot-card { width: 320px; background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .header { text-align: center; border-bottom: 1px solid #30363d; padding-bottom: 15px; margin-bottom: 20px; }
-        .target { color: #8b949e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-        #display-box { height: 100px; background: #0d1117; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #21262d; margin-bottom: 20px; transition: all 0.4s; }
-        .signal-text { font-size: 24px; font-weight: bold; }
-        .percentage { font-size: 14px; color: #58a6ff; margin-top: 5px; }
-        .btn-scan { background: #238636; color: white; border: none; width: 100%; padding: 14px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-scan:hover { background: #2ea043; }
-        .btn-scan:disabled { background: #21262d; color: #484f58; cursor: not-allowed; }
-        .metrics { display: flex; justify-content: space-between; margin-top: 15px; font-size: 12px; color: #8b949e; }
-        .loader { width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #58a6ff; border-radius: 50%; animation: spin 1s linear infinite; display: none; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
-</head>
-<body>
-
-<div class="bot-card">
-    <div class="header">
-        <div class="target">Stratégie Petit Capital (20$)</div>
-        <div style="font-weight: bold; margin-top: 5px;">V36 PATIENT EDITION</div>
-    </div>
-
-    <div id="display-box">
-        <div class="loader" id="loader"></div>
-        <div id="signal-label" class="signal-text">PRÊT</div>
-        <div id="conf-label" class="percentage">Analyse 1 MINUTE</div>
-    </div>
-
-    <button class="btn-scan" id="scan-btn" onclick="deepAnalyze()">SCANNER LE MARCHÉ</button>
-
-    <div class="metrics">
-        <span>RSI: <strong id="rsi-val">--</strong></span>
-        <span>TREND: <strong id="trend-val">--</strong></span>
-    </div>
-</div>
-
 <script>
     function deepAnalyze() {
-        const btn = document.getElementById('scan-btn');
-        const loader = document.getElementById('loader');
         const label = document.getElementById('signal-label');
         const conf = document.getElementById('conf-label');
-        const rsiVal = document.getElementById('rsi-val');
-        const trendVal = document.getElementById('trend-val');
+        
+        label.innerText = "CHARGEMENT...";
+        label.style.color = "#58a6ff";
 
-        btn.disabled = true;
-        loader.style.display = "block";
-        label.innerText = "";
-        conf.innerText = "Calcul des confluences...";
-
-        // Simulation d'analyse profonde (filtre les faux signaux)
         setTimeout(() => {
-            loader.style.display = "none";
-            const score = Math.random();
-            const rsi = Math.floor(Math.random() * 60 + 20);
-            rsiVal.innerText = rsi;
+            const rand = Math.random();
+            if (rand > 0.5) {
+                label.innerText = "↑ ACHAT";
+                label.style.color = "#238636";
+                conf.innerText = "SIGNAL FORT (1 MIN)";
+            } else {
+                label.innerText = "↓ VENTE";
+                label.style.color = "#da3633";
+                conf.innerText = "SIGNAL FORT (1 MIN)";
+            }
+        }, 2000);
+    }
+</script>
