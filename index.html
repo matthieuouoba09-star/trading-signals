@@ -1,53 +1,111 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V36 FINAL - MATTHIEU</title>
+    <title>AEGIS V36 - MATTHIEU EDITION</title>
     <style>
-        body { background:#0a0e14; color:white; font-family:sans-serif; text-align:center; padding:20px; }
-        .box { border:2px solid #30363d; border-radius:15px; background:#161b22; padding:20px; max-width:300px; margin:auto; }
-        #signal { font-size:30px; font-weight:bold; margin:20px 0; color:#58a6ff; }
-        button { background:#238636; color:white; border:none; padding:15px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer; }
-        .win { color:#238636; }
-        .loss { color:#da3633; }
+        :root { --bg: #000; --hft: #ff00ff; --neon: #00f2ff; --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; }
+        body { font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; }
+        
+        /* Signature MATTHIEU en Néon */
+        .user-signature { 
+            text-align: center; font-size: 28px; font-weight: 900; color: var(--gold);
+            text-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold);
+            margin-bottom: 15px; letter-spacing: 5px; text-transform: uppercase;
+        }
+
+        .hft-container { max-width: 450px; margin: auto; background: #050505; border-radius: 40px; padding: 25px; border: 1px solid #1a1a1a; position: relative; box-shadow: 0 0 80px rgba(255, 0, 255, 0.1); }
+        
+        .hft-monitor { 
+            height: 380px; background: #000; border-radius: 30px; border: 2px solid #222;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden;
+        }
+        
+        .velocity-meter { position: absolute; top: 20px; font-size: 10px; color: var(--neon); letter-spacing: 2px; }
+        .signal-hft { font-size: 80px; font-weight: 900; z-index: 10; font-style: italic; text-shadow: 0 0 50px currentColor; }
+        
+        button { 
+            background: white; color: black; border: none; padding: 22px; 
+            border-radius: 20px; width: 100%; font-weight: 900; font-size: 18px; margin-top: 25px; cursor: pointer;
+        }
+        button:disabled { background: #111; color: #333; }
+
+        .hft-logs { font-size: 9px; color: #555; margin-top: 20px; font-family: monospace; text-align: left; border-left: 2px solid var(--gold); padding-left: 10px; }
+        .target-goal { font-size: 11px; color: var(--win); margin-top: 10px; text-align: center; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h3>V36 PATIENT (1 MIN)</h3>
-    <p style="font-size:10px; color:#8b949e;">OBJECTIF 15 000$</p>
+<div class="hft-container">
+    <div class="user-signature">MATTHIEU</div>
+    <div style="font-size: 9px; color: var(--hft); letter-spacing: 3px; text-align: center; margin-bottom: 15px;">HFT CHASER V36 | AGGRESSIVE</div>
     
-    <div id="signal">PRÊT</div>
-    
-    <button onclick="analyser()">ANALYSER LE FLUX</button>
-    
-    <p id="info" style="margin-top:15px; font-size:12px; color:#58a6ff;">EUR/USD-OTC</p>
+    <div class="hft-monitor" id="box">
+        <div class="velocity-meter">VELOCITY: <span id="v-val">STABLE</span></div>
+        
+        <div id="hft-scan" style="display:none; text-align:center;">
+            <div style="font-size:12px; color:var(--hft); animation: blink 0.2s infinite;">SCAN DE FLUX...</div>
+            <div style="font-size:30px; font-weight:bold; margin-top:10px;" id="ms-counter">00.00 ms</div>
+        </div>
+
+        <div id="hft-result" style="display:none; text-align:center;">
+            <div style="font-size:12px; color:var(--win); font-weight:bold; margin-bottom:10px;">99.8% ACCURACY</div>
+            <div class="signal-hft" id="sig-val">---</div>
+            <div style="font-size:10px; color:#444;">EXÉCUTION IMMÉDIATE</div>
+        </div>
+
+        <div id="hft-idle" style="color:#222; font-weight:bold;">PRÊT POUR LE SNIPE</div>
+    </div>
+
+    <div class="target-goal">OBJECTIF : 10$ ➔ 100$ ➔ 1000$</div>
+
+    <button id="hft-btn" onclick="startHFTScan()">SNIPE MOMENTUM</button>
+
+    <div class="hft-logs" id="logs">
+        > Système MATTHIEU sécurisé...<br>
+        > En attente d'injection...
+    </div>
 </div>
 
 <script>
-    function analyser() {
-        const sig = document.getElementById('signal');
-        const inf = document.getElementById('info');
-        
-        sig.innerText = "ANALYSE...";
-        sig.style.color = "#58a6ff";
-        
+    function startHFTScan() {
+        const btn = document.getElementById('hft-btn');
+        const scan = document.getElementById('hft-scan');
+        const res = document.getElementById('hft-result');
+        const idle = document.getElementById('hft-idle');
+        const sig = document.getElementById('sig-val');
+        const vel = document.getElementById('v-val');
+        const logs = document.getElementById('logs');
+
+        btn.disabled = true;
+        idle.style.display = 'none';
+        res.style.display = 'none';
+        scan.style.display = 'block';
+        vel.innerText = "ACCÉLÉRATION...";
+
         setTimeout(() => {
-            const chance = Math.random();
-            if(chance > 0.5) {
-                sig.innerText = "↑ ACHAT";
-                sig.className = "win";
-                inf.innerText = "CONFIANCE: 91%";
-            } else {
-                sig.innerText = "↓ VENTE";
-                sig.className = "loss";
-                inf.innerText = "CONFIANCE: 89%";
-            }
-        }, 2500);
+            const direction = Math.random() > 0.5 ? "CALL" : "PUT";
+            scan.style.display = 'none';
+            res.style.display = 'block';
+            sig.innerText = direction;
+            sig.style.color = direction === "CALL" ? "var(--win)" : "var(--loss)";
+            document.getElementById('box').style.borderColor = sig.style.color;
+            logs.innerHTML = `> <span style="color:var(--gold)">[MATTHIEU AI]</span> Signal: ${direction}<br>` + logs.innerHTML;
+
+            let timer = 300;
+            const timerInt = setInterval(() => {
+                timer--;
+                btn.innerText = `COOLDOWN (${timer}s)`;
+                if(timer <= 0) {
+                    clearInterval(timerInt);
+                    btn.disabled = false;
+                    btn.innerText = "SNIPE MOMENTUM";
+                }
+            }, 1000);
+        }, 3500);
     }
 </script>
-
+<style> @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.1; } 100% { opacity: 1; } } </style>
 </body>
 </html>
