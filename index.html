@@ -3,104 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V36 MATTHIEU EDITION - ULTRA FAST</title>
+    <title>BW | MATTHIEU ANALYTICS</title>
     <style>
-        body { background-color: #0a0e14; color: white; font-family: 'Arial', sans-serif; text-align: center; margin: 0; padding: 20px; }
-        .container { border: 2px solid #00ff88; border-radius: 15px; padding: 20px; display: inline-block; background: #151d27; box-shadow: 0 0 20px rgba(0,255,136,0.2); }
-        .status-bar { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 12px; color: #888; }
-        .pair-name { font-size: 24px; font-weight: bold; color: #00ff88; margin-bottom: 10px; }
-        .target-goal { color: #ffcc00; font-size: 14px; margin-bottom: 20px; font-weight: bold; }
-        #signal-box { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; border-radius: 10px; margin: 20px 0; transition: all 0.3s; background: #1c2632; }
-        .signal-neutral { color: #555; }
-        .signal-buy { background: #00ff88 !important; color: #000; box-shadow: 0 0 30px #00ff88; }
-        .signal-sell { background: #ff4444 !important; color: #fff; box-shadow: 0 0 30px #ff4444; }
-        .timer { font-size: 18px; color: #00ff88; margin-top: 10px; }
-        .stats { display: flex; justify-content: space-around; margin-top: 20px; border-top: 1px solid #333; padding-top: 15px; }
-        .stat-box { font-size: 14px; }
-        .stat-val { display: block; font-size: 20px; color: #fff; font-weight: bold; }
+        body { background-color: #0b1118; color: white; font-family: 'Segoe UI', sans-serif; text-align: center; padding: 15px; }
+        .bot-card { border: 1px solid #232e3c; border-radius: 20px; background: #151d27; max-width: 350px; margin: auto; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        .header { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #fff; border-bottom: 1px solid #232e3c; padding-bottom: 10px; }
+        .time-selector { display: flex; justify-content: space-around; margin-bottom: 20px; background: #0b1118; padding: 10px; border-radius: 10px; }
+        .time-btn { background: none; border: none; color: #888; cursor: pointer; font-weight: bold; padding: 5px 10px; }
+        .time-btn.active { color: #00ff88; border-bottom: 2px solid #00ff88; }
+        #analyze-bar { width: 100%; height: 40px; background: #1c2632; border-radius: 10px; position: relative; overflow: hidden; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .progress { position: absolute; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, #00ff88, transparent); animation: loading 2s infinite; display: none; }
+        @keyframes loading { 100% { left: 100%; } }
+        #signal-display { font-size: 28px; font-weight: bold; margin: 20px 0; min-height: 40px; }
+        .buy { color: #00ff88; text-shadow: 0 0 15px #00ff88; }
+        .sell { color: #ff4444; text-shadow: 0 0 15px #ff4444; }
+        .footer-btn { background: #2481cc; color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="status-bar">
-            <span>MODE: ULTRA FAST (15s)</span>
-            <span>SENSITIVITY: MAX</span>
-        </div>
+<div class="bot-card">
+    <div class="header">BW | TradeAI Analytics</div>
+    
+    <div style="color:#00ff88; font-size:12px; margin-bottom:10px;">MARKET: EUR/USD OTC</div>
 
-        <div class="pair-name">EUR/USD - OTC</div>
-        <div class="target-goal">OBJECTIF : 20$ ➔ 15 000$</div>
-
-        <div id="signal-box" class="signal-neutral">ANALYSE EN COURS...</div>
-        
-        <div class="timer" id="countdown">ATTENTE FLUX...</div>
-
-        <div class="stats">
-            <div class="stat-box">CONFIANCE<span class="stat-val" id="confidence">0%</span></div>
-            <div class="stat-box">SESSION<span class="stat-val" id="session-result">--</span></div>
-        </div>
+    <div class="time-selector">
+        <button class="time-btn" onclick="setTime(3, this)">3s</button>
+        <button class="time-btn" onclick="setTime(5, this)">5s</button>
+        <button class="time-btn active" onclick="setTime(15, this)">15s</button>
+        <button class="time-btn" onclick="setTime(60, this)">1m</button>
     </div>
 
-    <script>
-        // CONFIGURATION OPTIMISÉE POUR MATTHIEU
-        const config = {
-            sensitivity: 0.98,
-            timeframe: 15, // 15 secondes
-            pair: "EUR/USD-OTC",
-            noiseFilter: true
-        };
+    <div id="analyze-bar">
+        <div class="progress" id="loader"></div>
+        <span id="status-text">WAITING...</span>
+    </div>
 
-        const signalBox = document.getElementById('signal-box');
-        const confidenceEl = document.getElementById('confidence');
-        const countdownEl = document.getElementById('countdown');
+    <div id="signal-display">---</div>
 
-        function generateSignal() {
-            // Simulation d'analyse de flux ultra-rapide
-            const chance = Math.random();
-            const confidence = Math.floor(Math.random() * (99 - 85) + 85);
+    <button class="footer-btn" onclick="startAnalysis()">GENERATE SIGNAL</button>
+</div>
 
-            if (chance > 0.7) {
-                showSignal("ACHAT / CALL", "signal-buy", confidence);
-            } else if (chance < 0.3) {
-                showSignal("VENTE / PUT", "signal-sell", confidence);
+<script>
+    let selectedTime = 15;
+
+    function setTime(seconds, btn) {
+        selectedTime = seconds;
+        document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('signal-display').innerText = "---";
+        document.getElementById('status-text').innerText = "READY (" + seconds + "s)";
+    }
+
+    function startAnalysis() {
+        const loader = document.getElementById('loader');
+        const statusText = document.getElementById('status-text');
+        const display = document.getElementById('signal-display');
+        
+        display.innerText = "---";
+        loader.style.display = "block";
+        statusText.innerText = "ANALYZING...";
+
+        // Simulation de l'analyse (plus rapide pour 3s, plus lente pour 1m)
+        setTimeout(() => {
+            loader.style.display = "none";
+            const rand = Math.random();
+            if(rand > 0.5) {
+                display.innerHTML = "<span class='buy'>↑ CALL (BUY)</span>";
+                statusText.innerText = "STRENGTH: " + Math.floor(Math.random()*15+84) + "%";
             } else {
-                resetSignal();
+                display.innerHTML = "<span class='sell'>↓ PUT (SELL)</span>";
+                statusText.innerText = "STRENGTH: " + Math.floor(Math.random()*15+84) + "%";
             }
-        }
+        }, 1500);
+    }
+</script>
 
-        function showSignal(text, cssClass, confidence) {
-            signalBox.innerText = text;
-            signalBox.className = cssClass;
-            confidenceEl.innerText = confidence + "%";
-            startCountdown();
-        }
-
-        function resetSignal() {
-            signalBox.innerText = "ANALYSE...";
-            signalBox.className = "signal-neutral";
-            confidenceEl.innerText = "0%";
-            countdownEl.innerText = "SCANNING MARKET...";
-        }
-
-        function startCountdown() {
-            let timeLeft = config.timeframe;
-            const timer = setInterval(() => {
-                timeLeft--;
-                countdownEl.innerText = "EXPIRATION: " + timeLeft + "s";
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    resetSignal();
-                }
-            }, 1000);
-        }
-
-        // Boucle d'analyse ultra-rapide (toutes les 5 à 10 secondes)
-        setInterval(() => {
-            if (signalBox.className === "signal-neutral") {
-                generateSignal();
-            }
-        }, 7000);
-
-    </script>
 </body>
-      </html>
+</html>
