@@ -1,22 +1,53 @@
-<script>
-    function deepAnalyze() {
-        const label = document.getElementById('signal-label');
-        const conf = document.getElementById('conf-label');
-        
-        label.innerText = "CHARGEMENT...";
-        label.style.color = "#58a6ff";
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V36 FINAL - MATTHIEU</title>
+    <style>
+        body { background:#0a0e14; color:white; font-family:sans-serif; text-align:center; padding:20px; }
+        .box { border:2px solid #30363d; border-radius:15px; background:#161b22; padding:20px; max-width:300px; margin:auto; }
+        #signal { font-size:30px; font-weight:bold; margin:20px 0; color:#58a6ff; }
+        button { background:#238636; color:white; border:none; padding:15px; width:100%; border-radius:8px; font-weight:bold; cursor:pointer; }
+        .win { color:#238636; }
+        .loss { color:#da3633; }
+    </style>
+</head>
+<body>
 
+<div class="box">
+    <h3>V36 PATIENT (1 MIN)</h3>
+    <p style="font-size:10px; color:#8b949e;">OBJECTIF 15 000$</p>
+    
+    <div id="signal">PRÊT</div>
+    
+    <button onclick="analyser()">ANALYSER LE FLUX</button>
+    
+    <p id="info" style="margin-top:15px; font-size:12px; color:#58a6ff;">EUR/USD-OTC</p>
+</div>
+
+<script>
+    function analyser() {
+        const sig = document.getElementById('signal');
+        const inf = document.getElementById('info');
+        
+        sig.innerText = "ANALYSE...";
+        sig.style.color = "#58a6ff";
+        
         setTimeout(() => {
-            const rand = Math.random();
-            if (rand > 0.5) {
-                label.innerText = "↑ ACHAT";
-                label.style.color = "#238636";
-                conf.innerText = "SIGNAL FORT (1 MIN)";
+            const chance = Math.random();
+            if(chance > 0.5) {
+                sig.innerText = "↑ ACHAT";
+                sig.className = "win";
+                inf.innerText = "CONFIANCE: 91%";
             } else {
-                label.innerText = "↓ VENTE";
-                label.style.color = "#da3633";
-                conf.innerText = "SIGNAL FORT (1 MIN)";
+                sig.innerText = "↓ VENTE";
+                sig.className = "loss";
+                inf.innerText = "CONFIANCE: 89%";
             }
-        }, 2000);
+        }, 2500);
     }
 </script>
+
+</body>
+</html>
