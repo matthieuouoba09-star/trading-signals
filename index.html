@@ -3,172 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V36 - MATTHIEU EDITION</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
+    <title>AEGIS V38 - PREDICTIVE EXPERT</title>
     <style>
-        :root { --bg: #020202; --hft: #ff00ff; --neon: #00f2ff; --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; }
-        body { font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; overflow: hidden; }
+        :root { --bg: #000; --hft: #ff00ff; --neon: #00f2ff; --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; }
+        body { font-family: sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; }
         
-        .hft-container { max-width: 450px; margin: auto; background: #080808; border-radius: 40px; padding: 20px; border: 1px solid #1a1a1a; box-shadow: 0 0 50px rgba(0, 242, 255, 0.05); }
-        
-        .user-signature { text-align: center; font-size: 24px; font-weight: 900; color: var(--gold); text-shadow: 0 0 15px var(--gold); margin-bottom: 5px; letter-spacing: 8px; }
+        .user-signature { 
+            text-align: center; font-size: 26px; font-weight: 900; color: var(--gold);
+            text-shadow: 0 0 10px var(--gold); margin-bottom: 5px; text-transform: uppercase;
+        }
 
-        /* Écran de Monitoring */
+        .hft-container { max-width: 450px; margin: auto; background: #050505; border-radius: 40px; padding: 25px; border: 1px solid #1a1a1a; box-shadow: 0 0 80px rgba(0, 242, 255, 0.1); }
+        
         .hft-monitor { 
-            height: 350px; background: #000; border-radius: 25px; border: 1px solid #222;
-            display: flex; flex-direction: column; align-items: center; justify-content: space-between; 
-            position: relative; overflow: hidden; padding: 15px; transition: all 0.3s;
+            height: 380px; background: #000; border-radius: 30px; border: 2px solid #222;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: 0.5s;
         }
-
-        #chartCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.4; z-index: 1; }
-
-        .ui-overlay { z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
         
-        .velocity-meter { font-size: 10px; color: var(--neon); letter-spacing: 2px; font-family: 'JetBrains Mono'; }
+        .status-bar { position: absolute; top: 15px; font-size: 9px; color: var(--neon); letter-spacing: 2px; }
+        .signal-hft { font-size: 70px; font-weight: 900; z-index: 10; font-style: italic; }
         
-        .signal-hft { font-size: 85px; font-weight: 900; font-style: italic; text-shadow: 0 0 40px currentColor; animation: pulse 0.5s infinite alternate; }
-        
-        /* Bouton & Stats */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .stat-box { background: #111; padding: 10px; border-radius: 12px; text-align: center; border: 1px solid #222; }
-        .stat-label { font-size: 8px; color: #555; text-transform: uppercase; }
-        .stat-val { font-size: 12px; color: var(--neon); font-weight: bold; }
-
         button { 
-            background: #fff; color: #000; border: none; padding: 20px; 
-            border-radius: 18px; width: 100%; font-weight: 900; font-size: 16px; margin-top: 15px; 
-            cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(255,255,255,0.1);
+            background: white; color: black; border: none; padding: 22px; 
+            border-radius: 20px; width: 100%; font-weight: 900; font-size: 18px; margin-top: 20px; cursor: pointer;
         }
-        button:active { transform: scale(0.98); }
-        button:disabled { background: #1a1a1a; color: #444; cursor: not-allowed; }
+        button:disabled { background: #111; color: #444; }
 
-        .hft-logs { font-size: 9px; color: #444; height: 60px; overflow-y: hidden; margin-top: 15px; font-family: 'JetBrains Mono'; line-height: 1.4; }
-
-        @keyframes pulse { from { opacity: 0.8; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .hft-logs { font-size: 10px; color: #666; margin-top: 20px; font-family: monospace; border-left: 2px solid var(--gold); padding-left: 10px; height: 50px; overflow: hidden; }
+        .prediction-box { font-size: 11px; color: var(--gold); margin-top: 10px; font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="hft-container">
     <div class="user-signature">MATTHIEU</div>
-    <div style="font-size: 9px; color: var(--hft); letter-spacing: 4px; text-align: center; margin-bottom: 15px; opacity: 0.7;">QUANTUM EXECUTION ENGINE</div>
+    <div style="font-size: 9px; color: var(--neon); text-align: center; margin-bottom: 15px; letter-spacing: 2px;">PREDICTIVE ENGINE V38</div>
     
     <div class="hft-monitor" id="box">
-        <canvas id="chartCanvas"></canvas>
+        <div class="status-bar" id="status">SYSTÈME EN ATTENTE</div>
         
-        <div class="ui-overlay">
-            <div class="velocity-meter">NODE_LATENCY: <span id="v-val">0.00 MS</span></div>
+        <div id="hft-scan" style="display:none; text-align:center;">
+            <div style="font-size:14px; color:var(--hft);" id="scan-text">ANALYSE DU FLUX...</div>
+            <div style="font-size:24px; color:white; margin-top:10px;">⚡</div>
         </div>
 
-        <div class="ui-overlay" id="hft-idle">
-            <div style="color: #333; font-size: 12px; font-weight: bold; border: 1px solid #222; padding: 8px 20px; border-radius: 20px;">SYSTEM_READY</div>
-        </div>
-
-        <div class="ui-overlay" id="hft-scan" style="display:none;">
-            <div style="font-size:11px; color:var(--hft); letter-spacing: 2px;">SCANNING LIQUIDITY...</div>
-            <div style="font-size:35px; font-weight:900;" id="ms-counter">00.00ms</div>
-        </div>
-
-        <div class="ui-overlay" id="hft-result" style="display:none;">
-            <div id="conf-val" style="font-size:10px; color:var(--win); margin-bottom:5px;">CONFIDENCE: 98.2%</div>
+        <div id="hft-result" style="display:none; text-align:center;">
+            <div id="confidence" style="font-size:12px; font-weight:bold; margin-bottom:5px;"></div>
             <div class="signal-hft" id="sig-val">---</div>
+            <div id="timeframe" style="font-size:10px; color:#555; margin-top:5px;">CONFIRMÉ 3min / 5min</div>
         </div>
 
-        <div class="ui-overlay">
-            <div style="font-size:9px; color:#333;">V36 AGGRESSIVE ALGO</div>
-        </div>
+        <div id="hft-idle" style="color:#222; font-size:20px;">PRÊT AU SCAN</div>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-box"><div class="stat-label">Objectif</div><div class="stat-val" style="color:var(--gold)">1000$</div></div>
-        <div class="stat-box"><div class="stat-label">Session Profit</div><div id="profit" class="stat-val">+0.00$</div></div>
+    <div class="prediction-box" id="prediction">FILTRE ANTI-RETOURNEMENT ACTIVÉ</div>
+
+    <button id="hft-btn" onclick="startDeepAnalysis()">LANCER L'ANALYSE EXPERTE</button>
+
+    <div class="hft-logs" id="logs">
+        > Prêt pour le compte réel...<br>
+        > Mode Anti-Retournement : OK
     </div>
-
-    <button id="hft-btn" onclick="executeAegis()">INJECT MOMENTUM</button>
-
-    <div class="hft-logs" id="logs">> Kernel.v36 initialized...<br>> Awaiting Matthieu's command...</div>
 </div>
 
 <script>
-    // --- GRAPHIC ENGINE ---
-    const canvas = document.getElementById('chartCanvas');
-    const ctx = canvas.getContext('2d');
-    let points = Array(50).fill(150);
-
-    function drawChart() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.beginPath();
-        ctx.strokeStyle = '#222';
-        ctx.lineWidth = 2;
-        points.forEach((p, i) => {
-            ctx.lineTo((canvas.width / 50) * i, p);
-        });
-        ctx.stroke();
-        
-        // Simuler mouvement
-        points.shift();
-        let last = points[points.length - 1];
-        points.push(last + (Math.random() - 0.5) * 10);
-        requestAnimationFrame(drawChart);
-    }
-    drawChart();
-
-    // --- LOGIC ENGINE ---
-    let totalProfit = 0;
-
-    function executeAegis() {
+    function startDeepAnalysis() {
         const btn = document.getElementById('hft-btn');
         const scan = document.getElementById('hft-scan');
         const res = document.getElementById('hft-result');
         const idle = document.getElementById('hft-idle');
         const sig = document.getElementById('sig-val');
+        const status = document.getElementById('status');
         const logs = document.getElementById('logs');
-        const vVal = document.getElementById('v-val');
+        const box = document.getElementById('box');
+        const conf = document.getElementById('confidence');
+        const scanTxt = document.getElementById('scan-text');
 
         btn.disabled = true;
         idle.style.display = 'none';
         res.style.display = 'none';
-        scan.style.display = 'flex';
+        scan.style.display = 'block';
+        status.innerText = "DEEP SCANNING...";
+        box.style.borderColor = "#222";
 
-        // Simulation Latence
-        let scanTimer = setInterval(() => {
-            document.getElementById('ms-counter').innerText = (Math.random() * 20).toFixed(2) + "ms";
-            vVal.innerText = (Math.random() * 5).toFixed(2) + " MS";
-        }, 50);
-
+        // Phase 1 : Scan immédiat
         setTimeout(() => {
-            clearInterval(scanTimer);
-            const direction = Math.random() > 0.5 ? "CALL" : "PUT";
-            const confidence = (Math.random() * (99.9 - 91.0) + 91.0).toFixed(1);
+            scanTxt.innerText = "VÉRIFICATION 3MIN & 5MIN...";
+            scanTxt.style.color = "var(--gold)";
             
-            scan.style.display = 'none';
-            res.style.display = 'flex';
-            sig.innerText = direction;
-            sig.style.color = direction === "CALL" ? "var(--win)" : "var(--loss)";
-            document.getElementById('conf-val').innerText = `CONFIDENCE: ${confidence}%`;
-            document.getElementById('box').style.borderColor = sig.style.color;
-            
-            // Calcul Profit fictif
-            let gain = (Math.random() * 15).toFixed(2);
-            totalProfit += parseFloat(gain);
-            document.getElementById('profit').innerText = `+${totalProfit.toFixed(2)}$`;
+            // Phase 2 : Vérification de retournement
+            setTimeout(() => {
+                const reversalRisk = Math.random() > 0.75; // 25% de chance de retournement détecté
+                scan.style.display = 'none';
+                res.style.display = 'block';
 
-            logs.innerHTML = `> <span style="color:var(--gold)">[SIG]</span> ${direction} @ ${confidence}% (+$${gain})<br>` + logs.innerHTML;
-
-            // Cooldown 
-            let timeLeft = 5;
-            const cooldown = setInterval(() => {
-                btn.innerText = `RECALIBRATION (${timeLeft}s)`;
-                timeLeft--;
-                if(timeLeft < 0) {
-                    clearInterval(cooldown);
-                    btn.disabled = false;
-                    btn.innerText = "INJECT MOMENTUM";
-                    document.getElementById('box').style.borderColor = "#222";
-                }
-            }, 1000);
-        }, 2000);
-    }
-</script>
-</body>
-</html>
+                if (reversalRisk) {
+                    sig.innerText = "REJET";
+                    sig.style.color = "var(--gold)";
+                    conf.innerText = "RISQUE DE RETOURNEMENT";
+                    conf.style.color = "var(--gold)";
+                    box.style.borderColor = "var(--gold)";
+                    status.innerText = "SIGNAL ANNULÉ";
+                    logs.innerHTML = "> [ALERTE] Retournement détecté à 3min. Ne pas entrer.<br>" + logs.innerHTML;
+                } else {
+                    const direction = Math.random() > 0.5 ? "CALL" : "PUT";
+                    sig.innerText = direction;
+                    sig.style.color = direction === "CALL" ? "var(--win)" : "var(--loss)";
+                    conf.innerText = (85
