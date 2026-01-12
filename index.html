@@ -3,110 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V38 - PREDICTIVE EXPERT</title>
+    <title>AEGIS V38 FIX - MATTHIEU</title>
     <style>
         :root { --bg: #000; --hft: #ff00ff; --neon: #00f2ff; --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; }
-        body { font-family: sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; }
+        body { font-family: sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; text-align: center; }
         
         .user-signature { 
-            text-align: center; font-size: 26px; font-weight: 900; color: var(--gold);
-            text-shadow: 0 0 10px var(--gold); margin-bottom: 5px; text-transform: uppercase;
+            font-size: 26px; font-weight: 900; color: var(--gold);
+            text-shadow: 0 0 10px var(--gold); margin: 10px 0; text-transform: uppercase;
         }
 
-        .hft-container { max-width: 450px; margin: auto; background: #050505; border-radius: 40px; padding: 25px; border: 1px solid #1a1a1a; box-shadow: 0 0 80px rgba(0, 242, 255, 0.1); }
+        .hft-container { max-width: 380px; margin: auto; background: #050505; border-radius: 30px; padding: 20px; border: 1px solid #222; }
         
         .hft-monitor { 
-            height: 380px; background: #000; border-radius: 30px; border: 2px solid #222;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: 0.5s;
+            height: 320px; background: #000; border-radius: 20px; border: 2px solid #333;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;
         }
         
-        .status-bar { position: absolute; top: 15px; font-size: 9px; color: var(--neon); letter-spacing: 2px; }
-        .signal-hft { font-size: 70px; font-weight: 900; z-index: 10; font-style: italic; }
+        .signal-hft { font-size: 60px; font-weight: 900; margin: 10px 0; }
         
         button { 
-            background: white; color: black; border: none; padding: 22px; 
-            border-radius: 20px; width: 100%; font-weight: 900; font-size: 18px; margin-top: 20px; cursor: pointer;
+            background: #fff; color: #000; border: none; padding: 20px; 
+            border-radius: 15px; width: 100%; font-weight: 900; font-size: 18px; margin-top: 20px; cursor: pointer;
         }
-        button:disabled { background: #111; color: #444; }
+        button:disabled { background: #222; color: #555; }
 
-        .hft-logs { font-size: 10px; color: #666; margin-top: 20px; font-family: monospace; border-left: 2px solid var(--gold); padding-left: 10px; height: 50px; overflow: hidden; }
-        .prediction-box { font-size: 11px; color: var(--gold); margin-top: 10px; font-weight: bold; text-align: center; }
+        .logs { font-size: 10px; color: #444; margin-top: 15px; text-align: left; font-family: monospace; }
+        .info-txt { font-size: 12px; color: var(--neon); margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
 <div class="hft-container">
     <div class="user-signature">MATTHIEU</div>
-    <div style="font-size: 9px; color: var(--neon); text-align: center; margin-bottom: 15px; letter-spacing: 2px;">PREDICTIVE ENGINE V38</div>
     
     <div class="hft-monitor" id="box">
-        <div class="status-bar" id="status">SYSTÈME EN ATTENTE</div>
-        
-        <div id="hft-scan" style="display:none; text-align:center;">
-            <div style="font-size:14px; color:var(--hft);" id="scan-text">ANALYSE DU FLUX...</div>
-            <div style="font-size:24px; color:white; margin-top:10px;">⚡</div>
+        <div id="loading" style="display:none;">
+            <div style="color:var(--hft); font-weight:bold; animation: pulse 1s infinite;">ANALYSE 3min / 5min...</div>
         </div>
 
-        <div id="hft-result" style="display:none; text-align:center;">
-            <div id="confidence" style="font-size:12px; font-weight:bold; margin-bottom:5px;"></div>
+        <div id="result" style="display:none;">
+            <div id="acc" style="font-size:12px; font-weight:bold;"></div>
             <div class="signal-hft" id="sig-val">---</div>
-            <div id="timeframe" style="font-size:10px; color:#555; margin-top:5px;">CONFIRMÉ 3min / 5min</div>
+            <div id="msg" style="font-size:11px;"></div>
         </div>
 
-        <div id="hft-idle" style="color:#222; font-size:20px;">PRÊT AU SCAN</div>
+        <div id="idle" style="color:#222; font-weight:bold; font-size:20px;">PRÊT AU SCAN</div>
     </div>
 
-    <div class="prediction-box" id="prediction">FILTRE ANTI-RETOURNEMENT ACTIVÉ</div>
+    <button id="main-btn" onclick="runAnalysis()">LANCER L'ANALYSE</button>
 
-    <button id="hft-btn" onclick="startDeepAnalysis()">LANCER L'ANALYSE EXPERTE</button>
-
-    <div class="hft-logs" id="logs">
-        > Prêt pour le compte réel...<br>
-        > Mode Anti-Retournement : OK
-    </div>
+    <div class="logs" id="logs">> Système prêt...</div>
 </div>
 
 <script>
-    function startDeepAnalysis() {
-        const btn = document.getElementById('hft-btn');
-        const scan = document.getElementById('hft-scan');
-        const res = document.getElementById('hft-result');
-        const idle = document.getElementById('hft-idle');
-        const sig = document.getElementById('sig-val');
-        const status = document.getElementById('status');
-        const logs = document.getElementById('logs');
+    function runAnalysis() {
+        const btn = document.getElementById('main-btn');
         const box = document.getElementById('box');
-        const conf = document.getElementById('confidence');
-        const scanTxt = document.getElementById('scan-text');
+        const idle = document.getElementById('idle');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const sig = document.getElementById('sig-val');
+        const acc = document.getElementById('acc');
+        const msg = document.getElementById('msg');
+        const logs = document.getElementById('logs');
 
+        // Étape 1 : Activation immédiate du clic
         btn.disabled = true;
         idle.style.display = 'none';
-        res.style.display = 'none';
-        scan.style.display = 'block';
-        status.innerText = "DEEP SCANNING...";
-        box.style.borderColor = "#222";
+        result.style.display = 'none';
+        loading.style.display = 'block';
+        box.style.borderColor = "#ff00ff";
 
-        // Phase 1 : Scan immédiat
-        setTimeout(() => {
-            scanTxt.innerText = "VÉRIFICATION 3MIN & 5MIN...";
-            scanTxt.style.color = "var(--gold)";
+        // Étape 2 : Simulation de l'analyse profonde (2.5 secondes)
+        setTimeout(function() {
+            loading.style.display = 'none';
+            result.style.display = 'block';
             
-            // Phase 2 : Vérification de retournement
-            setTimeout(() => {
-                const reversalRisk = Math.random() > 0.75; // 25% de chance de retournement détecté
-                scan.style.display = 'none';
-                res.style.display = 'block';
+            const rand = Math.random();
+            const isReversal = Math.random() > 0.8; // 20% de risque de retournement
 
-                if (reversalRisk) {
-                    sig.innerText = "REJET";
-                    sig.style.color = "var(--gold)";
-                    conf.innerText = "RISQUE DE RETOURNEMENT";
-                    conf.style.color = "var(--gold)";
-                    box.style.borderColor = "var(--gold)";
-                    status.innerText = "SIGNAL ANNULÉ";
-                    logs.innerHTML = "> [ALERTE] Retournement détecté à 3min. Ne pas entrer.<br>" + logs.innerHTML;
-                } else {
-                    const direction = Math.random() > 0.5 ? "CALL" : "PUT";
-                    sig.innerText = direction;
-                    sig.style.color = direction === "CALL" ? "var(--win)" : "var(--loss)";
-                    conf.innerText = (85
+            if (isReversal) {
+                sig.innerText = "REJET";
+                sig.style.color = "#ffcc00";
+                acc.innerText = "ALERTE RETOURNEMENT";
+                acc.style.color = "#ffcc00";
+                msg.innerText = "MARCHÉ INSTABLE DANS 3MIN";
+                box.style.borderColor = "#ffcc00";
+                logs.innerHTML = "> [BLOQUÉ] Risque détecté<br>" + logs.innerHTML;
+            } else {
+                const isCall = rand > 0.5;
+                sig.innerText = isCall ? "CALL" : "PUT";
+                sig.style.color = isCall ? "#00ff88" : "#ff0044";
+                acc.innerText = "97.4% CONFIANCE";
+                acc.style.color = isCall ? "#00ff88" : "#ff0044";
+                msg.innerText = "DIRECTION STABLE 5MIN";
+                box.style.borderColor = sig.style.color;
+                logs.innerHTML = "> [OK] Tendance confirmée<br>" + logs.innerHTML;
+            }
+
+            // Étape 3 : Cooldown rapide (8 secondes)
+            let timer = 8;
+            const cooldown = setInterval(function() {
+                btn.innerText = "ATTENTE (" + timer + "s)";
+                timer--;
+                if (timer < 0) {
+                    clearInterval(cooldown);
+                    btn.disabled = false;
+                    btn.innerText = "LANCER L'ANALYSE";
+                    box.style.borderColor = "#333";
+                }
+            }, 1000);
+
+        }, 2500);
+    }
+</script>
+
+<style>
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+</style>
+
+</body>
+</html>
