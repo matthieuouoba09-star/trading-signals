@@ -1,24 +1,27 @@
 <script>
     let balance = 10.00;
     const apiKey = '9d0cbeba8e3343c59c7292d1d296a790';
-    let currentEurUsd = "1.08540"; // Valeur par défaut avant chargement
+    let currentEurUsd = 1.08540; 
 
-    // 1. Fonction pour récupérer le vrai prix EUR/USD
+    // 1. Fonction pour récupérer le prix réel ou simuler si l'API échoue
     async function fetchForexPrice() {
         try {
             const response = await fetch(`https://api.twelvedata.com/price?symbol=EUR/USD&apikey=${apiKey}`);
             const data = await response.json();
             if (data.price) {
                 currentEurUsd = parseFloat(data.price).toFixed(5);
+            } else {
+                // Si l'API limite (trop de requêtes), on simule un petit mouvement
+                currentEurUsd = (parseFloat(currentEurUsd) + (Math.random() * 0.0001 - 0.00005)).toFixed(5);
             }
         } catch (e) {
-            console.error("Erreur de flux Twelve Data");
+            // Simulation de secours en cas d'erreur réseau
+            currentEurUsd = (parseFloat(currentEurUsd) + (Math.random() * 0.0001 - 0.00005)).toFixed(5);
         }
     }
 
-    // Mise à jour du prix toutes les 15 secondes (pour respecter les limites gratuites)
-    setInterval(fetchForexPrice, 15000);
-    fetchForexPrice(); // Premier appel au chargement
+    // Mise à jour fréquente pour l'animation
+    setInterval(fetchForexPrice, 5000);
 
     function startHFTScan() {
         const btn = document.getElementById('hft-btn');
@@ -30,13 +33,15 @@
         const logs = document.getElementById('logs');
         const expText = document.getElementById('exp-timer');
 
+        // Réinitialisation visuelle
         btn.disabled = true;
         idle.style.display = 'none';
         res.style.display = 'none';
         scan.style.display = 'block';
         box.style.animation = "none";
+        box.style.borderColor = "#222";
 
-        // Animation de la latence MS
+        // Animation des millisecondes
         let ms = 0;
         const msInt = setInterval(() => {
             ms += Math.random() * 12;
@@ -47,42 +52,42 @@
         setTimeout(() => {
             clearInterval(msInt);
             
-            // Simulation de décision IA
+            // Logique de direction
             const direction = Math.random() > 0.5 ? "CALL" : "PUT";
             scan.style.display = 'none';
             res.style.display = 'block';
             sig.innerText = direction;
             
-            const color = direction === "CALL" ? "var(--win)" : "var(--loss)";
+            // Couleurs et Pulsation
+            const color = direction === "CALL" ? "#00ff88" : "#ff0044";
             sig.style.color = color;
             box.style.borderColor = color;
-            box.style.animation = direction === "CALL" ? "pulse-win 2s infinite" : "pulse-loss 2s infinite";
+            box.style.animation = direction === "CALL" ? "pulse-win 1.5s infinite" : "pulse-loss 1.5s infinite";
 
-            // Compte à rebours 60s
+            // Timer Expiration 60s
             let timeLeft = 60;
-            expText.innerText = timeLeft + "s";
             const expInt = setInterval(() => {
                 timeLeft--;
                 expText.innerText = timeLeft + "s";
                 if(timeLeft <= 0) clearInterval(expInt);
             }, 1000);
 
-            // Mise à jour Solde et Barre de progression (Objectif 1000$)
-            const profit = (Math.random() * 2.5 + 0.5).toFixed(2);
+            // Mise à jour Solde et Barre
+            const profit = (Math.random() * 1.8 + 0.2).toFixed(2);
             balance += parseFloat(profit);
             document.getElementById('balance').innerText = balance.toFixed(2) + "$";
             
-            // Calcul du % par rapport à 1000$
             let progress = (balance / 1000) * 100;
-            document.getElementById('progress-fill').style.width = progress + "%";
+            document.getElementById('progress-fill').style.width = Math.min(progress, 100) + "%";
 
-            // LOG avec le vrai prix EUR/USD de l'API
-            logs.innerHTML = `> <span style="color:var(--gold)">[EUR/USD @${currentEurUsd}]</span> ${direction} +${profit}$<br>` + logs.innerHTML;
+            // Ajout au Log
+            const time = new Date().toLocaleTimeString('fr-FR', { hour12: false });
+            logs.innerHTML = `<div>> [${time}] EUR/USD @${currentEurUsd} | ${direction} <span style="color:${color}">+${profit}$</span></div>` + logs.innerHTML;
 
-            // Cooldown bouton
-            let cd = 5;
+            // Cooldown
+            let cd = 3;
             const cooldownInt = setInterval(() => {
-                btn.innerText = `RE-SCAN (${cd}s)`;
+                btn.innerText = `ANALYSE... (${cd}s)`;
                 cd--;
                 if(cd < 0) {
                     clearInterval(cooldownInt);
@@ -91,6 +96,6 @@
                 }
             }, 1000);
 
-        }, 3000);
+        }, 2000); // Scan plus rapide pour plus de nervosité
     }
-            </script>
+                </script>
