@@ -1,104 +1,91 @@
-<script>
-    let balance = 10.00;
-    const apiKey = '9d0cbeba8e3343c59c7292d1d296a790';
-    let currentEurUsd = 1.08542; // Prix de départ sécurisé
+let balance = 10.00;
+let lastPrice = 0;
+let priceHistory = [];
 
-    // 1. GESTION DU FLUX EUR/USD (API + SIMULATION DE SECOURS)
-    async function updatePrice() {
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3000); // Timeout 3s
+// 1. Connexion au flux réel de Binance (BTC/USDT)
+const socket = new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@ticker");
 
-            const response = await fetch(`https://api.twelvedata.com/price?symbol=EUR/USD&apikey=${apiKey}`, { signal: controller.signal });
-            const data = await response.json();
-            
-            if (data.price) {
-                currentEurUsd = parseFloat(data.price);
-            } else {
-                // Si l'API est en pause, on crée un micro-mouvement (ex: 1.08542 -> 1.08543)
-                currentEurUsd += (Math.random() * 0.0001 - 0.00005);
+socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    const currentPrice = parseFloat(data.c);
+    
+    // Garder un historique des prix pour l'analyse
+    priceHistory.push(currentPrice);
+    if(priceHistory.length > 50) priceHistory.shift(); 
+    
+    lastPrice = currentPrice;
+};
+
+async function startHFTScan() {
+    const btn = document.getElementById('hft-btn');
+    const scan = document.getElementById('hft-scan');
+    const res = document.getElementById('hft-result');
+    const idle = document.getElementById('hft-idle');
+    const sig = document.getElementById('sig-val');
+    const box = document.getElementById('box');
+    const logs = document.getElementById('logs');
+    const expText = document.getElementById('exp-timer');
+
+    if (!lastPrice) {
+        alert("Attente du flux de données Binance...");
+        return;
+    }
+
+    btn.disabled = true;
+    idle.style.display = 'none';
+    res.style.display = 'none';
+    scan.style.display = 'block';
+    box.style.animation = "none";
+
+    // Simulation visuelle du scan (3 secondes)
+    let ms = 0;
+    const startPrice = lastPrice; // On capture le prix au début du scan
+    
+    const msInt = setInterval(() => {
+        ms += Math.random() * 12;
+        document.getElementById('ms-counter').innerText = ms.toFixed(2) + " ms";
+        document.getElementById('v-val').innerText = (Math.random() * 15 + 5).toFixed(1) + " MS";
+    }, 40);
+
+    setTimeout(() => {
+        clearInterval(msInt);
+        
+        // 2. LOGIQUE DE SIGNAL RÉEL
+        // On compare le prix actuel avec le prix d'il y a 3 secondes
+        const endPrice = lastPrice;
+        const diff = endPrice - startPrice;
+        
+        // Si la différence est trop faible, on force une direction basée sur la micro-tendance
+        let direction = diff > 0 ? "CALL" : "PUT";
+        
+        scan.style.display = 'none';
+        res.style.display = 'block';
+        sig.innerText = direction;
+        
+        const color = direction === "CALL" ? "var(--win)" : "var(--loss)";
+        sig.style.color = color;
+        box.style.borderColor = color;
+        box.style.animation = direction === "CALL" ? "pulse-win 2s infinite" : "pulse-loss 2s infinite";
+
+        // Expiration logic
+        let timeLeft = 60;
+        expText.innerText = timeLeft + "s";
+        
+        // Update Logs avec le vrai changement de prix
+        const changePercent = ((diff / startPrice) * 100).toFixed(4);
+        logs.innerHTML = `> <span style="color:var(--gold)">[M-AI]</span> ${direction} détecté (Var: ${changePercent}%)<br>` + logs.innerHTML;
+
+        // Cooldown
+        let cd = 3;
+        const cooldownInt = setInterval(() => {
+            btn.innerText = `COOLDOWN (${cd}s)`;
+            cd--;
+            if(cd < 0) {
+                clearInterval(cooldownInt);
+                btn.disabled = false;
+                btn.innerText = "SNIPE MOMENTUM";
             }
-        } catch (e) {
-            // En cas d'erreur réseau, on maintient le mouvement fluide
-            currentEurUsd += (Math.random() * 0.0001 - 0.00005);
-        }
-    }
+        }, 1000);
 
-    // Mise à jour toutes les 5 secondes pour la réactivité
-    setInterval(updatePrice, 5000);
-
-    function startHFTScan() {
-        const btn = document.getElementById('hft-btn');
-        const scan = document.getElementById('hft-scan');
-        const res = document.getElementById('hft-result');
-        const idle = document.getElementById('hft-idle');
-        const sig = document.getElementById('sig-val');
-        const box = document.getElementById('box');
-        const logs = document.getElementById('logs');
-        const expText = document.getElementById('exp-timer');
-
-        // Initialisation
-        btn.disabled = true;
-        idle.style.display = 'none';
-        res.style.display = 'none';
-        scan.style.display = 'block';
-        box.style.animation = "none";
-        box.style.borderColor = "#222";
-
-        // Animation Latence
-        let ms = 0;
-        const msInt = setInterval(() => {
-            ms += Math.random() * 10;
-            document.getElementById('ms-counter').innerText = ms.toFixed(2) + " ms";
-            document.getElementById('v-val').innerText = (ms/12).toFixed(1) + " MS";
-        }, 50);
-
-        setTimeout(() => {
-            clearInterval(msInt);
-            
-            // Logique de direction (Momentum Chaser)
-            const direction = Math.random() > 0.5 ? "CALL" : "PUT";
-            scan.style.display = 'none';
-            res.style.display = 'block';
-            sig.innerText = direction;
-            
-            const color = direction === "CALL" ? "#00ff88" : "#ff0044";
-            sig.style.color = color;
-            box.style.borderColor = color;
-            box.style.animation = direction === "CALL" ? "pulse-win 1.5s infinite" : "pulse-loss 1.5s infinite";
-
-            // Timer expiration
-            let timeLeft = 60;
-            const expInt = setInterval(() => {
-                timeLeft--;
-                expText.innerText = timeLeft + "s";
-                if(timeLeft <= 0) clearInterval(expInt);
-            }, 1000);
-
-            // Calcul Profit & Progression vers 1000$
-            const profit = (Math.random() * 2.1 + 0.4).toFixed(2);
-            balance += parseFloat(profit);
-            document.getElementById('balance').innerText = balance.toFixed(2) + "$";
-            
-            let progress = (balance / 1000) * 100;
-            document.getElementById('progress-fill').style.width = Math.min(progress, 100) + "%";
-
-            // Log formaté avec le prix EUR/USD réel
-            const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-            logs.innerHTML = `<div>> [${time}] EUR/USD @${currentEurUsd.toFixed(5)} | ${direction} <span style="color:${color}">+$${profit}</span></div>` + logs.innerHTML;
-
-            // Cooldown rapide
-            let cd = 3;
-            const cooldownInt = setInterval(() => {
-                btn.innerText = `NEXT SCAN (${cd}s)`;
-                cd--;
-                if(cd < 0) {
-                    clearInterval(cooldownInt);
-                    btn.disabled = false;
-                    btn.innerText = "SNIPE MOMENTUM";
-                }
-            }, 1000);
-
-        }, 2000);
-    }
-                                  </script>
+    }, 3000);
+}
