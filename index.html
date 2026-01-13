@@ -1,61 +1,37 @@
-async function startHFTScan() {
-    const btn = document.getElementById('hft-btn');
-    const scan = document.getElementById('hft-scan');
-    const res = document.getElementById('hft-result');
-    const sig = document.getElementById('sig-val');
-    const logs = document.getElementById('logs');
+try {
+    // ÉTAPE 1 : Récupération avec vérification de réponse
+    const resp1 = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=EURUSDT');
+    if (!resp1.ok) throw new Error('Limite API atteinte'); // Détecte l'erreur 429
+    
+    const data1 = await resp1.json();
+    const p1 = parseFloat(data1.price);
+    logs.innerHTML = `> ANALYSE INITIALE : ${p1.toFixed(5)}<br>` + logs.innerHTML;
 
-    btn.disabled = true;
-    scan.style.display = 'block';
-    res.style.display = 'none';
+    await new Promise(r => setTimeout(r, 2000));
 
-    try {
-        // ÉTAPE 1 : Capture du prix de l'EUR/USD via le flux interbancaire (USDT)
-        const resp1 = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=EURUSDT');
-        const data1 = await resp1.json();
-        const p1 = parseFloat(data1.price);
-        
-        logs.innerHTML = `> Scan EUR/USD: ${p1.toFixed(5)}...<br>` + logs.innerHTML;
+    // ÉTAPE 2 : Seconde récupération
+    const resp2 = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=EURUSDT');
+    if (!resp2.ok) throw new Error('Limite API atteinte');
+    
+    const data2 = await resp2.json();
+    const p2 = parseFloat(data2.price);
 
-        // ÉTAPE 2 : Pause de 2 secondes pour mesurer la vélocité (HFT style)
-        await new Promise(r => setTimeout(r, 2000));
-
-        const resp2 = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=EURUSDT');
-        const data2 = await resp2.json();
-        const p2 = parseFloat(data2.price);
-
-        // ÉTAPE 3 : Calcul de la micro-tendance
-        const diff = p2 - p1;
-        
-        // Un signal n'est "vrai" que s'il y a un mouvement minimum
-        if (Math.abs(diff) < 0.00001) {
-            sig.innerText = "NEUTRE";
-            sig.style.color = "gray";
-            logs.innerHTML = `> <span style="color:gray">[STABLE]</span> Marché trop calme.<br>` + logs.innerHTML;
-        } else {
-            const direction = diff > 0 ? "CALL" : "PUT";
-            sig.innerText = direction;
-            sig.style.color = direction === "CALL" ? "var(--win)" : "var(--loss)";
-            document.getElementById('box').style.borderColor = sig.style.color;
-            logs.innerHTML = `> <span style="color:var(--gold)">[MATTHIEU AI]</span> Signal ${direction} détecté.<br>` + logs.innerHTML;
-        }
-
-    } catch (e) {
-        logs.innerHTML = `> <span style="color:red">ERREUR FLUX REEL</span><br>` + logs.innerHTML;
+    // ÉTAPE 3 : Logique de signal
+    const diff = p2 - p1;
+    if (Math.abs(diff) < 0.00001) {
+        sig.innerText = "NEUTRE";
+        sig.style.color = "gray";
+        logs.innerHTML = `> <span style="color:gray">[STABLE]</span> Signal ignoré.<br>` + logs.innerHTML;
+    } else {
+        const direction = diff > 0 ? "CALL" : "PUT";
+        sig.innerText = direction;
+        sig.style.color = direction === "CALL" ? "var(--win)" : "var(--loss)";
+        document.getElementById('box').style.borderColor = sig.style.color;
+        logs.innerHTML = `> <span style="color:var(--gold)">[MATTHIEU AI]</span> Signal ${direction} validé.<br>` + logs.innerHTML;
     }
-
-    scan.style.display = 'none';
-    res.style.display = 'block';
-
-    // Cooldown de sécurité
-    let timer = 15; 
-    const timerInt = setInterval(() => {
-        timer--;
-        btn.innerText = `RECHARGE (${timer}s)`;
-        if(timer <= 0) {
-            clearInterval(timerInt);
-            btn.disabled = false;
-            btn.innerText = "SNIPE MOMENTUM";
-        }
-    }, 1000);
+} catch (e) {
+    // Si l'erreur vient de l'actualisation ou de la limite
+    logs.innerHTML = `> <span style="color:#ff0044">[ERREUR]</span> Serveur occupé. Attendez 5s.<br>` + logs.innerHTML;
+    sig.innerText = "RECO...";
+    sig.style.color = "orange";
 }
