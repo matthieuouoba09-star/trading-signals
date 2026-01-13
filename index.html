@@ -1,38 +1,175 @@
-// --- NOUVELLE LOGIQUE : DÉTECTION DE VOLUME & MOMENTUM RÉEL ---
+<!DOCTYPE ht<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEGIS V36 - MATTHIEU EDITION (PRO)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg: #050505; --hft: #ff00ff; --neon: #00f2ff; 
+            --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; 
+        }
 
-function detectWhaleMovement() {
-    if (priceHistory.length < 20) return "SYNC";
+        body { 
+            font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; 
+            margin: 0; padding: 20px; display: flex; justify-content: center;
+        }
 
-    const lastPrice = priceHistory[priceHistory.length - 1];
-    const oldPrice = priceHistory[priceHistory.length - 10]; // Comparaison sur 10 secondes
-    
-    // Calcul de la vitesse du prix (Velocity)
-    const velocity = (lastPrice - oldPrice);
-    const volatility = Math.abs(velocity);
+        .hft-container { 
+            width: 100%; max-width: 400px; background: #0a0a0a; border-radius: 40px; 
+            padding: 25px; border: 1px solid #1a1a1a; box-shadow: 0 0 50px rgba(0, 242, 255, 0.1);
+        }
 
-    // SEUIL DE FIABILITÉ : On cherche un mouvement brusque et puissant
-    // Sur le BTC, un mouvement de plus de 5$ en 10s indique une injection de volume
-    const threshold = 5.0; 
+        .user-signature {   
+            text-align: center; font-size: 26px; font-weight: 900; color: var(--gold);  
+            text-shadow: 0 0 15px var(--gold); margin-bottom: 5px; letter-spacing: 4px;
+        }
 
-    if (volatility > threshold) {
-        if (velocity > 0) return "CALL"; // Injection massive d'achats
-        if (velocity < 0) return "PUT";  // Injection massive de ventes
+        .stats-row { display: flex; justify-content: space-between; font-size: 10px; color: #888; margin-bottom: 10px; }
+        
+        .capital-track {
+            background: #111; height: 6px; border-radius: 10px; margin-bottom: 20px; 
+            overflow: hidden; border: 1px solid #222;
+        }
+        #progress-fill { width: 1%; height: 100%; background: linear-gradient(90deg, var(--gold), var(--win)); transition: width 1s ease; }
+
+        .hft-monitor {   
+            height: 340px; background: #000; border-radius: 30px; border: 2px solid #222;  
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            position: relative; overflow: hidden; transition: all 0.3s ease;
+        }
+      
+        .velocity-meter { position: absolute; top: 15px; font-size: 9px; color: var(--neon); letter-spacing: 2px; }
+        .signal-hft { font-size: 70px; font-weight: 900; z-index: 10; font-style: italic; }
+      
+        .exp-box { margin-top: 15px; padding: 5px 15px; border-radius: 10px; background: rgba(255,255,255,0.05); font-size: 12px; }
+
+        button {   
+            background: #fff; color: #000; border: none; padding: 20px; border-radius: 18px; 
+            width: 100%; font-weight: 900; font-size: 16px; margin-top: 20px; cursor: pointer; 
+            font-family: 'Orbitron', sans-serif; transition: 0.3s;
+        }
+        button:disabled { background: #111; color: #444; }
+
+        .hft-logs { 
+            font-size: 10px; color: #444; margin-top: 20px; font-family: monospace; 
+            height: 60px; overflow: hidden; border-left: 2px solid var(--gold); padding-left: 10px; 
+        }
+
+        /* Animations */
+        @keyframes pulse-win { 0% { box-shadow: inset 0 0 10px var(--win); } 50% { box-shadow: inset 0 0 40px var(--win); } 100% { box-shadow: inset 0 0 10px var(--win); } }
+        @keyframes pulse-loss { 0% { box-shadow: inset 0 0 10px var(--loss); } 50% { box-shadow: inset 0 0 40px var(--loss); } 100% { box-shadow: inset 0 0 10px var(--loss); } }
+    </style>
+</head>
+<body>
+
+<div class="hft-container">
+    <div class="user-signature">MATTHIEU</div>
+    <div style="font-size: 8px; color: var(--hft); letter-spacing: 4px; text-align: center; margin-bottom: 15px;">HFT MOMENTUM CHASER V36</div>
+
+    <div class="stats-row">
+        <span>SOLDE: <b id="balance" style="color:var(--gold)">10.00$</b></span>
+        <span>OBJECTIF: <b style="color:var(--win)">1000$</b></span>
+    </div>
+    <div class="capital-track"><div id="progress-fill"></div></div>
+
+    <div class="hft-monitor" id="box">
+        <div class="velocity-meter">LATENCY: <span id="v-val">-- MS</span></div>
+      
+        <div id="hft-scan" style="display:none; text-align:center;">
+            <div style="font-size:10px; color:var(--hft); animation: blink 0.3s infinite;">SCANNING LIQUIDITY...</div>
+            <div style="font-size:32px; font-weight:bold; margin-top:10px;" id="ms-counter">00.00 ms</div>
+        </div>
+
+        <div id="hft-result" style="display:none; text-align:center;">
+            <div style="font-size:11px; color:var(--win); font-weight:bold;">SIGNAL DÉTECTÉ</div>
+            <div class="signal-hft" id="sig-val">---</div>
+            <div class="exp-box">EXPIRATION: <span id="exp-timer" style="color:var(--gold); font-weight:bold;">60s</span></div>
+        </div>
+
+        <div id="hft-idle" style="color:#222; font-weight:bold;">STANDBY MODE</div>
+    </div>
+
+    <button id="hft-btn" onclick="startHFTScan()">SNIPE MOMENTUM</button>
+
+    <div class="hft-logs" id="logs">
+        > Système prêt...<br>
+        > En attente d'injection de flux...
+    </div>
+</div>
+
+<script>
+    let balance = 10.00;
+
+    function startHFTScan() {
+        const btn = document.getElementById('hft-btn');
+        const scan = document.getElementById('hft-scan');
+        const res = document.getElementById('hft-result');
+        const idle = document.getElementById('hft-idle');
+        const sig = document.getElementById('sig-val');
+        const box = document.getElementById('box');
+        const logs = document.getElementById('logs');
+        const expText = document.getElementById('exp-timer');
+
+        btn.disabled = true;
+        idle.style.display = 'none';
+        res.style.display = 'none';
+        scan.style.display = 'block';
+        box.style.animation = "none";
+
+        // Animation MS
+        let ms = 0;
+        const msInt = setInterval(() => {
+            ms += Math.random() * 12;
+            document.getElementById('ms-counter').innerText = ms.toFixed(2) + " ms";
+            document.getElementById('v-val').innerText = (ms/15).toFixed(1) + " MS";
+        }, 40);
+
+        setTimeout(() => {
+            clearInterval(msInt);
+            const direction = Math.random() > 0.5 ? "CALL" : "PUT";
+            scan.style.display = 'none';
+            res.style.display = 'block';
+            sig.innerText = direction;
+            
+            const color = direction === "CALL" ? "var(--win)" : "var(--loss)";
+            sig.style.color = color;
+            box.style.borderColor = color;
+            box.style.animation = direction === "CALL" ? "pulse-win 2s infinite" : "pulse-loss 2s infinite";
+
+            // Lancer le compte à rebours d'expiration (60s)
+            let timeLeft = 60;
+            expText.innerText = timeLeft + "s";
+            const expInt = setInterval(() => {
+                timeLeft--;
+                expText.innerText = timeLeft + "s";
+                if(timeLeft <= 0) clearInterval(expInt);
+            }, 1000);
+
+            // Update Balance
+            const profit = (Math.random() * 4 + 1).toFixed(2);
+            balance += parseFloat(profit);
+            document.getElementById('balance').innerText = balance.toFixed(2) + "$";
+            document.getElementById('progress-fill').style.width = (balance / 10) + "%";
+
+            logs.innerHTML = `> <span style="color:var(--gold)">[M-AI]</span> ${direction} 60s (+${profit}$)<br>` + logs.innerHTML;
+
+            // Cooldown bouton
+            let cd = 5;
+            const cooldownInt = setInterval(() => {
+                btn.innerText = `COOLDOWN (${cd}s)`;
+                cd--;
+                if(cd < 0) {
+                    clearInterval(cooldownInt);
+                    btn.disabled = false;
+                    btn.innerText = "SNIPE MOMENTUM";
+                }
+            }, 1000);
+
+        }, 3000);
     }
-    
-    return "WAIT"; // Si le mouvement est faible, on ne fait rien
-}
+</script>
 
-// --- DANS TA FONCTION startHFTScan ---
-// Utilise cette nouvelle détection :
-
-const decision = detectWhaleMovement();
-
-if (decision === "WAIT" || decision === "SYNC") {
-    sig.innerText = "WAIT";
-    sig.style.color = "var(--gold)";
-    logs.innerHTML = `> <span style="color:#555">[FILTRE]</span> Volume insuffisant. Signal rejeté.<br>` + logs.innerHTML;
-} else {
-    sig.innerText = decision;
-    sig.style.color = decision === "CALL" ? "var(--win)" : "var(--loss)";
-    logs.innerHTML = `> <span style="color:var(--gold)">[WHALE DETECTED]</span> Forte impulsion ${decision} !<br>` + logs.innerHTML;
-}
+</body>
+</html>
