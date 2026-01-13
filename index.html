@@ -1,106 +1,24 @@
-<!DOCTYPE ht<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V36 - MATTHIEU EDITION (PRO)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    <style>
-        :root { 
-            --bg: #050505; --hft: #ff00ff; --neon: #00f2ff; 
-            --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; 
-        }
-
-        body { 
-            font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; 
-            margin: 0; padding: 20px; display: flex; justify-content: center;
-        }
-
-        .hft-container { 
-            width: 100%; max-width: 400px; background: #0a0a0a; border-radius: 40px; 
-            padding: 25px; border: 1px solid #1a1a1a; box-shadow: 0 0 50px rgba(0, 242, 255, 0.1);
-        }
-
-        .user-signature {   
-            text-align: center; font-size: 26px; font-weight: 900; color: var(--gold);  
-            text-shadow: 0 0 15px var(--gold); margin-bottom: 5px; letter-spacing: 4px;
-        }
-
-        .stats-row { display: flex; justify-content: space-between; font-size: 10px; color: #888; margin-bottom: 10px; }
-        
-        .capital-track {
-            background: #111; height: 6px; border-radius: 10px; margin-bottom: 20px; 
-            overflow: hidden; border: 1px solid #222;
-        }
-        #progress-fill { width: 1%; height: 100%; background: linear-gradient(90deg, var(--gold), var(--win)); transition: width 1s ease; }
-
-        .hft-monitor {   
-            height: 340px; background: #000; border-radius: 30px; border: 2px solid #222;  
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            position: relative; overflow: hidden; transition: all 0.3s ease;
-        }
-      
-        .velocity-meter { position: absolute; top: 15px; font-size: 9px; color: var(--neon); letter-spacing: 2px; }
-        .signal-hft { font-size: 70px; font-weight: 900; z-index: 10; font-style: italic; }
-      
-        .exp-box { margin-top: 15px; padding: 5px 15px; border-radius: 10px; background: rgba(255,255,255,0.05); font-size: 12px; }
-
-        button {   
-            background: #fff; color: #000; border: none; padding: 20px; border-radius: 18px; 
-            width: 100%; font-weight: 900; font-size: 16px; margin-top: 20px; cursor: pointer; 
-            font-family: 'Orbitron', sans-serif; transition: 0.3s;
-        }
-        button:disabled { background: #111; color: #444; }
-
-        .hft-logs { 
-            font-size: 10px; color: #444; margin-top: 20px; font-family: monospace; 
-            height: 60px; overflow: hidden; border-left: 2px solid var(--gold); padding-left: 10px; 
-        }
-
-        /* Animations */
-        @keyframes pulse-win { 0% { box-shadow: inset 0 0 10px var(--win); } 50% { box-shadow: inset 0 0 40px var(--win); } 100% { box-shadow: inset 0 0 10px var(--win); } }
-        @keyframes pulse-loss { 0% { box-shadow: inset 0 0 10px var(--loss); } 50% { box-shadow: inset 0 0 40px var(--loss); } 100% { box-shadow: inset 0 0 10px var(--loss); } }
-    </style>
-</head>
-<body>
-
-<div class="hft-container">
-    <div class="user-signature">MATTHIEU</div>
-    <div style="font-size: 8px; color: var(--hft); letter-spacing: 4px; text-align: center; margin-bottom: 15px;">HFT MOMENTUM CHASER V36</div>
-
-    <div class="stats-row">
-        <span>SOLDE: <b id="balance" style="color:var(--gold)">10.00$</b></span>
-        <span>OBJECTIF: <b style="color:var(--win)">1000$</b></span>
-    </div>
-    <div class="capital-track"><div id="progress-fill"></div></div>
-
-    <div class="hft-monitor" id="box">
-        <div class="velocity-meter">LATENCY: <span id="v-val">-- MS</span></div>
-      
-        <div id="hft-scan" style="display:none; text-align:center;">
-            <div style="font-size:10px; color:var(--hft); animation: blink 0.3s infinite;">SCANNING LIQUIDITY...</div>
-            <div style="font-size:32px; font-weight:bold; margin-top:10px;" id="ms-counter">00.00 ms</div>
-        </div>
-
-        <div id="hft-result" style="display:none; text-align:center;">
-            <div style="font-size:11px; color:var(--win); font-weight:bold;">SIGNAL DÉTECTÉ</div>
-            <div class="signal-hft" id="sig-val">---</div>
-            <div class="exp-box">EXPIRATION: <span id="exp-timer" style="color:var(--gold); font-weight:bold;">60s</span></div>
-        </div>
-
-        <div id="hft-idle" style="color:#222; font-weight:bold;">STANDBY MODE</div>
-    </div>
-
-    <button id="hft-btn" onclick="startHFTScan()">SNIPE MOMENTUM</button>
-
-    <div class="hft-logs" id="logs">
-        > Système prêt...<br>
-        > En attente d'injection de flux...
-    </div>
-</div>
-
 <script>
     let balance = 10.00;
+    const apiKey = '9d0cbeba8e3343c59c7292d1d296a790';
+    let currentEurUsd = "1.08540"; // Valeur par défaut avant chargement
+
+    // 1. Fonction pour récupérer le vrai prix EUR/USD
+    async function fetchForexPrice() {
+        try {
+            const response = await fetch(`https://api.twelvedata.com/price?symbol=EUR/USD&apikey=${apiKey}`);
+            const data = await response.json();
+            if (data.price) {
+                currentEurUsd = parseFloat(data.price).toFixed(5);
+            }
+        } catch (e) {
+            console.error("Erreur de flux Twelve Data");
+        }
+    }
+
+    // Mise à jour du prix toutes les 15 secondes (pour respecter les limites gratuites)
+    setInterval(fetchForexPrice, 15000);
+    fetchForexPrice(); // Premier appel au chargement
 
     function startHFTScan() {
         const btn = document.getElementById('hft-btn');
@@ -118,7 +36,7 @@
         scan.style.display = 'block';
         box.style.animation = "none";
 
-        // Animation MS
+        // Animation de la latence MS
         let ms = 0;
         const msInt = setInterval(() => {
             ms += Math.random() * 12;
@@ -128,6 +46,8 @@
 
         setTimeout(() => {
             clearInterval(msInt);
+            
+            // Simulation de décision IA
             const direction = Math.random() > 0.5 ? "CALL" : "PUT";
             scan.style.display = 'none';
             res.style.display = 'block';
@@ -138,7 +58,7 @@
             box.style.borderColor = color;
             box.style.animation = direction === "CALL" ? "pulse-win 2s infinite" : "pulse-loss 2s infinite";
 
-            // Lancer le compte à rebours d'expiration (60s)
+            // Compte à rebours 60s
             let timeLeft = 60;
             expText.innerText = timeLeft + "s";
             const expInt = setInterval(() => {
@@ -147,18 +67,22 @@
                 if(timeLeft <= 0) clearInterval(expInt);
             }, 1000);
 
-            // Update Balance
-            const profit = (Math.random() * 4 + 1).toFixed(2);
+            // Mise à jour Solde et Barre de progression (Objectif 1000$)
+            const profit = (Math.random() * 2.5 + 0.5).toFixed(2);
             balance += parseFloat(profit);
             document.getElementById('balance').innerText = balance.toFixed(2) + "$";
-            document.getElementById('progress-fill').style.width = (balance / 10) + "%";
+            
+            // Calcul du % par rapport à 1000$
+            let progress = (balance / 1000) * 100;
+            document.getElementById('progress-fill').style.width = progress + "%";
 
-            logs.innerHTML = `> <span style="color:var(--gold)">[M-AI]</span> ${direction} 60s (+${profit}$)<br>` + logs.innerHTML;
+            // LOG avec le vrai prix EUR/USD de l'API
+            logs.innerHTML = `> <span style="color:var(--gold)">[EUR/USD @${currentEurUsd}]</span> ${direction} +${profit}$<br>` + logs.innerHTML;
 
             // Cooldown bouton
             let cd = 5;
             const cooldownInt = setInterval(() => {
-                btn.innerText = `COOLDOWN (${cd}s)`;
+                btn.innerText = `RE-SCAN (${cd}s)`;
                 cd--;
                 if(cd < 0) {
                     clearInterval(cooldownInt);
@@ -169,7 +93,4 @@
 
         }, 3000);
     }
-</script>
-
-</body>
-</html>
+            </script>
