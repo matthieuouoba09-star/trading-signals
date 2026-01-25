@@ -3,146 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V36 - EUR/USD OTC</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>AEGIS V36 - ULTRA FAST</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #050505; --neon: #00f2ff; --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; }
         body { font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; display: flex; justify-content: center; padding: 20px; }
-        .container { width: 100%; max-width: 380px; background: #0a0a0a; border-radius: 35px; padding: 20px; border: 1px solid #1a1a1a; }
+        .container { width: 100%; max-width: 380px; background: #000; border-radius: 30px; padding: 20px; border: 1px solid #111; }
         
-        .header { text-align: center; margin-bottom: 20px; }
-        .market-tag { background: rgba(0, 242, 255, 0.1); color: var(--neon); padding: 4px 12px; border-radius: 20px; font-size: 10px; letter-spacing: 2px; }
+        /* Dashboard Stats */
+        .stats { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .stat-box { background: #0a0a0a; padding: 10px; border-radius: 12px; border: 1px solid #1a1a1a; text-align: center; flex: 1; margin: 0 5px; }
+        .stat-label { font-size: 7px; color: #555; margin-bottom: 5px; }
+        .stat-val { font-size: 14px; font-weight: 900; color: var(--gold); }
 
-        /* GESTION DES MISES */
-        .management-box { display: flex; justify-content: space-between; background: #111; padding: 15px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #222; }
-        .mgt-item { text-align: center; }
-        .mgt-label { font-size: 8px; color: #555; margin-bottom: 5px; }
-        .mgt-value { font-weight: bold; color: var(--gold); font-size: 14px; }
-
-        .monitor { height: 240px; background: #000; border-radius: 25px; border: 2px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; margin-bottom: 15px; }
-        .sig-val { font-size: 55px; font-weight: 900; }
+        /* Monitor */
+        .monitor { height: 220px; border-radius: 20px; border: 2px solid #1a1a1a; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: 0.1s; overflow: hidden; }
+        .confiance-bar { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--neon); width: 0%; transition: 0.3s; }
+        .signal { font-size: 65px; font-weight: 900; letter-spacing: -2px; display: none; }
         
-        .btn-snipe { background: #fff; color: #000; border: none; padding: 18px; border-radius: 15px; width: 100%; font-weight: 900; cursor: pointer; font-family: 'Orbitron'; }
-        .btn-snipe:disabled { background: #222; color: #444; }
-
-        .logs { font-size: 9px; color: #444; height: 50px; overflow: hidden; margin-top: 15px; border-left: 2px solid var(--neon); padding-left: 10px; font-family: monospace; }
+        /* Flash UI */
+        .latency { position: absolute; top: 10px; font-size: 8px; color: var(--neon); font-family: monospace; }
         
-        @keyframes pulse-win { 0%, 100% { box-shadow: 0 0 10px var(--win); } 50% { box-shadow: 0 0 30px var(--win); } }
-        @keyframes pulse-loss { 0%, 100% { box-shadow: 0 0 10px var(--loss); } 50% { box-shadow: 0 0 30px var(--loss); } }
+        .btn-fast { background: var(--neon); color: #000; border: none; padding: 22px; border-radius: 15px; width: 100%; font-weight: 900; cursor: pointer; font-family: 'Orbitron'; margin-top: 15px; transition: 0.2s; box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); }
+        .btn-fast:active { transform: scale(0.95); background: #fff; }
+        .btn-fast:disabled { background: #111; color: #333; box-shadow: none; }
+
+        @keyframes flash { 0% { background: rgba(0, 242, 255, 0.2); } 100% { background: transparent; } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <div style="font-size: 22px; font-weight: 900; color: var(--gold);">MATTHIEU</div>
-        <span class="market-tag">EUR/USD-OTC PRO</span>
+    <div style="text-align: center; margin-bottom: 15px;">
+        <div style="font-size: 10px; color: var(--hft); letter-spacing: 5px;">HFT MOMENTUM</div>
+        <div style="font-size: 20px; font-weight: 900;">EUR/USD <span style="color:var(--neon)">OTC</span></div>
     </div>
 
-    <div class="management-box">
-        <div class="mgt-item">
-            <div class="mgt-label">SOLDE</div>
-            <div class="mgt-value" id="bal">10.00$</div>
-        </div>
-        <div class="mgt-item">
-            <div class="mgt-label">POSITION</div>
-            <select id="stake" style="background:none; color:#fff; border:none; font-family:'Orbitron'; font-weight:bold;">
-                <option value="1">1.00$</option>
-                <option value="2">2.00$</option>
-                <option value="5">5.00$</option>
-            </select>
-        </div>
-        <div class="mgt-item">
-            <div class="mgt-label">PAYOUT</div>
-            <div class="mgt-value" style="color:var(--win)">92%</div>
-        </div>
+    <div class="stats">
+        <div class="stat-box"><div class="stat-label">SOLDE</div><div class="stat-val" id="bal">10.00$</div></div>
+        <div class="stat-box"><div class="stat-label">POSITION</div><div class="stat-val">2.00$</div></div>
+        <div class="stat-box"><div class="stat-label">PROFIT</div><div class="stat-val" style="color:var(--win)">+1.84$</div></div>
     </div>
 
-    <div class="monitor" id="display">
-        <div id="idle-msg" style="color:#333;">EN ATTENTE DE FLUX</div>
-        <div id="active-ui" style="display:none; text-align:center;">
-            <div id="otc-status" style="font-size:9px; letter-spacing:3px; margin-bottom:10px;">ANALYSE...</div>
-            <div class="sig-val" id="signal">---</div>
-            <div style="font-size:10px; margin-top:10px; color:var(--gold)">EXP: 60 SEC</div>
-        </div>
+    <div class="monitor" id="box">
+        <div class="latency" id="lat">LATENCY: --ms</div>
+        <div id="msg" style="color:#222; font-size:12px;">SCANNER PRÊT</div>
+        <div class="signal" id="sig">---</div>
+        <div class="confiance-bar" id="conf"></div>
     </div>
 
-    <button class="btn-snipe" id="btn" onclick="executeTrade()">SNIPE MOMENTUM</button>
-
-    <div class="logs" id="logs">> Système prêt pour EUR/USD-OTC...</div>
+    <button class="btn-fast" id="btn" onclick="startFlashScan()">SNIPE INSTANTANÉ</button>
 </div>
 
 <script>
     let balance = 10.00;
-    let isSafetyBlocked = false;
-    let losses = 0;
-
-    function executeTrade() {
-        if(isSafetyBlocked) return;
-        
-        const stake = parseFloat(document.getElementById('stake').value);
-        if(balance < stake) {
-            alert("Solde insuffisant !");
-            return;
-        }
-
+    
+    function startFlashScan() {
         const btn = document.getElementById('btn');
-        const display = document.getElementById('display');
-        const idle = document.getElementById('idle-msg');
-        const active = document.getElementById('active-ui');
-        const signal = document.getElementById('signal');
-        const logs = document.getElementById('logs');
+        const box = document.getElementById('box');
+        const sig = document.getElementById('sig');
+        const msg = document.getElementById('msg');
+        const conf = document.getElementById('conf');
+        const lat = document.getElementById('lat');
 
         btn.disabled = true;
-        idle.style.display = 'none';
-        active.style.display = 'block';
-        display.style.animation = "none";
-        document.getElementById('otc-status').innerText = "CALCUL LIQUIDITÉ OTC...";
+        msg.style.display = 'none';
+        sig.style.display = 'none';
+        conf.style.width = "0%";
+        box.style.animation = "flash 0.1s infinite";
+
+        // Vitesse Ultra-Rapide (Analyse en 800ms)
+        const latency = (Math.random() * 15 + 2).toFixed(1);
+        lat.innerText = `LATENCY: ${latency}ms`;
 
         setTimeout(() => {
-            const trend = Math.random() > 0.5 ? "CALL" : "PUT";
-            const winRate = 0.62; // 62% de réussite simulée pour l'algorithme
-            const isWin = Math.random() < winRate;
+            box.style.animation = "none";
+            const direction = Math.random() > 0.5 ? "CALL" : "PUT";
+            const confidence = Math.floor(Math.random() * 40 + 60); // 60% à 99%
 
-            signal.innerText = trend;
-            signal.style.color = trend === "CALL" ? "var(--win)" : "var(--loss)";
-            display.style.borderColor = signal.style.color;
-            display.style.animation = trend === "CALL" ? "pulse-win 2s infinite" : "pulse-loss 2s infinite";
-            document.getElementById('otc-status').innerText = "SIGNAL DÉTECTÉ";
+            sig.innerText = direction;
+            sig.style.display = 'block';
+            sig.style.color = direction === "CALL" ? "var(--win)" : "var(--loss)";
+            box.style.borderColor = sig.style.color;
+            conf.style.width = confidence + "%";
+            conf.style.backgroundColor = sig.style.color;
 
+            // Mise à jour rapide du solde (Simulation de gain rapide)
             setTimeout(() => {
-                if(isWin) {
-                    const profit = stake * 0.92;
-                    balance += profit;
-                    losses = 0;
-                    logs.innerHTML = `> <span style="color:var(--win)">WIN</span> ${trend} (+${profit.toFixed(2)}$)<br>` + logs.innerHTML;
+                if(Math.random() > 0.3) {
+                    balance += 1.84;
                 } else {
-                    balance -= stake;
-                    losses++;
-                    logs.innerHTML = `> <span style="color:var(--loss)">LOSS</span> ${trend} (-${stake.toFixed(2)}$)<br>` + logs.innerHTML;
+                    balance -= 2.00;
                 }
-
                 document.getElementById('bal').innerText = balance.toFixed(2) + "$";
+            }, 500);
 
-                if(losses >= 3) {
-                    isSafetyBlocked = true;
-                    btn.innerText = "MARCHÉ DANGEREUX - STOP";
-                    btn.style.background = "#ff0044";
-                } else {
-                    let cd = 5;
-                    const timer = setInterval(() => {
-                        btn.innerText = `COOLDOWN (${cd}s)`;
-                        cd--;
-                        if(cd < 0) {
-                            clearInterval(timer);
-                            btn.disabled = false;
-                            btn.innerText = "SNIPE MOMENTUM";
-                        }
-                    }, 1000);
+            // Cooldown très court (2 secondes) pour enchaîner
+            let cd = 2;
+            const timer = setInterval(() => {
+                btn.innerText = `READY IN ${cd}s`;
+                cd--;
+                if(cd < 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    btn.innerText = "SNIPE INSTANTANÉ";
+                    sig.style.display = 'none';
+                    msg.style.display = 'block';
+                    box.style.borderColor = "#1a1a1a";
                 }
             }, 1000);
-        }, 2000);
+
+        }, 800);
     }
 </script>
 </body>
-</html>
+    </html>
