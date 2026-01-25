@@ -3,116 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V36 - ULTRA FAST</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
+    <title>AEGIS V36 - ULTRA FAST OTC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #050505; --neon: #00f2ff; --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; }
-        body { font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; display: flex; justify-content: center; padding: 20px; }
-        .container { width: 100%; max-width: 380px; background: #000; border-radius: 30px; padding: 20px; border: 1px solid #111; }
-        
-        /* Dashboard Stats */
-        .stats { display: flex; justify-content: space-between; margin-bottom: 20px; }
-        .stat-box { background: #0a0a0a; padding: 10px; border-radius: 12px; border: 1px solid #1a1a1a; text-align: center; flex: 1; margin: 0 5px; }
-        .stat-label { font-size: 7px; color: #555; margin-bottom: 5px; }
-        .stat-val { font-size: 14px; font-weight: 900; color: var(--gold); }
+        :root { 
+            --bg: #050505; --hft: #ff00ff; --neon: #00f2ff; 
+            --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; 
+        }
+        body { 
+            font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; 
+            margin: 0; padding: 15px; display: flex; justify-content: center;
+        }
+        .hft-container { 
+            width: 100%; max-width: 380px; background: #000; border-radius: 35px; 
+            padding: 20px; border: 1px solid #111; box-shadow: 0 0 50px rgba(0, 242, 255, 0.05);
+        }
+        .user-signature { 
+            text-align: center; font-size: 24px; font-weight: 900; color: var(--gold); 
+            text-shadow: 0 0 15px var(--gold); margin-bottom: 2px;
+        }
 
-        /* Monitor */
-        .monitor { height: 220px; border-radius: 20px; border: 2px solid #1a1a1a; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: 0.1s; overflow: hidden; }
-        .confiance-bar { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--neon); width: 0%; transition: 0.3s; }
-        .signal { font-size: 65px; font-weight: 900; letter-spacing: -2px; display: none; }
-        
-        /* Flash UI */
-        .latency { position: absolute; top: 10px; font-size: 8px; color: var(--neon); font-family: monospace; }
-        
-        .btn-fast { background: var(--neon); color: #000; border: none; padding: 22px; border-radius: 15px; width: 100%; font-weight: 900; cursor: pointer; font-family: 'Orbitron'; margin-top: 15px; transition: 0.2s; box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); }
-        .btn-fast:active { transform: scale(0.95); background: #fff; }
-        .btn-fast:disabled { background: #111; color: #333; box-shadow: none; }
+        /* TIMER BOUGIE */
+        #candle-timer {
+            text-align: center; font-size: 10px; margin-bottom: 15px; color: #555; 
+            background: #0a0a0a; padding: 8px; border-radius: 12px; border: 1px solid #1a1a1a;
+        }
 
-        @keyframes flash { 0% { background: rgba(0, 242, 255, 0.2); } 100% { background: transparent; } }
+        /* DASHBOARD */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .stat-card { background: #0a0a0a; padding: 8px; border-radius: 12px; border: 1px solid #1a1a1a; text-align: center; }
+        .stat-label { font-size: 7px; color: #666; margin-bottom: 4px; letter-spacing: 1px; }
+        .stat-val { font-size: 12px; font-weight: 900; }
+
+        /* MONITOR */
+        .monitor { 
+            height: 220px; background: #000; border-radius: 25px; border: 2px solid #1a1a1a; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            position: relative; overflow: hidden; transition: 0.2s;
+        }
+        .signal-display { font-size: 60px; font-weight: 900; display: none; font-style: italic; }
+        .scan-msg { font-size: 10px; color: #333; font-weight: bold; }
+        .confiance-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: var(--neon); width: 0%; transition: 0.4s; }
+
+        /* CONTROLS */
+        button#snipe-btn { 
+            background: var(--neon); color: #000; border: none; padding: 20px; border-radius: 18px; 
+            width: 100%; font-weight: 900; font-size: 16px; margin-top: 15px; cursor: pointer; 
+            font-family: 'Orbitron'; transition: 0.2s; box-shadow: 0 5px 15px rgba(0, 242, 255, 0.2);
+        }
+        button:disabled { background: #111; color: #444; box-shadow: none; cursor: not-allowed; }
+
+        .logs { 
+            font-size: 8px; color: #444; margin-top: 15px; height: 45px; overflow: hidden; 
+            border-left: 2px solid var(--gold); padding-left: 10px; font-family: monospace;
+        }
+
+        @keyframes flash-win { 0% { box-shadow: inset 0 0 40px var(--win); } 100% { box-shadow: inset 0 0 0px var(--win); } }
+        @keyframes flash-loss { 0% { box-shadow: inset 0 0 40px var(--loss); } 100% { box-shadow: inset 0 0 0px var(--loss); } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div style="text-align: center; margin-bottom: 15px;">
-        <div style="font-size: 10px; color: var(--hft); letter-spacing: 5px;">HFT MOMENTUM</div>
-        <div style="font-size: 20px; font-weight: 900;">EUR/USD <span style="color:var(--neon)">OTC</span></div>
+<div class="hft-container">
+    <div class="user-signature">MATTHIEU</div>
+    <div style="font-size: 8px; color: var(--neon); text-align: center; letter-spacing: 4px; margin-bottom: 12px;">EUR/USD-OTC ALGO V36</div>
+
+    <div id="candle-timer">
+        PROCHAINE BOUGIE DANS : <span id="timer-sec" style="color:var(--neon); font-weight:bold;">--</span>s
     </div>
 
-    <div class="stats">
-        <div class="stat-box"><div class="stat-label">SOLDE</div><div class="stat-val" id="bal">10.00$</div></div>
-        <div class="stat-box"><div class="stat-label">POSITION</div><div class="stat-val">2.00$</div></div>
-        <div class="stat-box"><div class="stat-label">PROFIT</div><div class="stat-val" style="color:var(--win)">+1.84$</div></div>
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">SOLDE</div><div class="stat-val" id="bal" style="color:var(--gold)">45.71$</div></div>
+        <div class="stat-card">
+            <div class="stat-label">MISE</div>
+            <select id="stake" style="background:none; color:#fff; border:none; font-family:'Orbitron'; font-size:12px; font-weight:900;">
+                <option value="2">2.00$</option>
+                <option value="3">3.00$</option>
+                <option value="5">5.00$</option>
+            </select>
+        </div>
+        <div class="stat-card"><div class="stat-label">PAYOUT</div><div class="stat-val" style="color:var(--win)">92%</div></div>
     </div>
 
     <div class="monitor" id="box">
-        <div class="latency" id="lat">LATENCY: --ms</div>
-        <div id="msg" style="color:#222; font-size:12px;">SCANNER PRÊT</div>
-        <div class="signal" id="sig">---</div>
+        <div class="scan-msg" id="msg">SYSTÈME EN ATTENTE</div>
+        <div class="signal-display" id="sig">---</div>
         <div class="confiance-bar" id="conf"></div>
+        <div id="lat" style="position:absolute; top:10px; font-size:7px; color:var(--neon); opacity:0.5;">LATENCY: --ms</div>
     </div>
 
-    <button class="btn-fast" id="btn" onclick="startFlashScan()">SNIPE INSTANTANÉ</button>
+    <button id="snipe-btn" onclick="runSnipe()">SNIPE MOMENTUM</button>
+
+    <div class="logs" id="logs">> Prêt pour session EUR/USD-OTC...</div>
 </div>
 
 <script>
-    let balance = 10.00;
-    
-    function startFlashScan() {
-        const btn = document.getElementById('btn');
-        const box = document.getElementById('box');
+    let balance = 45.71;
+    let lossCount = 0;
+
+    // 1. SYNC TIMER BOUGIE
+    setInterval(() => {
+        const seconds = new Date().getSeconds();
+        const timeLeft = 60 - seconds;
+        const t = document.getElementById('timer-sec');
+        t.innerText = timeLeft < 10 ? "0" + timeLeft : timeLeft;
+        
+        if(timeLeft <= 5) {
+            t.style.color = "var(--loss)";
+            t.style.textShadow = "0 0 10px var(--loss)";
+        } else {
+            t.style.color = "var(--neon)";
+            t.style.textShadow = "none";
+        }
+    }, 1000);
+
+    // 2. FONCTION SNIPE ULTRA-RAPIDE
+    function runSnipe() {
+        const btn = document.getElementById('snipe-btn');
         const sig = document.getElementById('sig');
         const msg = document.getElementById('msg');
-        const conf = document.getElementById('conf');
-        const lat = document.getElementById('lat');
+        const box = document.getElementById('box');
+        const stake = parseFloat(document.getElementById('stake').value);
 
         btn.disabled = true;
-        msg.style.display = 'none';
-        sig.style.display = 'none';
-        conf.style.width = "0%";
-        box.style.animation = "flash 0.1s infinite";
+        msg.innerText = "ANALYSE FLUX OTC...";
+        sig.style.display = "none";
+        box.style.borderColor = "#1a1a1a";
 
-        // Vitesse Ultra-Rapide (Analyse en 800ms)
-        const latency = (Math.random() * 15 + 2).toFixed(1);
-        lat.innerText = `LATENCY: ${latency}ms`;
+        // Latence simulée ultra basse
+        document.getElementById('lat').innerText = `LATENCY: ${(Math.random()*12 + 2).toFixed(1)}ms`;
 
         setTimeout(() => {
-            box.style.animation = "none";
-            const direction = Math.random() > 0.5 ? "CALL" : "PUT";
-            const confidence = Math.floor(Math.random() * 40 + 60); // 60% à 99%
+            msg.style.display = "none";
+            sig.style.display = "block";
+            
+            const direction = Math.random() > 0.45 ? "CALL" : "PUT";
+            const isWin = Math.random() < 0.65; // Taux de réussite pro
+            const confidence = Math.floor(Math.random() * 30 + 65);
 
             sig.innerText = direction;
-            sig.style.display = 'block';
-            sig.style.color = direction === "CALL" ? "var(--win)" : "var(--loss)";
-            box.style.borderColor = sig.style.color;
-            conf.style.width = confidence + "%";
-            conf.style.backgroundColor = sig.style.color;
+            const color = direction === "CALL" ? "var(--win)" : "var(--loss)";
+            sig.style.color = color;
+            box.style.borderColor = color;
+            document.getElementById('conf').style.width = confidence + "%";
+            document.getElementById('conf').style.backgroundColor = color;
 
-            // Mise à jour rapide du solde (Simulation de gain rapide)
+            // Résultat du trade
             setTimeout(() => {
-                if(Math.random() > 0.3) {
-                    balance += 1.84;
+                const logs = document.getElementById('logs');
+                if(isWin) {
+                    const profit = stake * 0.92;
+                    balance += profit;
+                    lossCount = 0;
+                    box.style.animation = "flash-win 0.5s ease-out";
+                    logs.innerHTML = `> <span style="color:var(--win)">WIN</span> ${direction} (+${profit.toFixed(2)}$)<br>` + logs.innerHTML;
                 } else {
-                    balance -= 2.00;
+                    balance -= stake;
+                    lossCount++;
+                    box.style.animation = "flash-loss 0.5s ease-out";
+                    logs.innerHTML = `> <span style="color:var(--loss)">LOSS</span> ${direction} (-${stake.toFixed(2)}$)<br>` + logs.innerHTML;
                 }
+
                 document.getElementById('bal').innerText = balance.toFixed(2) + "$";
-            }, 500);
 
-            // Cooldown très court (2 secondes) pour enchaîner
-            let cd = 2;
-            const timer = setInterval(() => {
-                btn.innerText = `READY IN ${cd}s`;
-                cd--;
-                if(cd < 0) {
-                    clearInterval(timer);
-                    btn.disabled = false;
-                    btn.innerText = "SNIPE INSTANTANÉ";
-                    sig.style.display = 'none';
-                    msg.style.display = 'block';
-                    box.style.borderColor = "#1a1a1a";
+                // Sécurité
+                if(lossCount >= 3) {
+                    btn.innerText = "SÉCURITÉ ACTIVÉE (PAUSE)";
+                    btn.style.background = "var(--loss)";
+                } else {
+                    let cd = 2;
+                    const timer = setInterval(() => {
+                        btn.innerText = `READY IN ${cd}S`;
+                        cd--;
+                        if(cd < 0) {
+                            clearInterval(timer);
+                            btn.disabled = false;
+                            btn.innerText = "SNIPE MOMENTUM";
+                            msg.style.display = "block";
+                            msg.innerText = "ATTENTE BOUGIE SUIVANTE";
+                            sig.style.display = "none";
+                        }
+                    }, 1000);
                 }
-            }, 1000);
-
+            }, 800);
         }, 800);
     }
 </script>
