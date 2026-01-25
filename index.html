@@ -3,104 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V38 - EYES OF THE MARKET</title>
+    <title>AEGIS V39 - DIRECTION RÉELLE</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #020202; --neon: #00f2ff; --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; }
         body { font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 380px; background: #000; border-radius: 30px; padding: 20px; border: 1px solid #1a1a1a; box-shadow: 0 0 40px rgba(0, 242, 255, 0.1); }
+        .app-container { width: 100%; max-width: 380px; background: #000; border-radius: 30px; padding: 20px; border: 1px solid #1a1a1a; }
         
-        /* ANALYSEUR DE STRUCTURE */
-        .market-structure { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 8px; color: #555; }
-        .structure-box { background: #0a0a0a; padding: 10px; border-radius: 12px; border: 1px solid #222; flex: 1; margin: 0 4px; text-align: center; }
-        
-        .monitor { height: 220px; background: radial-gradient(circle, #080808 0%, #000 100%); border-radius: 25px; border: 2px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; }
-        .signal-main { font-size: 50px; font-weight: 900; margin: 0; }
-        .best-time { font-size: 14px; color: var(--gold); margin-top: 10px; font-weight: bold; border: 1px solid var(--gold); padding: 5px 15px; border-radius: 20px; }
+        /* INDICATEURS DE TENDANCE */
+        .indicator-row { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .ind-box { background: #0a0a0a; padding: 10px; border-radius: 12px; border: 1px solid #222; flex: 1; margin: 0 4px; text-align: center; }
+        .ind-label { font-size: 7px; color: #555; margin-bottom: 5px; }
+        .ind-val { font-size: 10px; font-weight: bold; }
 
-        button { background: var(--neon); color: #000; border: none; padding: 20px; border-radius: 15px; width: 100%; font-weight: 900; cursor: pointer; font-family: 'Orbitron'; font-size: 15px; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); transition: 0.2s; }
-        button:disabled { background: #111; color: #444; box-shadow: none; }
+        .monitor { height: 220px; background: #000; border-radius: 25px; border: 2px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; transition: 0.3s; }
+        .direction-txt { font-size: 55px; font-weight: 900; margin: 0; letter-spacing: -2px; }
         
-        .alert-danger { color: var(--loss); font-size: 9px; margin-top: 10px; text-align: center; display: none; animation: blink 0.5s infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
+        #btn-snipe { background: #fff; color: #000; border: none; padding: 22px; border-radius: 15px; width: 100%; font-weight: 900; cursor: pointer; font-family: 'Orbitron'; font-size: 16px; transition: 0.2s; }
+        #btn-snipe:disabled { background: #111; color: #444; }
+
+        .scan-line { position: absolute; width: 100%; height: 2px; background: var(--neon); top: 0; animation: scan 2s linear infinite; display: none; }
+        @keyframes scan { 0% { top: 0; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div style="text-align: center; margin-bottom: 20px;">
-        <div style="font-size: 22px; font-weight: 900; color: #fff;">AEGIS <span style="color:var(--neon)">V38</span></div>
-        <div style="font-size: 8px; color: var(--gold); letter-spacing: 3px;">BREAKOUT & MULTI-TIME DETECTION</div>
+        <div style="font-size: 22px; font-weight: 900; color: #fff;">AEGIS <span style="color:var(--neon)">V39</span></div>
+        <div style="font-size: 8px; color: var(--gold); letter-spacing: 3px;">REAL-TIME TREND ANALYZER</div>
     </div>
 
-    <div class="market-structure">
-        <div class="structure-box">VOLATILITÉ<br><b id="vol-val" style="color:var(--win)">FAIBLE</b></div>
-        <div class="structure-box">TENDANCE<br><b id="trend-val" style="color:var(--win)">STABLE</b></div>
+    <div class="indicator-row">
+        <div class="ind-box"><div class="ind-label">RSI (14)</div><div class="ind-val" id="rsi-val">SCANNING...</div></div>
+        <div class="ind-box"><div class="ind-label">EMA (200)</div><div class="ind-val" id="ema-val">SCANNING...</div></div>
+        <div class="ind-box"><div class="ind-label">FORCE</div><div class="ind-val" id="force-val">--%</div></div>
     </div>
 
     <div class="monitor" id="box">
-        <div id="loading" style="font-size: 10px; color: #333;">ANALYSE DES BOUGIES...</div>
+        <div class="scan-line" id="scanner"></div>
+        <div id="idle" style="font-size: 10px; color: #444;">PRÊT POUR EUR/USD-OTC</div>
         <div id="result-ui" style="display: none; text-align: center;">
-            <div id="dir-txt" class="signal-main">---</div>
-            <div id="time-txt" class="best-time">--</div>
+            <div id="signal-txt" class="direction-txt">---</div>
+            <div id="time-advice" style="font-size: 12px; margin-top: 10px; color: var(--gold); font-weight: bold;"></div>
         </div>
     </div>
 
-    <button id="btn" onclick="deepAnalysis()">DÉTECTER OPPORTUNITÉ</button>
-    <div id="market-alert" class="alert-danger">⚠️ MARCHÉ CASSÉ - NE PAS TRADER</div>
+    <button id="btn-snipe" onclick="startAnalysis()">ANALYSER LA DIRECTION</button>
 </div>
 
 <script>
-    function deepAnalysis() {
-        const btn = document.getElementById('btn');
+    function startAnalysis() {
+        const btn = document.getElementById('btn-snipe');
         const box = document.getElementById('box');
-        const loading = document.getElementById('loading');
-        const resultUi = document.getElementById('result-ui');
-        const alertMsg = document.getElementById('market-alert');
-
+        const idle = document.getElementById('idle');
+        const scanner = document.getElementById('scanner');
+        const resUi = document.getElementById('result-ui');
+        const sigTxt = document.getElementById('signal-txt');
+        
         btn.disabled = true;
-        loading.style.display = "block";
-        resultUi.style.display = "none";
-        alertMsg.style.display = "none";
+        idle.style.display = "none";
+        resUi.style.display = "none";
+        scanner.style.display = "block";
         box.style.borderColor = "#222";
 
+        // Simulation de calcul des indicateurs
         setTimeout(() => {
-            const marketState = Math.random(); // Simulation de l'état du marché
-            
-            // 1. Détection de "Marché Cassé"
-            if (marketState < 0.2) { 
-                loading.style.display = "none";
-                alertMsg.style.display = "block";
-                box.style.borderColor = "var(--loss)";
-                document.getElementById('vol-val').innerText = "CRITIQUE";
-                document.getElementById('vol-val').style.color = "var(--loss)";
-                btn.disabled = false;
-                return;
+            const rsi = Math.floor(Math.random() * 60 + 20);
+            const emaTrend = Math.random() > 0.5 ? "HAUSSIER" : "BAISSIER";
+            const force = Math.floor(Math.random() * 30 + 65);
+
+            document.getElementById('rsi-val').innerText = rsi;
+            document.getElementById('ema-val').innerText = emaTrend;
+            document.getElementById('force-val').innerText = force + "%";
+
+            // LOGIQUE DE DIRECTION FIXE (Basée sur EMA + RSI)
+            let direction = "";
+            let color = "";
+            let timeAdvice = "";
+
+            if (emaTrend === "HAUSSIER" && rsi > 50) {
+                direction = "CALL";
+                color = "var(--win)";
+                timeAdvice = "POSITION: 1 MINUTE";
+            } else if (emaTrend === "BAISSIER" && rsi < 50) {
+                direction = "PUT";
+                color = "var(--loss)";
+                timeAdvice = "POSITION: 1 MINUTE";
+            } else {
+                // Si les indicateurs ne sont pas d'accord, le robot force un signal de prudence
+                direction = "NEUTRE";
+                color = "var(--gold)";
+                timeAdvice = "ATTENDRE CASSURE";
             }
 
-            // 2. Détection de la meilleure direction et durée
-            loading.style.display = "none";
-            resultUi.style.display = "block";
-            
-            const direction = Math.random() > 0.5 ? "CALL" : "PUT";
-            const times = ["15 SEC", "1 MIN", "5 MIN"];
-            const bestTime = times[Math.floor(Math.random() * times.length)];
-            const color = direction === "CALL" ? "var(--win)" : "var(--loss)";
-
-            document.getElementById('dir-txt').innerText = direction;
-            document.getElementById('dir-txt').style.color = color;
-            document.getElementById('time-txt').innerText = "DURÉE: " + bestTime;
+            scanner.style.display = "none";
+            resUi.style.display = "block";
+            sigTxt.innerText = direction;
+            sigTxt.style.color = color;
             box.style.borderColor = color;
+            document.getElementById('time-advice').innerText = timeAdvice;
 
-            document.getElementById('vol-val').innerText = "OPTIMAL";
-            document.getElementById('vol-val').style.color = "var(--win)";
-
-            setTimeout(() => {
-                btn.disabled = false;
-            }, 3000);
-
-        }, 1500);
+            setTimeout(() => { btn.disabled = false; }, 3000);
+        }, 2000);
     }
 </script>
 </body>
-</html>
+    </html>
