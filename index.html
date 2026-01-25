@@ -1,232 +1,147 @@
-<!DOCTYPE html>  <html lang="fr">    <head>    
-    <meta charset="UTF-8">    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
-    <title>AEGIS V36 - MATTHIEU EDITION (PRO)</title>    
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">    
-    <style>    
-        :root {     
-            --bg: #050505; --hft: #ff00ff; --neon: #00f2ff;     
-            --win: #00ff88; --loss: #ff0044; --gold: #ffcc00;     
-        }  body {     
-        font-family: 'Orbitron', sans-serif; background: var(--bg); color: white;     
-        margin: 0; padding: 20px; display: flex; justify-content: center;    
-    }    .hft-container {     
-    width: 100%; max-width: 400px; background: #0a0a0a; border-radius: 40px;     
-    padding: 25px; border: 1px solid #1a1a1a; box-shadow: 0 0 50px rgba(0, 242, 255, 0.1);    
-}    
-
-.user-signature {       
-    text-align: center; font-size: 26px; font-weight: 900; color: var(--gold);      
-    text-shadow: 0 0 15px var(--gold); margin-bottom: 5px; letter-spacing: 4px;    
-}    
-
-.stats-row { display: flex; justify-content: space-between; font-size: 10px; color: #888; margin-bottom: 10px; }    
-    
-.capital-track {    
-    background: #111; height: 6px; border-radius: 10px; margin-bottom: 20px;     
-    overflow: hidden; border: 1px solid #222;    
-}    
-#progress-fill { width: 1%; height: 100%; background: linear-gradient(90deg, var(--gold), var(--win)); transition: width 1s ease; }    
-
-.hft-monitor {       
-    height: 340px; background: #000; border-radius: 30px; border: 2px solid #222;      
-    display: flex; flex-direction: column; align-items: center; justify-content: center;     
-    position: relative; overflow: hidden; transition: all 0.3s ease;    
-}    
-  
-.velocity-meter { position: absolute; top: 15px; font-size: 9px; color: var(--neon); letter-spacing: 2px; }    
-.signal-hft { font-size: 70px; font-weight: 900; z-index: 10; font-style: italic; }    
-  
-.exp-box { margin-top: 15px; padding: 5px 15px; border-radius: 10px; background: rgba(255,255,255,0.05); font-size: 12px; }    
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V36 - PRO EDITION</title>
+    <title>AEGIS V36 - EUR/USD OTC</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --bg: #050505; --hft: #ff00ff; --neon: #00f2ff; 
-            --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; 
-        }
-        body { 
-            font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; 
-            margin: 0; padding: 20px; display: flex; justify-content: center;
-        }
-        .hft-container { 
-            width: 100%; max-width: 400px; background: #0a0a0a; border-radius: 40px; 
-            padding: 25px; border: 1px solid #1a1a1a; box-shadow: 0 0 50px rgba(0, 242, 255, 0.1);
-        }
-        .user-signature { 
-            text-align: center; font-size: 26px; font-weight: 900; color: var(--gold); 
-            text-shadow: 0 0 15px var(--gold); margin-bottom: 5px; letter-spacing: 4px;
-        }
-        .stats-row { display: flex; justify-content: space-between; font-size: 10px; color: #888; margin-bottom: 10px; }
-        .capital-track { 
-            background: #111; height: 6px; border-radius: 10px; margin-bottom: 20px; 
-            overflow: hidden; border: 1px solid #222;
-        }
-        #progress-fill { width: 1%; height: 100%; background: linear-gradient(90deg, var(--gold), var(--win)); transition: width 1s ease; }
-        .hft-monitor { 
-            height: 300px; background: #000; border-radius: 30px; border: 2px solid #222; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            position: relative; overflow: hidden; transition: all 0.3s ease;
-        }
-        .velocity-meter { position: absolute; top: 15px; font-size: 9px; color: var(--neon); letter-spacing: 2px; }
-        .signal-hft { font-size: 70px; font-weight: 900; z-index: 10; font-style: italic; }
-        .exp-box { margin-top: 15px; padding: 5px 15px; border-radius: 10px; background: rgba(255,255,255,0.05); font-size: 12px; }
-        button { 
-            background: #fff; color: #000; border: none; padding: 20px; border-radius: 18px; 
-            width: 100%; font-weight: 900; font-size: 16px; margin-top: 20px; cursor: pointer; 
-            font-family: 'Orbitron', sans-serif; transition: 0.3s;
-        }
-        button:disabled { background: #222; color: #444; cursor: not-allowed; }
-        .hft-logs { 
-            font-size: 10px; color: #666; margin-top: 20px; font-family: monospace; 
-            height: 80px; overflow-y: hidden; border-left: 2px solid var(--gold); padding-left: 10px; 
-        }
-        @keyframes pulse-win { 0%, 100% { box-shadow: inset 0 0 10px var(--win); } 50% { box-shadow: inset 0 0 40px var(--win); } }
-        @keyframes pulse-loss { 0%, 100% { box-shadow: inset 0 0 10px var(--loss); } 50% { box-shadow: inset 0 0 40px var(--loss); } }
-        @keyframes blink { 50% { opacity: 0; } }
+        :root { --bg: #050505; --neon: #00f2ff; --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; }
+        body { font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; display: flex; justify-content: center; padding: 20px; }
+        .container { width: 100%; max-width: 380px; background: #0a0a0a; border-radius: 35px; padding: 20px; border: 1px solid #1a1a1a; }
+        
+        .header { text-align: center; margin-bottom: 20px; }
+        .market-tag { background: rgba(0, 242, 255, 0.1); color: var(--neon); padding: 4px 12px; border-radius: 20px; font-size: 10px; letter-spacing: 2px; }
+
+        /* GESTION DES MISES */
+        .management-box { display: flex; justify-content: space-between; background: #111; padding: 15px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #222; }
+        .mgt-item { text-align: center; }
+        .mgt-label { font-size: 8px; color: #555; margin-bottom: 5px; }
+        .mgt-value { font-weight: bold; color: var(--gold); font-size: 14px; }
+
+        .monitor { height: 240px; background: #000; border-radius: 25px; border: 2px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; margin-bottom: 15px; }
+        .sig-val { font-size: 55px; font-weight: 900; }
+        
+        .btn-snipe { background: #fff; color: #000; border: none; padding: 18px; border-radius: 15px; width: 100%; font-weight: 900; cursor: pointer; font-family: 'Orbitron'; }
+        .btn-snipe:disabled { background: #222; color: #444; }
+
+        .logs { font-size: 9px; color: #444; height: 50px; overflow: hidden; margin-top: 15px; border-left: 2px solid var(--neon); padding-left: 10px; font-family: monospace; }
+        
+        @keyframes pulse-win { 0%, 100% { box-shadow: 0 0 10px var(--win); } 50% { box-shadow: 0 0 30px var(--win); } }
+        @keyframes pulse-loss { 0%, 100% { box-shadow: 0 0 10px var(--loss); } 50% { box-shadow: 0 0 30px var(--loss); } }
     </style>
 </head>
 <body>
-<div class="hft-container">
-    <div class="user-signature">MATTHIEU</div>
-    <div style="font-size: 8px; color: var(--hft); letter-spacing: 4px; text-align: center; margin-bottom: 15px;">AEGIS PRO V36 - SAFETY ENABLED</div>
-    
-    <div class="stats-row">
-        <span>SOLDE: <b id="balance" style="color:var(--gold)">10.00$</b></span>
-        <span>OBJECTIF: <b style="color:var(--win)">1000$</b></span>
-    </div>
-    <div class="capital-track"><div id="progress-fill"></div></div>
 
-    <div class="hft-monitor" id="box">
-        <div class="velocity-meter">SÉCURITÉ: <span id="safety-status" style="color:var(--win)">ACTIVE</span></div>
-        
-        <div id="hft-scan" style="display:none; text-align:center;">
-            <div style="font-size:10px; color:var(--hft); animation: blink 0.3s infinite;">ANALYSE TENDANCE EMA...</div>
-            <div style="font-size:32px; font-weight:bold; margin-top:10px;" id="ms-counter">00.00 ms</div>
+<div class="container">
+    <div class="header">
+        <div style="font-size: 22px; font-weight: 900; color: var(--gold);">MATTHIEU</div>
+        <span class="market-tag">EUR/USD-OTC PRO</span>
+    </div>
+
+    <div class="management-box">
+        <div class="mgt-item">
+            <div class="mgt-label">SOLDE</div>
+            <div class="mgt-value" id="bal">10.00$</div>
         </div>
-
-        <div id="hft-result" style="display:none; text-align:center;">
-            <div id="trend-info" style="font-size:11px; margin-bottom: 5px;"></div>
-            <div class="signal-hft" id="sig-val">---</div>
-            <div class="exp-box">EXPIRATION: <span id="exp-timer" style="color:var(--gold); font-weight:bold;">60s</span></div>
+        <div class="mgt-item">
+            <div class="mgt-label">POSITION</div>
+            <select id="stake" style="background:none; color:#fff; border:none; font-family:'Orbitron'; font-weight:bold;">
+                <option value="1">1.00$</option>
+                <option value="2">2.00$</option>
+                <option value="5">5.00$</option>
+            </select>
         </div>
-
-        <div id="hft-idle" style="color:#222; font-weight:bold;">SYSTÈME EN ATTENTE</div>
+        <div class="mgt-item">
+            <div class="mgt-label">PAYOUT</div>
+            <div class="mgt-value" style="color:var(--win)">92%</div>
+        </div>
     </div>
 
-    <button id="hft-btn" onclick="startHFTScan()">SNIPE MOMENTUM</button>
-
-    <div class="hft-logs" id="logs">
-        > AEGIS V36 Initialisé...<br>
-        > Filtre de tendance SMA prêt.<br>
-        > En attente d'injection...
+    <div class="monitor" id="display">
+        <div id="idle-msg" style="color:#333;">EN ATTENTE DE FLUX</div>
+        <div id="active-ui" style="display:none; text-align:center;">
+            <div id="otc-status" style="font-size:9px; letter-spacing:3px; margin-bottom:10px;">ANALYSE...</div>
+            <div class="sig-val" id="signal">---</div>
+            <div style="font-size:10px; margin-top:10px; color:var(--gold)">EXP: 60 SEC</div>
+        </div>
     </div>
+
+    <button class="btn-snipe" id="btn" onclick="executeTrade()">SNIPE MOMENTUM</button>
+
+    <div class="logs" id="logs">> Système prêt pour EUR/USD-OTC...</div>
 </div>
 
 <script>
     let balance = 10.00;
-    let consecutiveLosses = 0;
-    const GOAL = 1000;
+    let isSafetyBlocked = false;
+    let losses = 0;
 
-    function addLog(msg) {
+    function executeTrade() {
+        if(isSafetyBlocked) return;
+        
+        const stake = parseFloat(document.getElementById('stake').value);
+        if(balance < stake) {
+            alert("Solde insuffisant !");
+            return;
+        }
+
+        const btn = document.getElementById('btn');
+        const display = document.getElementById('display');
+        const idle = document.getElementById('idle-msg');
+        const active = document.getElementById('active-ui');
+        const signal = document.getElementById('signal');
         const logs = document.getElementById('logs');
-        logs.innerHTML = `> ${msg}<br>` + logs.innerHTML;
-    }
 
-    function startHFTScan() {
-        const btn = document.getElementById('hft-btn');
-        const scan = document.getElementById('hft-scan');
-        const res = document.getElementById('hft-result');
-        const idle = document.getElementById('hft-idle');
-        const box = document.getElementById('box');
-        const expText = document.getElementById('exp-timer');
-        const trendInfo = document.getElementById('trend-info');
-
-        // Reset UI
         btn.disabled = true;
         idle.style.display = 'none';
-        res.style.display = 'none';
-        scan.style.display = 'block';
-        box.style.animation = "none";
-        box.style.borderColor = "#222";
-
-        // 1. Simulation Analyse (MS)
-        let ms = 0;
-        const msInt = setInterval(() => {
-            ms += Math.random() * 15;
-            document.getElementById('ms-counter').innerText = ms.toFixed(2) + " ms";
-        }, 50;
+        active.style.display = 'block';
+        display.style.animation = "none";
+        document.getElementById('otc-status').innerText = "CALCUL LIQUIDITÉ OTC...";
 
         setTimeout(() => {
-            clearInterval(msInt);
-            scan.style.display = 'none';
-            res.style.display = 'block';
+            const trend = Math.random() > 0.5 ? "CALL" : "PUT";
+            const winRate = 0.62; // 62% de réussite simulée pour l'algorithme
+            const isWin = Math.random() < winRate;
 
-            // 2. Logique de Filtre (Tendance)
-            const marketTrend = Math.random() > 0.5 ? "HAUSSIER" : "BAISSIER";
-            const isWin = Math.random() > 0.35; // Probabilité de succès 65% (réaliste)
-            
-            let direction;
-            if(marketTrend === "HAUSSIER") {
-                direction = "CALL";
-                trendInfo.innerHTML = `<span style="color:var(--win)">TENDANCE ↑ (EMA 200)</span>`;
-            } else {
-                direction = "PUT";
-                trendInfo.innerHTML = `<span style="color:var(--loss)">TENDANCE ↓ (EMA 200)</span>`;
-            }
+            signal.innerText = trend;
+            signal.style.color = trend === "CALL" ? "var(--win)" : "var(--loss)";
+            display.style.borderColor = signal.style.color;
+            display.style.animation = trend === "CALL" ? "pulse-win 2s infinite" : "pulse-loss 2s infinite";
+            document.getElementById('otc-status').innerText = "SIGNAL DÉTECTÉ";
 
-            document.getElementById('sig-val').innerText = direction;
-            const color = direction === "CALL" ? "var(--win)" : "var(--loss)";
-            document.getElementById('sig-val').style.color = color;
-            box.style.borderColor = color;
-            box.style.animation = direction === "CALL" ? "pulse-win 2s infinite" : "pulse-loss 2s infinite";
+            setTimeout(() => {
+                if(isWin) {
+                    const profit = stake * 0.92;
+                    balance += profit;
+                    losses = 0;
+                    logs.innerHTML = `> <span style="color:var(--win)">WIN</span> ${trend} (+${profit.toFixed(2)}$)<br>` + logs.innerHTML;
+                } else {
+                    balance -= stake;
+                    losses++;
+                    logs.innerHTML = `> <span style="color:var(--loss)">LOSS</span> ${trend} (-${stake.toFixed(2)}$)<br>` + logs.innerHTML;
+                }
 
-            // 3. Simulation Résultat après 2s (pour l'effet)
-            if(isWin) {
-                const profit = (Math.random() * 2 + 1).toFixed(2);
-                balance += parseFloat(profit);
-                consecutiveLosses = 0;
-                addLog(`<span style="color:var(--win)">SUCCESS</span> ${direction} (+${profit}$)`);
-            } else {
-                const loss = (Math.random() * 1.5 + 0.5).toFixed(2);
-                balance -= parseFloat(loss);
-                consecutiveLosses++;
-                addLog(`<span style="color:var(--loss)">ÉCHEC</span> ${direction} (-${loss}$)`);
-            }
+                document.getElementById('bal').innerText = balance.toFixed(2) + "$";
 
-            // Mise à jour Solde et Progrès
-            document.getElementById('balance').innerText = balance.toFixed(2) + "$";
-            const progress = (balance / GOAL) * 100;
-            document.getElementById('progress-fill').style.width = Math.min(progress, 100) + "%";
-
-            // 4. Sécurité : Blocage si trop de pertes
-            if(consecutiveLosses >= 3) {
-                addLog(`<span style="color:red">SÉCURITÉ: MARCHÉ INSTABLE. ARRÊT.</span>`);
-                btn.innerText = "SÉCURITÉ ACTIVÉE";
-                document.getElementById('safety-status').innerText = "BLOCKED";
-                document.getElementById('safety-status').style.color = "var(--loss)";
-                return;
-            }
-
-            // Cooldown 
-            let cd = 5;
-            const cdInt = setInterval(() => {
-                btn.innerText = `NEXT SCAN IN ${cd}s`;
-                cd--;
-                if(cd < 0) {
-                    clearInterval(cdInt);
-                    btn.disabled = false;
-                    btn.innerText = "SNIPE MOMENTUM";
+                if(losses >= 3) {
+                    isSafetyBlocked = true;
+                    btn.innerText = "MARCHÉ DANGEREUX - STOP";
+                    btn.style.background = "#ff0044";
+                } else {
+                    let cd = 5;
+                    const timer = setInterval(() => {
+                        btn.innerText = `COOLDOWN (${cd}s)`;
+                        cd--;
+                        if(cd < 0) {
+                            clearInterval(timer);
+                            btn.disabled = false;
+                            btn.innerText = "SNIPE MOMENTUM";
+                        }
+                    }, 1000);
                 }
             }, 1000);
-
-        }, 2500);
+        }, 2000);
     }
 </script>
 </body>
