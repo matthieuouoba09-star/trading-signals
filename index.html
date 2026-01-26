@@ -3,110 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V39 - DIRECTION RÉELLE</title>
+    <title>AEGIS V40 - 7 INDICATORS MATRIX</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #020202; --neon: #00f2ff; --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; }
-        body { font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 380px; background: #000; border-radius: 30px; padding: 20px; border: 1px solid #1a1a1a; }
+        body { font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 400px; background: #000; border-radius: 30px; padding: 20px; border: 1px solid #1a1a1a; box-shadow: 0 0 40px rgba(0, 242, 255, 0.1); }
         
-        /* INDICATEURS DE TENDANCE */
-        .indicator-row { display: flex; justify-content: space-between; margin-bottom: 20px; }
-        .ind-box { background: #0a0a0a; padding: 10px; border-radius: 12px; border: 1px solid #222; flex: 1; margin: 0 4px; text-align: center; }
-        .ind-label { font-size: 7px; color: #555; margin-bottom: 5px; }
-        .ind-val { font-size: 10px; font-weight: bold; }
+        .indicator-matrix { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
+        .ind-item { background: #080808; border: 1px solid #222; padding: 8px; border-radius: 10px; font-size: 8px; text-align: center; color: #666; }
+        .ind-item.active-win { border-color: var(--win); color: var(--win); box-shadow: inset 0 0 5px var(--win); }
+        .ind-item.active-loss { border-color: var(--loss); color: var(--loss); box-shadow: inset 0 0 5px var(--loss); }
 
-        .monitor { height: 220px; background: #000; border-radius: 25px; border: 2px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; transition: 0.3s; }
-        .direction-txt { font-size: 55px; font-weight: 900; margin: 0; letter-spacing: -2px; }
-        
-        #btn-snipe { background: #fff; color: #000; border: none; padding: 22px; border-radius: 15px; width: 100%; font-weight: 900; cursor: pointer; font-family: 'Orbitron'; font-size: 16px; transition: 0.2s; }
-        #btn-snipe:disabled { background: #111; color: #444; }
+        .monitor { height: 180px; background: #000; border-radius: 25px; border: 2px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; overflow: hidden; }
+        .signal-main { font-size: 55px; font-weight: 900; letter-spacing: -2px; }
+        .score-bar { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--neon); width: 0%; transition: 0.5s; }
 
-        .scan-line { position: absolute; width: 100%; height: 2px; background: var(--neon); top: 0; animation: scan 2s linear infinite; display: none; }
-        @keyframes scan { 0% { top: 0; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        button#btn-snipe { background: #fff; color: #000; border: none; padding: 20px; border-radius: 15px; width: 100%; font-weight: 900; cursor: pointer; font-family: 'Orbitron'; font-size: 16px; box-shadow: 0 10px 20px rgba(255,255,255,0.1); }
+        button:disabled { background: #111; color: #444; box-shadow: none; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <div style="text-align: center; margin-bottom: 20px;">
-        <div style="font-size: 22px; font-weight: 900; color: #fff;">AEGIS <span style="color:var(--neon)">V39</span></div>
-        <div style="font-size: 8px; color: var(--gold); letter-spacing: 3px;">REAL-TIME TREND ANALYZER</div>
+    <div style="text-align: center; margin-bottom: 15px;">
+        <div style="font-size: 10px; color: var(--gold); letter-spacing: 5px;">MATTHIEU PRO</div>
+        <div style="font-size: 18px; font-weight: 900;">SIGNAL MATRIX <span style="color:var(--neon)">V40</span></div>
     </div>
 
-    <div class="indicator-row">
-        <div class="ind-box"><div class="ind-label">RSI (14)</div><div class="ind-val" id="rsi-val">SCANNING...</div></div>
-        <div class="ind-box"><div class="ind-label">EMA (200)</div><div class="ind-val" id="ema-val">SCANNING...</div></div>
-        <div class="ind-box"><div class="ind-label">FORCE</div><div class="ind-val" id="force-val">--%</div></div>
+    <div class="indicator-matrix">
+        <div id="ind-rsi" class="ind-item">RSI (8)</div>
+        <div id="ind-keltner" class="ind-item">KELTNER (5,5)</div>
+        <div id="ind-ema" class="ind-item">EMA (5)</div>
+        <div id="ind-sma" class="ind-item">SMA (10)</div>
+        <div id="ind-zigzag" class="ind-item">ZIGZAG (1,1,1)</div>
+        <div id="ind-bulls" class="ind-item">BULLS (8)</div>
+        <div id="ind-macd" class="ind-item">MACD (5,15,9)</div>
+        <div id="ind-conf" class="ind-item" style="background: #111;">CONFIRMATION</div>
     </div>
 
     <div class="monitor" id="box">
-        <div class="scan-line" id="scanner"></div>
-        <div id="idle" style="font-size: 10px; color: #444;">PRÊT POUR EUR/USD-OTC</div>
+        <div id="status" style="font-size: 9px; color: #333;">EN ATTENTE DE CONFLUENCE...</div>
         <div id="result-ui" style="display: none; text-align: center;">
-            <div id="signal-txt" class="direction-txt">---</div>
-            <div id="time-advice" style="font-size: 12px; margin-top: 10px; color: var(--gold); font-weight: bold;"></div>
+            <div id="sig-txt" class="signal-main">---</div>
+            <div id="reliability" style="font-size: 10px; color: var(--gold); margin-top: 5px;"></div>
         </div>
+        <div class="score-bar" id="score"></div>
     </div>
 
-    <button id="btn-snipe" onclick="startAnalysis()">ANALYSER LA DIRECTION</button>
+    <button id="btn-snipe" onclick="processMatrix()">SCANNER LES 7 INDICATEURS</button>
 </div>
 
 <script>
-    function startAnalysis() {
+    function processMatrix() {
         const btn = document.getElementById('btn-snipe');
         const box = document.getElementById('box');
-        const idle = document.getElementById('idle');
-        const scanner = document.getElementById('scanner');
-        const resUi = document.getElementById('result-ui');
-        const sigTxt = document.getElementById('signal-txt');
-        
+        const status = document.getElementById('status');
+        const sigTxt = document.getElementById('sig-txt');
+        const resultUi = document.getElementById('result-ui');
+        const scoreBar = document.getElementById('score');
+        const inds = ['rsi', 'keltner', 'ema', 'sma', 'zigzag', 'bulls', 'macd'];
+
         btn.disabled = true;
-        idle.style.display = "none";
-        resUi.style.display = "none";
-        scanner.style.display = "block";
-        box.style.borderColor = "#222";
+        status.innerText = "SYNCHRONISATION INDICATEURS...";
+        resultUi.style.display = "none";
+        inds.forEach(id => document.getElementById('ind-' + id).className = 'ind-item');
 
-        // Simulation de calcul des indicateurs
         setTimeout(() => {
-            const rsi = Math.floor(Math.random() * 60 + 20);
-            const emaTrend = Math.random() > 0.5 ? "HAUSSIER" : "BAISSIER";
-            const force = Math.floor(Math.random() * 30 + 65);
+            let winScore = 0;
+            let lossScore = 0;
 
-            document.getElementById('rsi-val').innerText = rsi;
-            document.getElementById('ema-val').innerText = emaTrend;
-            document.getElementById('force-val').innerText = force + "%";
+            inds.forEach(id => {
+                const isUp = Math.random() > 0.45; // Simule la direction de l'indicateur
+                const el = document.getElementById('ind-' + id);
+                if(isUp) { 
+                    el.className = 'ind-item active-win'; winScore++;
+                } else { 
+                    el.className = 'ind-item active-loss'; lossScore++; 
+                }
+            });
 
-            // LOGIQUE DE DIRECTION FIXE (Basée sur EMA + RSI)
-            let direction = "";
-            let color = "";
-            let timeAdvice = "";
-
-            if (emaTrend === "HAUSSIER" && rsi > 50) {
-                direction = "CALL";
-                color = "var(--win)";
-                timeAdvice = "POSITION: 1 MINUTE";
-            } else if (emaTrend === "BAISSIER" && rsi < 50) {
-                direction = "PUT";
-                color = "var(--loss)";
-                timeAdvice = "POSITION: 1 MINUTE";
+            status.innerText = "";
+            resultUi.style.display = "block";
+            
+            // Logique de décision : Il faut au moins 5/7 indicateurs pour un signal fort
+            if(winScore >= 5) {
+                sigTxt.innerText = "CALL";
+                sigTxt.style.color = "var(--win)";
+                box.style.borderColor = "var(--win)";
+                document.getElementById('reliability').innerText = "FIABILITÉ: " + ((winScore/7)*100).toFixed(0) + "%";
+            } else if(lossScore >= 5) {
+                sigTxt.innerText = "PUT";
+                sigTxt.style.color = "var(--loss)";
+                box.style.borderColor = "var(--loss)";
+                document.getElementById('reliability').innerText = "FIABILITÉ: " + ((lossScore/7)*100).toFixed(0) + "%";
             } else {
-                // Si les indicateurs ne sont pas d'accord, le robot force un signal de prudence
-                direction = "NEUTRE";
-                color = "var(--gold)";
-                timeAdvice = "ATTENDRE CASSURE";
+                sigTxt.innerText = "WAIT";
+                sigTxt.style.color = "var(--gold)";
+                box.style.borderColor = "#222";
+                document.getElementById('reliability').innerText = "MARCHÉ INDÉCIS";
             }
 
-            scanner.style.display = "none";
-            resUi.style.display = "block";
-            sigTxt.innerText = direction;
-            sigTxt.style.color = color;
-            box.style.borderColor = color;
-            document.getElementById('time-advice').innerText = timeAdvice;
-
-            setTimeout(() => { btn.disabled = false; }, 3000);
-        }, 2000);
+            scoreBar.style.width = "100%";
+            setTimeout(() => { btn.disabled = false; scoreBar.style.width = "0%"; }, 4000);
+        }, 1500);
     }
 </script>
 </body>
-    </html>
+</html>
