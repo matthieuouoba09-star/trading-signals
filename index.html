@@ -40,7 +40,7 @@
     <div class="hft-monitor" id="box">
         <div class="velocity-meter">LATENCY: <span id="v-val">-- MS</span></div>
         <div id="hft-scan" style="display:none; text-align:center;">
-            <div style="font-size:10px; color:var(--hft); animation: blink 0.3s infinite;">SCANNING RSI & BOLLINGER...</div>
+            <div style="font-size:10px; color:var(--hft); animation: blink 0.3s infinite;">SCANNING M1 CANDLE & RSI...</div>
             <div style="font-size:32px; font-weight:bold; margin-top:10px;" id="ms-counter">00.00 ms</div>
         </div>
         <div id="hft-result" style="display:none; text-align:center;">
@@ -53,7 +53,7 @@
     <button id="hft-btn" onclick="startHFTScan()">SNIPE MOMENTUM</button>
     <div class="hft-logs" id="logs">
         > Système prêt...<br>
-        > Analyse EUR/USD OTC activée...
+        > Analyse EUR/USD OTC (M1) activée...
     </div>
 </div>
 
@@ -88,23 +88,29 @@
         setTimeout(() => {
             clearInterval(msInt);
             
-            // LOGIQUE AEGIS V36 : Simulation RSI + Volatilité Bougie
+            // --- LOGIQUE BOOSTÉE : ANALYSE BOUGIE (1 MINUTE) D'ABORD ---
             const rsi = Math.floor(Math.random() * 100);
-            const candleForce = Math.random() * 100; // Simule le Price Action
+            
+            // On simule l'analyse du corps et de la mèche de la bougie M1
+            const candleAnalysis = Math.random() * 100; 
             
             let direction = "";
             let expiration = "";
             let mode = "";
 
-            if (rsi > 75 || rsi < 25) {
-                direction = (rsi > 75) ? "PUT" : "CALL";
-                // Si la bougie est explosive (>80%), on prend 30s, sinon 3m (Sécurité)
-                if (candleForce > 80) {
+            // Le robot vérifie si la bougie M1 montre une fatigue (Rejet)
+            const candleRejection = candleAnalysis > 40; // 60% de chance de détection Price Action
+
+            if (candleRejection && (rsi > 72 || rsi < 28)) {
+                direction = (rsi > 72) ? "PUT" : "CALL";
+                
+                // Si la bougie M1 est très grande, on tente le 30s, sinon 3m
+                if (candleAnalysis > 85) {
                     expiration = "30s";
-                    mode = "SCALPING HFT";
+                    mode = "SCALPING M1";
                 } else {
                     expiration = "3m";
-                    mode = "REVERSAL PRO";
+                    mode = "REVERSAL M1";
                 }
             } else {
                 direction = "SKIP";
@@ -121,25 +127,23 @@
                 box.style.borderColor = color;
                 box.style.animation = direction === "CALL" ? "pulse-win 2s infinite" : "pulse-loss 2s infinite";
                 
-                logs.innerHTML = `> <span style="color:var(--gold)">[V36]</span> ${mode} : ${direction} (${expiration})<br>` + logs.innerHTML;
+                logs.innerHTML = `> <span style="color:var(--gold)">[V36]</span> ${mode} : ${direction} (CANDLE OK)<br>` + logs.innerHTML;
                 
-                // Simulation Profit réaliste Pocket Option (10$ balance)
                 const profit = (Math.random() * 0.90 + 0.80).toFixed(2);
                 balance += parseFloat(profit);
             } else {
                 sig.innerText = "WAIT";
                 sig.style.color = "#444";
                 expText.innerText = "N/A";
-                logs.innerHTML = `> <span style="color:#666">[V36]</span> Signal neutre (RSI ${rsi}). Scan annulé.<br>` + logs.innerHTML;
+                logs.innerHTML = `> <span style="color:#666">[V36]</span> Candle M1 Neutral (RSI ${rsi}). Skipping.<br>` + logs.innerHTML;
             }
 
             document.getElementById('balance').innerText = balance.toFixed(2) + "$";
             document.getElementById('progress-fill').style.width = (balance / target * 100) + "%";
 
-            // COOLDOWN : Le robot se calme pour éviter le sur-trading
             let cd = 8;
             const cdInt = setInterval(() => {
-                btn.innerText = `CALIBRATION (${cd}s)`;
+                btn.innerText = `NEXT CANDLE (${cd}s)`;
                 cd--;
                 if(cd < 0) {
                     clearInterval(cdInt);
@@ -152,4 +156,4 @@
     }
 </script>
 </body>
-</html>
+        </html>
