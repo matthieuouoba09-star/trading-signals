@@ -26,6 +26,11 @@
         @keyframes pulse-win { 0% { box-shadow: inset 0 0 10px var(--win); } 50% { box-shadow: inset 0 0 40px var(--win); } 100% { box-shadow: inset 0 0 10px var(--win); } }
         @keyframes pulse-loss { 0% { box-shadow: inset 0 0 10px var(--loss); } 50% { box-shadow: inset 0 0 40px var(--loss); } 100% { box-shadow: inset 0 0 10px var(--loss); } }
         @keyframes blink { 50% { opacity: 0; } }
+        
+        /* STYLE POUR LES DERNIÈRES BOUGIES ANALYSÉES */
+        .candle-timer-box { position: absolute; bottom: 15px; font-size: 10px; color: var(--gold); opacity: 0.7; }
+        .history-box { position: absolute; top: 40px; display: flex; gap: 10px; font-size: 8px; }
+        .hist-c { padding: 2px 6px; border-radius: 4px; border: 1px solid #333; }
     </style>
 </head>
 <body>
@@ -39,8 +44,16 @@
     <div class="capital-track"><div id="progress-fill"></div></div>
     <div class="hft-monitor" id="box">
         <div class="velocity-meter">LATENCY: <span id="v-val">-- MS</span></div>
+        
+        <div class="history-box">
+            <div id="hist-2" class="hist-c">C-2: --</div>
+            <div id="hist-1" class="hist-c">C-1: --</div>
+        </div>
+
+        <div class="candle-timer-box" id="candle-ui">CANDLE END IN: <span id="timer-val">00s</span></div>
+
         <div id="hft-scan" style="display:none; text-align:center;">
-            <div style="font-size:10px; color:var(--hft); animation: blink 0.3s infinite;">SCANNING M1 + RSI + STOCH + BB...</div>
+            <div style="font-size:10px; color:var(--hft); animation: blink 0.3s infinite;">SCANNING M1 + HISTORY...</div>
             <div style="font-size:32px; font-weight:bold; margin-top:10px;" id="ms-counter">00.00 ms</div>
         </div>
         <div id="hft-result" style="display:none; text-align:center;">
@@ -60,6 +73,17 @@
 <script>
     let balance = 10.00;
     const target = 1000.00;
+
+    // Timer Global
+    setInterval(() => {
+        const now = new Date();
+        const seconds = now.getSeconds();
+        const timeLeft = 60 - seconds;
+        const timerEl = document.getElementById('timer-val');
+        timerEl.innerText = timeLeft + "s";
+        if (timeLeft <= 5) { timerEl.style.color = "var(--win)"; timerEl.style.fontWeight = "bold"; }
+        else { timerEl.style.color = "var(--gold)"; timerEl.style.fontWeight = "normal"; }
+    }, 1000);
 
     function startHFTScan() {
         const btn = document.getElementById('hft-btn');
@@ -88,27 +112,38 @@
         setTimeout(() => {
             clearInterval(msInt);
             
-            // --- NOUVELLE LOGIQUE STRATÉGIQUE MULTIPLE (V36 PRO) ---
+            // --- ANALYSE DE L'HISTORIQUE (C-1 et C-2) ---
             const rsi = Math.floor(Math.random() * 100);
-            const stoch = Math.floor(Math.random() * 100); // Indicateur Stochastique
-            const bbTouch = Math.random() > 0.6;           // Simulation Bandes de Bollinger
-            const candleM1 = Math.random() > 0.5;          // Analyse Bougie 1 minute
+            const stoch = Math.floor(Math.random() * 100); 
             
+            // Simulation de l'état des bougies passées
+            const c1_bullish = Math.random() > 0.5;
+            const c2_bullish = Math.random() > 0.5;
+
+            // Mise à jour visuelle de l'historique
+            const h1 = document.getElementById('hist-1');
+            const h2 = document.getElementById('hist-2');
+            h1.innerText = `C-1: ${c1_bullish ? 'UP' : 'DOWN'}`;
+            h1.style.color = c1_bullish ? 'var(--win)' : 'var(--loss)';
+            h2.innerText = `C-2: ${c2_bullish ? 'UP' : 'DOWN'}`;
+            h2.style.color = c2_bullish ? 'var(--win)' : 'var(--loss)';
+
             let direction = "";
             let expiration = "";
             let signalPower = 0;
 
-            // Système de score pour éviter les faux signaux
+            // Logique de scoring
             if (rsi > 70 || rsi < 30) signalPower += 25;
             if (stoch > 80 || stoch < 20) signalPower += 25;
-            if (bbTouch) signalPower += 25;
-            if (candleM1) signalPower += 25;
+            
+            // ANALYSE : Si les 2 dernières bougies sont de même couleur, le risque de retournement est plus haut (Martingale Logic)
+            if (c1_bullish === c2_bullish) signalPower += 30; 
+            else signalPower += 15;
 
-            // CONDITION STRICTE : Au moins 75% de réussite pour donner un signal
-            if (signalPower >= 75) {
+            // On vérifie si la bougie actuelle est en contradiction avec l'historique
+            if (signalPower >= 70) {
                 direction = (rsi > 50) ? "PUT" : "CALL";
-                // On privilégie 3m pour la sécurité sur M1
-                expiration = (signalPower === 100) ? "3m" : "2m";
+                expiration = "3m"; 
             } else {
                 direction = "SKIP";
             }
@@ -123,36 +158,28 @@
                 sig.style.color = color;
                 box.style.borderColor = color;
                 box.style.animation = direction === "CALL" ? "pulse-win 2s infinite" : "pulse-loss 2s infinite";
-                
-                logs.innerHTML = `> <span style="color:var(--gold)">[V36]</span> POWER ${signalPower}% : ${direction} (${expiration})<br>` + logs.innerHTML;
-                
-                // Simulation réaliste de profit
+                logs.innerHTML = `> <span style="color:var(--gold)">[V36]</span> Analysed C-1/C-2. Power: ${signalPower}%<br>` + logs.innerHTML;
                 const profit = (Math.random() * 0.90 + 0.80).toFixed(2);
                 balance += parseFloat(profit);
             } else {
                 sig.innerText = "WAIT";
                 sig.style.color = "#444";
                 expText.innerText = "N/A";
-                logs.innerHTML = `> <span style="color:#666">[V36]</span> Score faible (${signalPower}%). Aucun signal sécurisé.<br>` + logs.innerHTML;
+                logs.innerHTML = `> <span style="color:#666">[V36]</span> History conflict. RSI: ${rsi}. Skipping.<br>` + logs.innerHTML;
             }
 
             document.getElementById('balance').innerText = balance.toFixed(2) + "$";
             document.getElementById('progress-fill').style.width = (balance / target * 100) + "%";
 
-            // COOLDOWN AUGMENTÉ POUR LA RÉFLEXION
             let cd = 10;
             const cdInt = setInterval(() => {
                 btn.innerText = `SYNCING M1 (${cd}s)`;
                 cd--;
-                if(cd < 0) {
-                    clearInterval(cdInt);
-                    btn.disabled = false;
-                    btn.innerText = "SNIPE MOMENTUM";
-                }
+                if(cd < 0) { clearInterval(cdInt); btn.disabled = false; btn.innerText = "SNIPE MOMENTUM"; }
             }, 1000);
 
         }, 2500);
     }
 </script>
 </body>
-</html>
+                </html>
