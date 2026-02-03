@@ -3,31 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Robot Trading Live</title>
+<title>Aegis Signal Bot PRO</title>
 
 <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
 
 <style>
-:root{
---bg:#0a0a0f; --card:#12121a; --border:#2a2a3a;
---primary:#00d4ff; --success:#00ff9d; --danger:#ff0062;
---text:#e8e8f0; --dim:#6b6b80;
+body{
+background:#0a0a0f;
+color:#e8e8f0;
+font-family:Arial;
+padding:18px;
 }
 
-body{background:var(--bg);color:var(--text);font-family:Arial;padding:20px}
-.container{max-width:1200px;margin:auto}
+.card{
+background:#12121a;
+border:1px solid #2a2a3a;
+border-radius:14px;
+padding:16px;
+margin-bottom:16px;
+}
 
-.card{background:var(--card);border:1px solid var(--border);
-border-radius:14px;padding:20px;margin-bottom:20px}
+#chart{height:360px}
 
-h1{margin-bottom:10px}
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+gap:10px;
+}
 
-#chart{height:380px}
+.stat{
+background:#1a1a26;
+padding:10px;
+border-radius:8px;
+}
 
-.controls{display:flex;gap:12px;margin-top:15px;flex-wrap:wrap}
+.controls{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-top:12px;
+}
 
 button{
-padding:12px 18px;
+padding:12px 16px;
 border:none;
 border-radius:10px;
 font-weight:700;
@@ -35,27 +53,34 @@ cursor:pointer;
 font-size:14px;
 }
 
-.analyze{background:var(--primary);color:#000}
-.win{background:var(--success)}
-.loss{background:var(--danger);color:#fff}
+.analyze{background:#00d4ff;color:#000}
+.win{background:#00ff9d}
+.loss{background:#ff0062;color:white}
 
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.stat{background:#1a1a26;padding:12px;border-radius:10px}
+.log{
+font-size:12px;
+color:#6b6b80;
+max-height:180px;
+overflow:auto;
+}
 
-.log{font-size:12px;color:var(--dim);max-height:160px;overflow:auto}
+.signalbox{
+font-size:16px;
+font-weight:700;
+margin-bottom:8px;
+}
 </style>
 </head>
 
 <body>
-<div class="container">
 
 <div class="card">
-<h1>📊 Robot EUR/USD — Live TwelveData</h1>
+<h2>📊 Aegis Signal Bot PRO — EUR/USD</h2>
 <div id="chart"></div>
 </div>
 
 <div class="card">
-<div class="stats">
+<div class="grid">
 <div class="stat">Balance: <b id="bal">50</b>$</div>
 <div class="stat">Mise: <b id="bet">1</b>$</div>
 <div class="stat">WinRate: <b id="wr">0%</b></div>
@@ -63,113 +88,156 @@ font-size:14px;
 
 <div class="controls">
 <button class="analyze" onclick="analyze()">🔍 ANALYSER</button>
-<button class="win" onclick="result(true)">✓ GAGNÉ</button>
-<button class="loss" onclick="result(false)">✗ PERDU</button>
+<button class="win" onclick="tradeResult(true)">✓ GAGNÉ</button>
+<button class="loss" onclick="tradeResult(false)">✗ PERDU</button>
 </div>
 </div>
 
 <div class="card">
-<div id="signal">Signal: --</div>
+<div class="signalbox" id="signal">Signal: --</div>
 <div class="log" id="log"></div>
-</div>
-
 </div>
 
 <script>
 const API="397ca9a6d7c24c37a84043c1b0219042";
 
-let state={
-balance:50,
+let S={
+bal:50,
 bet:1,
 wins:0,
-losses:0,
+loss:0,
 data:[]
 };
 
-const chart = LightweightCharts.createChart(document.getElementById('chart'),{
+const chart = LightweightCharts.createChart(
+document.getElementById("chart"),
+{
 layout:{background:{color:"#0a0a0f"},textColor:"#6b6b80"},
 grid:{vertLines:{color:"#1a1a26"},horzLines:{color:"#1a1a26"}}
-});
+}
+);
 
 const series = chart.addCandlestickSeries();
 
 function log(t){
-const el=document.getElementById("log");
-el.innerHTML+="<div>"+new Date().toLocaleTimeString()+" — "+t+"</div>";
-el.scrollTop=el.scrollHeight;
+let d=document.getElementById("log");
+d.innerHTML+="<div>"+new Date().toLocaleTimeString()+" — "+t+"</div>";
+d.scrollTop=d.scrollHeight;
 }
 
-async function load(){
-const r=await fetch(`https://api.twelvedata.com/time_series?symbol=EUR/USD&interval=1min&outputsize=120&apikey=${API}`);
-const j=await r.json();
-if(!j.values){log("Erreur API");return;}
-state.data=j.values.reverse().map(c=>({
+async function loadData(){
+try{
+let r=await fetch(`https://api.twelvedata.com/time_series?symbol=EUR/USD&interval=1min&outputsize=150&apikey=${API}`);
+let j=await r.json();
+
+if(!j.values){
+log("API limite atteinte ou erreur");
+return;
+}
+
+S.data=j.values.reverse().map(c=>({
 time:new Date(c.datetime).getTime()/1000,
-open:+c.open, high:+c.high, low:+c.low, close:+c.close
+open:+c.open,
+high:+c.high,
+low:+c.low,
+close:+c.close
 }));
-series.setData(state.data);
-log("Données live chargées");
-}
-setInterval(load,60000);
-load();
 
-function ema(period){
-let k=2/(period+1);
-let ema=state.data[0].close;
-for(let i=1;i<state.data.length;i++){
-ema=state.data[i].close*k+ema*(1-k);
+series.setData(S.data);
+log("Données marché chargées ("+S.data.length+")");
+
+}catch(e){
+log("Erreur connexion API");
 }
-return ema;
+}
+
+setInterval(loadData,60000);
+loadData();
+
+function ema(p){
+let k=2/(p+1);
+let e=S.data[0].close;
+for(let i=1;i<S.data.length;i++){
+e=S.data[i].close*k+e*(1-k);
+}
+return e;
 }
 
 function rsi(p=14){
-let gains=0,loss=0;
-for(let i=state.data.length-p;i<state.data.length;i++){
-let d=state.data[i].close-state.data[i-1].close;
-if(d>=0) gains+=d; else loss-=d;
+let g=0,l=0;
+for(let i=S.data.length-p;i<S.data.length;i++){
+let d=S.data[i].close-S.data[i-1].close;
+if(d>=0) g+=d; else l-=d;
 }
-let rs=gains/(loss||1);
+let rs=g/(l||1);
 return 100-(100/(1+rs));
 }
 
+function momentum(){
+let last=S.data.slice(-5);
+return last[last.length-1].close - last[0].close;
+}
+
 function analyze(){
-if(state.data.length<60){log("Pas assez de data");return;}
+try{
+
+if(!S.data || S.data.length<60){
+log("Pas assez de bougies — attends le chargement");
+return;
+}
 
 let e20=ema(20);
 let e50=ema(50);
 let r=rsi();
+let m=momentum();
+
+let score=0;
+
+if(e20>e50) score+=30; else score-=30;
+if(r>55) score+=25;
+if(r<45) score-=25;
+if(m>0) score+=15; else score-=15;
 
 let sig="WAIT";
-
-if(e20>e50 && r>55) sig="CALL";
-if(e20<e50 && r<45) sig="PUT";
+if(score>=40) sig="CALL";
+if(score<=-40) sig="PUT";
 
 document.getElementById("signal").innerHTML=
-"Signal: <b>"+sig+"</b> | RSI "+r.toFixed(1);
+"Signal: <b>"+sig+"</b> | Score "+score+" | RSI "+r.toFixed(1);
 
-log("Analyse faite → "+sig);
+log("Analyse exécutée → "+sig+" | score "+score);
+
+}catch(e){
+log("Erreur analyse JS");
+}
 }
 
-function result(win){
+function tradeResult(win){
+
 if(win){
-state.balance+=state.bet;
-state.wins++;
-state.bet=1;
+S.bal+=S.bet;
+S.bet=1;
+S.wins++;
 }else{
-state.balance-=state.bet;
-state.losses++;
-state.bet*=2;
+S.bal-=S.bet;
+S.bet*=2;
+S.loss++;
 }
 
-document.getElementById("bal").innerText=state.balance.toFixed(2);
-document.getElementById("bet").innerText=state.bet.toFixed(2);
+document.getElementById("bal").innerText=S.bal.toFixed(2);
+document.getElementById("bet").innerText=S.bet.toFixed(2);
 
-let wr = state.wins+state.losses;
-wr = wr? (state.wins/wr*100).toFixed(1):0;
+let wr=S.wins+S.loss;
+wr = wr ? (S.wins/wr*100).toFixed(1):0;
 document.getElementById("wr").innerText=wr+"%";
 
-log(win?"Trade gagnant":"Trade perdant");
+log(win?"Trade gagnant enregistré":"Trade perdant enregistré");
 }
+
+window.addEventListener("resize",()=>{
+chart.applyOptions({width:document.getElementById("chart").offsetWidth});
+});
 </script>
+
 </body>
 </html>
