@@ -3,254 +3,173 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>REAL MARKET - Robot Trading Données Réelles</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>Robot Trading Live</title>
+
 <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+
 <style>
-/* === CSS exactement comme ton code original === */
-:root {
---bg: #0a0a0f;
---surface: #12121a;
---surface-light: #1a1a26;
---primary: #00d4ff;
---success: #00ff9d;
---danger: #ff0062;
---warning: #ffb800;
---text: #e8e8f0;
---text-dim: #6b6b80;
---border: #2a2a3a;
+:root{
+--bg:#0a0a0f; --card:#12121a; --border:#2a2a3a;
+--primary:#00d4ff; --success:#00ff9d; --danger:#ff0062;
+--text:#e8e8f0; --dim:#6b6b80;
 }
-* {margin:0;padding:0;box-sizing:border-box;}
-body {font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:20px;
-background-image: radial-gradient(circle at 20% 50%, rgba(0,212,255,0.05) 0%, transparent 50%),
-radial-gradient(circle at 80% 80%, rgba(255,0,98,0.05) 0%, transparent 50%);}
-.container {max-width:1400px; margin:0 auto;}
-.header {background:linear-gradient(135deg,var(--surface),var(--surface-light)); border-radius:20px; padding:30px; margin-bottom:25px; border:1px solid var(--border); position:relative; overflow:hidden;}
-.header::before {content:''; position:absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg,var(--primary),var(--success));}
-.header-content {display:flex; justify-content:space-between; align-items:center;}
-.title-section h1 {font-size:36px; font-weight:900; background: linear-gradient(135deg,var(--primary),var(--success)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:8px;}
-.title-section p {font-size:13px; color:var(--text-dim); font-family:'JetBrains Mono',monospace;}
-.connection-status {display:flex; align-items:center; gap:10px; padding:12px 20px; background: rgba(0,255,157,0.1); border:1px solid var(--success); border-radius:12px;}
-.status-dot {width:10px; height:10px; background:var(--success); border-radius:50%; animation:pulse-dot 2s infinite;}
-@keyframes pulse-dot {0%,100%{opacity:1;box-shadow:0 0 10px var(--success);} 50%{opacity:0.5;}}
-.status-text {font-size:12px; font-weight:700; color:var(--success); text-transform:uppercase; letter-spacing:1px;}
-.main-grid {display:grid; grid-template-columns:2fr 1fr; gap:25px; margin-bottom:25px;}
-@media(max-width:1200px){.main-grid{grid-template-columns:1fr;}}
-.chart-section {background:var(--surface); border-radius:20px; padding:25px; border:1px solid var(--border);}
-.section-header {display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;}
-.section-title {font-size:16px; font-weight:700; color:var(--text); text-transform:uppercase; letter-spacing:1px;}
-.timeframe-selector {display:flex; gap:8px;}
-.timeframe-btn {padding:8px 16px; background:var(--surface-light); border:1px solid var(--border); border-radius:8px; color:var(--text-dim); font-size:12px; font-weight:600; cursor:pointer; transition: all 0.2s;}
-.timeframe-btn:hover {background:var(--border);}
-.timeframe-btn.active {background:var(--primary); color:var(--bg); border-color:var(--primary);}
-#chart {width:100%; height:400px; border-radius:12px; background:var(--bg);}
-.signal-panel {display:flex; flex-direction:column; gap:20px;}
-.capital-card {background:var(--surface); border-radius:20px; padding:25px; border:1px solid var(--border);}
-.stats-grid {display:grid; grid-template-columns:1fr 1fr; gap:15px;}
-.stat-box {background:var(--surface-light); padding:18px; border-radius:12px; border:1px solid var(--border);}
-.stat-label {font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; font-weight:600;}
-.stat-value {font-size:26px; font-weight:900; font-family:'JetBrains Mono',monospace;}
-.stat-value.green {color:var(--success);}
-.stat-value.red {color:var(--danger);}
-.stat-value.blue {color:var(--primary);}
-.stat-value.gold {color:var(--warning);}
-.signal-card {background:var(--surface); border-radius:20px; padding:30px; border:2px solid var(--border); text-align:center; min-height:320px; display:flex; flex-direction:column; justify-content:center; transition: all 0.3s;}
-.signal-card.call {border-color:var(--success); background: linear-gradient(135deg, var(--surface), rgba(0,255,157,0.05)); box-shadow:0 0 40px rgba(0,255,157,0.2);}
-.signal-card.put {border-color:var(--danger); background: linear-gradient(135deg, var(--surface), rgba(255,0,98,0.05)); box-shadow:0 0 40px rgba(255,0,98,0.2);}
-.signal-badge {display:inline-block; padding:8px 20px; background: rgba(0,212,255,0.2); border:1px solid var(--primary); border-radius:20px; font-size:11px; font-weight:700; color:var(--primary); letter-spacing:2px; margin-bottom:20px; text-transform:uppercase;}
-.signal-value {font-size:72px; font-weight:900; margin:20px 0; font-family:'JetBrains Mono', monospace;}
-.signal-value.call {color:var(--success); text-shadow:0 0 30px rgba(0,255,157,0.5);}
-.signal-value.put {color:var(--danger); text-shadow:0 0 30px rgba(255,0,98,0.5);}
-.signal-details {display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-top:25px;}
-.signal-detail {background:var(--surface-light); padding:15px; border-radius:10px; border:1px solid var(--border);}
-.detail-label {font-size:10px; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px; font-weight:600;}
-.detail-value {font-size:20px; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--primary);}
-.indicators-card {background:var(--surface); border-radius:20px; padding:25px; border:1px solid var(--border);}
-.indicator-row {display:flex; justify-content:space-between; align-items:center; padding:15px; background:var(--surface-light); border-radius:10px; margin-bottom:12px; border:1px solid var(--border);}
-.indicator-name {font-size:13px; font-weight:600; color:var(--text);}
-.indicator-value {font-size:18px; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--primary);}
-.indicator-signal {padding:4px 12px; border-radius:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px;}
-.indicator-signal.bullish {background: rgba(0,255,157,0.2); color:var(--success); border:1px solid var(--success);}
-.indicator-signal.bearish {background: rgba(255,0,98,0.2); color:var(--danger); border:1px solid var(--danger);}
-.indicator-signal.neutral {background: rgba(107,107,128,0.2); color:var(--text-dim); border:1px solid var(--text-dim);}
-/* CONTINUER LE RESTE DU CSS EXACTEMENT COMME TON CODE ORIGINAL ... */
+
+body{background:var(--bg);color:var(--text);font-family:Arial;padding:20px}
+.container{max-width:1200px;margin:auto}
+
+.card{background:var(--card);border:1px solid var(--border);
+border-radius:14px;padding:20px;margin-bottom:20px}
+
+h1{margin-bottom:10px}
+
+#chart{height:380px}
+
+.controls{display:flex;gap:12px;margin-top:15px;flex-wrap:wrap}
+
+button{
+padding:12px 18px;
+border:none;
+border-radius:10px;
+font-weight:700;
+cursor:pointer;
+font-size:14px;
+}
+
+.analyze{background:var(--primary);color:#000}
+.win{background:var(--success)}
+.loss{background:var(--danger);color:#fff}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stat{background:#1a1a26;padding:12px;border-radius:10px}
+
+.log{font-size:12px;color:var(--dim);max-height:160px;overflow:auto}
 </style>
 </head>
+
 <body>
 <div class="container">
-<!-- HEADER -->
-<div class="header">
-<div class="header-content">
-<div class="title-section">
-<h1>🌐 REAL MARKET</h1>
-<p>Robot connecté à TwelveData • Données EUR/USD en temps réel</p>
-</div>
-<div class="connection-status">
-<div class="status-dot"></div>
-<span class="status-text">Connecté à TwelveData</span>
-</div>
-</div>
-</div>
 
-<div class="main-grid">
-<!-- Chart -->
-<div class="chart-section">
-<div class="section-header">
-<h3 class="section-title">📈 EUR/USD Live Chart</h3>
-<div class="timeframe-selector">
-<button class="timeframe-btn active" onclick="changeTimeframe('1')">1M</button>
-<button class="timeframe-btn" onclick="changeTimeframe('5')">5M</button>
-<button class="timeframe-btn" onclick="changeTimeframe('15')">15M</button>
-</div>
-</div>
+<div class="card">
+<h1>📊 Robot EUR/USD — Live TwelveData</h1>
 <div id="chart"></div>
 </div>
 
-<!-- Signal Panel -->
-<div class="signal-panel">
-<!-- Capital Stats -->
-<div class="capital-card">
-<h3 class="section-title" style="margin-bottom:20px;">💰 Capital</h3>
-<div class="stats-grid">
-<div class="stat-box">
-<div class="stat-label">Balance</div>
-<div class="stat-value green" id="balance">50.00$</div>
+<div class="card">
+<div class="stats">
+<div class="stat">Balance: <b id="bal">50</b>$</div>
+<div class="stat">Mise: <b id="bet">1</b>$</div>
+<div class="stat">WinRate: <b id="wr">0%</b></div>
 </div>
-<div class="stat-box">
-<div class="stat-label">Profit/Perte</div>
-<div class="stat-value" id="profit">+0.00$</div>
-</div>
-<div class="stat-box">
-<div class="stat-label">Mise Actuelle</div>
-<div class="stat-value blue" id="current-bet">1.00$</div>
-</div>
-<div class="stat-box">
-<div class="stat-label">Win Rate</div>
-<div class="stat-value gold" id="win-rate">0%</div>
-</div>
+
+<div class="controls">
+<button class="analyze" onclick="analyze()">🔍 ANALYSER</button>
+<button class="win" onclick="result(true)">✓ GAGNÉ</button>
+<button class="loss" onclick="result(false)">✗ PERDU</button>
 </div>
 </div>
 
-<!-- Signal Card -->
-<div class="signal-card" id="signal-card">
-<div id="idle-state">
-<span class="signal-badge">⏳ En attente</span>
-<div style="font-size:48px; margin:20px 0;">📡</div>
-<p style="color: var(--text-dim); font-size:13px;">Cliquez sur ANALYSER pour obtenir un signal basé sur les données réelles</p>
-</div>
-<div id="signal-state" style="display:none;">
-<span class="signal-badge" id="signal-badge">🎯 Signal détecté</span>
-<div class="signal-value" id="signal-value">CALL</div>
-<div class="signal-details">
-<div class="signal-detail">
-<div class="detail-label">Mise</div>
-<div class="detail-value" id="signal-bet">1.00$</div>
-</div>
-<div class="signal-detail">
-<div class="detail-label">Confiance</div>
-<div class="detail-value" id="signal-conf">85%</div>
-</div>
-<div class="signal-detail">
-<div class="detail-label">Exp</div>
-<div class="detail-value">1min</div>
-</div>
-</div>
-</div>
-<div id="loading-state" style="display:none;">
-<div class="loading">
-<div class="loading-spinner"></div>
-<div class="loading-text">Analyse des données réelles en cours...</div>
-</div>
-</div>
-</div>
-<!-- Indicators -->
-<div class="indicators-card">
-<h3 class="section-title" style="margin-bottom:15px;">📊 Indicateurs Temps Réel</h3>
-<div class="indicator-row">
-<span class="indicator-name">RSI (14)</span>
-<div style="display:flex; gap:10px; align-items:center;">
-<span class="indicator-value" id="rsi-value">--</span>
-<span class="indicator-signal neutral" id="rsi-signal">--</span>
-</div>
-</div>
-<div class="indicator-row">
-<span class="indicator-name">MACD</span>
-<div style="display:flex; gap:10px; align-items:center;">
-<span class="indicator-value" id="macd-value">--</span>
-<span class="indicator-signal neutral" id="macd-signal">--</span>
-</div>
-</div>
-<div class="indicator-row">
-<span class="indicator-name">EMA 20/50</span>
-<div style="display:flex; gap:10px; align-items:center;">
-<span class="indicator-value" id="ema-value">--</span>
-<span class="indicator-signal neutral" id="ema-signal">--</span>
-</div>
-</div>
-</div>
+<div class="card">
+<div id="signal">Signal: --</div>
+<div class="log" id="log"></div>
 </div>
 
-<!-- Controls -->
-<div class="controls-section">
-<button class="btn btn-primary" id="analyze-btn" onclick="analyzeMarket()">🔍 ANALYSER LES DONNÉES RÉELLES</button>
-<div class="btn-group">
-<button class="btn btn-success" id="win-btn" onclick="recordTrade(true)" disabled>✓ J'AI GAGNÉ</button>
-<button class="btn btn-danger" id="loss-btn" onclick="recordTrade(false)" disabled>✗ J'AI PERDU</button>
-</div>
-</div>
-
-<!-- Log -->
-<div class="log-section">
-<h3 class="section-title" style="margin-bottom:15px;">📋 Journal de Trading</h3>
-<div class="log-container" id="log-container">
-<div class="log-entry info">
-<span class="log-time">--:--:--</span>
-<span class="log-message">Connexion à TwelveData établie • EUR/USD M1</span>
-</div>
-<div class="log-entry info">
-<span class="log-time">--:--:--</span>
-<span class="log-message">Robot REAL MARKET initialisé • Balance: <span class="log-value">50.00$</span></span>
-</div>
-</div>
-</div>
 </div>
 
 <script>
-// === JS similaire à ton code, mais avec TwelveData API ===
-const API_KEY = '397ca9a6d7c24c37a84043c1b0219042';
-const SYMBOL = 'EUR/USD';
-const TIMEFRAME = '1min';
-const CONFIG = { startBalance:50, baseBet:1, martingaleMultiplier:2.5, maxMartingaleLevel:4, winRate:0.82 };
-let state = { balance: CONFIG.startBalance, currentBet: CONFIG.baseBet, martingaleLevel:0, wins:0, losses:0, consecutiveLosses:0, isTrading:false, marketData:[] };
-let chart, candlestickSeries;
+const API="397ca9a6d7c24c37a84043c1b0219042";
 
-// INITIALIZE CHART
-function initChart() {
-chart = LightweightCharts.createChart(document.getElementById('chart'), { width:document.getElementById('chart').offsetWidth, height:400, layout:{background:{color:'#0a0a0f'}, textColor:'#6b6b80'}, grid:{vertLines:{color:'#1a1a26'}, horzLines:{color:'#1a1a26'}}, crosshair:{mode:LightweightCharts.CrosshairMode.Normal}, rightPriceScale:{borderColor:'#2a2a3a'}, timeScale:{borderColor:'#2a2a3a', timeVisible:true, secondsVisible:false}});
-candlestickSeries = chart.addCandlestickSeries({upColor:'#00ff9d', downColor:'#ff0062', borderVisible:false, wickUpColor:'#00ff9d', wickDownColor:'#ff0062'});
-fetchMarketData();
-setInterval(fetchMarketData, 60000);
+let state={
+balance:50,
+bet:1,
+wins:0,
+losses:0,
+data:[]
+};
+
+const chart = LightweightCharts.createChart(document.getElementById('chart'),{
+layout:{background:{color:"#0a0a0f"},textColor:"#6b6b80"},
+grid:{vertLines:{color:"#1a1a26"},horzLines:{color:"#1a1a26"}}
+});
+
+const series = chart.addCandlestickSeries();
+
+function log(t){
+const el=document.getElementById("log");
+el.innerHTML+="<div>"+new Date().toLocaleTimeString()+" — "+t+"</div>";
+el.scrollTop=el.scrollHeight;
 }
 
-// FETCH MARKET DATA FROM TWELVEDATA
-async function fetchMarketData() {
-const url = `https://api.twelvedata.com/time_series?symbol=${SYMBOL}&interval=${TIMEFRAME}&outputsize=150&apikey=${API_KEY}`;
-try {
-const res = await fetch(url);
-const data = await res.json();
-if(data.values){
-state.marketData = data.values.reverse().map(c=>({time:new Date(c.datetime).getTime()/1000, open:parseFloat(c.open), high:parseFloat(c.high), low:parseFloat(c.low), close:parseFloat(c.close)}));
-candlestickSeries.setData(state.marketData);
-addLog('📊 Données récupérées depuis TwelveData', 'info');
+async function load(){
+const r=await fetch(`https://api.twelvedata.com/time_series?symbol=EUR/USD&interval=1min&outputsize=120&apikey=${API}`);
+const j=await r.json();
+if(!j.values){log("Erreur API");return;}
+state.data=j.values.reverse().map(c=>({
+time:new Date(c.datetime).getTime()/1000,
+open:+c.open, high:+c.high, low:+c.low, close:+c.close
+}));
+series.setData(state.data);
+log("Données live chargées");
 }
-} catch(e){ addLog('❌ Erreur API TwelveData','loss'); }
+setInterval(load,60000);
+load();
+
+function ema(period){
+let k=2/(period+1);
+let ema=state.data[0].close;
+for(let i=1;i<state.data.length;i++){
+ema=state.data[i].close*k+ema*(1-k);
+}
+return ema;
 }
 
-// Ici tu peux copier coller tes fonctions calculateRSI, calculateEMA, calculateMACD, analyzeMarket, recordTrade, updateUI, addLog, changeTimeframe exactement comme ton code original.
-// N'oublie pas d'adapter analyzeMarket pour utiliser state.marketData récupéré depuis TwelveData
+function rsi(p=14){
+let gains=0,loss=0;
+for(let i=state.data.length-p;i<state.data.length;i++){
+let d=state.data[i].close-state.data[i-1].close;
+if(d>=0) gains+=d; else loss-=d;
+}
+let rs=gains/(loss||1);
+return 100-(100/(1+rs));
+}
 
-window.addEventListener('load',()=>{initChart(); updateUI(); addLog('✅ Système initialisé avec succès', 'info');});
-window.addEventListener('resize',()=>{if(chart){chart.applyOptions({width:document.getElementById('chart').offsetWidth});}});
+function analyze(){
+if(state.data.length<60){log("Pas assez de data");return;}
+
+let e20=ema(20);
+let e50=ema(50);
+let r=rsi();
+
+let sig="WAIT";
+
+if(e20>e50 && r>55) sig="CALL";
+if(e20<e50 && r<45) sig="PUT";
+
+document.getElementById("signal").innerHTML=
+"Signal: <b>"+sig+"</b> | RSI "+r.toFixed(1);
+
+log("Analyse faite → "+sig);
+}
+
+function result(win){
+if(win){
+state.balance+=state.bet;
+state.wins++;
+state.bet=1;
+}else{
+state.balance-=state.bet;
+state.losses++;
+state.bet*=2;
+}
+
+document.getElementById("bal").innerText=state.balance.toFixed(2);
+document.getElementById("bet").innerText=state.bet.toFixed(2);
+
+let wr = state.wins+state.losses;
+wr = wr? (state.wins/wr*100).toFixed(1):0;
+document.getElementById("wr").innerText=wr+"%";
+
+log(win?"Trade gagnant":"Trade perdant");
+}
 </script>
 </body>
-  </html>
+</html>
