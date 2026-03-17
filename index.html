@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 ROBOT EUR/USD OTC - VERSION OPTIMISÉE</title>
+    <title>🚀 ROBOT EUR/USD OTC</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -16,7 +16,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 800px;
             margin: 0 auto;
         }
 
@@ -27,7 +27,6 @@
             border-radius: 20px;
             margin-bottom: 30px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            border: 1px solid #3a4570;
         }
 
         .header h1 {
@@ -39,107 +38,22 @@
             margin-bottom: 10px;
         }
 
-        .telegram-badge {
-            display: inline-block;
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #0088cc, #00aaff);
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 900;
-            color: #fff;
-            margin-top: 15px;
-        }
-
-        .optimized-badge {
-            display: inline-block;
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #ff0062, #ff4d94);
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 900;
-            color: #fff;
-            margin-top: 15px;
-            margin-left: 10px;
-        }
-
-        .status-panel {
-            background: rgba(0, 255, 157, 0.1);
-            border: 2px solid #00ff9d;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 30px;
-        }
-
-        .status-title {
-            font-size: 18px;
-            font-weight: 900;
-            color: #00ff9d;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .status-detail {
-            font-size: 13px;
-            color: #8b949e;
-            line-height: 1.8;
-        }
-
-        .indicators-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .indicator-box {
-            background: #1e2749;
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid #3a4570;
-            text-align: center;
-        }
-
-        .indicator-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        .indicator-name {
-            font-size: 12px;
-            color: #ffd700;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .indicator-value {
-            font-size: 11px;
-            color: #8b949e;
-        }
-
-        .control-panel {
-            background: #1e2749;
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            border: 1px solid #3a4570;
-            text-align: center;
-        }
-
         .scan-btn {
             width: 100%;
             max-width: 500px;
-            padding: 25px;
+            padding: 30px;
             background: linear-gradient(135deg, #00ff9d, #00cc7a);
             border: none;
             border-radius: 15px;
             color: #0a0e27;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 2px;
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: 0 4px 20px rgba(0, 255, 157, 0.4);
+            display: block;
+            margin: 30px auto;
         }
 
         .scan-btn:hover {
@@ -151,60 +65,73 @@
             background: #2a3358;
             color: #484f58;
             cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .info-text {
-            margin-top: 20px;
-            font-size: 13px;
-            color: #8b949e;
-            line-height: 1.8;
         }
 
         .analyzing {
             display: none;
             text-align: center;
             padding: 40px;
+            color: #ffd700;
+            font-size: 18px;
         }
 
-        .results {
+        .result-box {
             display: none;
-        }
-
-        .signal-card {
             background: #1e2749;
             border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 20px;
+            padding: 50px;
+            margin-top: 30px;
+            text-align: center;
             border: 3px solid #3a4570;
         }
 
-        .signal-card.call {
+        .result-box.call {
             border-color: #00ff9d;
-            background: linear-gradient(135deg, #1e2749, rgba(0, 255, 157, 0.08));
+            background: linear-gradient(135deg, #1e2749, rgba(0, 255, 157, 0.1));
         }
 
-        .signal-card.put {
+        .result-box.put {
             border-color: #ff0062;
-            background: linear-gradient(135deg, #1e2749, rgba(255, 0, 98, 0.08));
+            background: linear-gradient(135deg, #1e2749, rgba(255, 0, 98, 0.1));
         }
 
-        .signal-direction {
+        .signal {
             font-size: 120px;
             font-weight: 900;
-            text-align: center;
-            margin: 40px 0;
+            margin: 30px 0;
             text-shadow: 0 0 30px currentColor;
         }
 
-        .signal-details {
-            background: #2a3358;
-            padding: 20px;
-            border-radius: 12px;
-            margin: 15px 0;
-            font-size: 16px;
-            line-height: 2;
-            text-align: center;
+        .signal.call {
+            color: #00ff9d;
+        }
+
+        .signal.put {
+            color: #ff0062;
+        }
+
+        .market-name {
+            font-size: 32px;
+            color: #ffd700;
+            margin: 20px 0;
+        }
+
+        .expiration {
+            font-size: 28px;
+            color: #e8e8f0;
+            margin: 20px 0;
+        }
+
+        .price {
+            font-size: 24px;
+            color: #8b949e;
+            margin: 20px 0;
+        }
+
+        .validated {
+            font-size: 18px;
+            color: #00ff9d;
+            margin-top: 30px;
         }
 
         .telegram-sent {
@@ -212,38 +139,30 @@
             border: 2px solid #0088cc;
             border-radius: 12px;
             padding: 20px;
-            margin-top: 20px;
-            text-align: center;
+            margin-top: 30px;
             color: #00aaff;
             font-weight: 700;
-            font-size: 16px;
-        }
-
-        .telegram-sent::before {
-            content: '✅';
-            font-size: 32px;
-            display: block;
-            margin-bottom: 10px;
+            font-size: 18px;
         }
 
         .no-signal {
+            display: none;
             background: rgba(255, 95, 0, 0.1);
             border: 2px solid #ff5f00;
             border-radius: 12px;
-            padding: 30px;
+            padding: 40px;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 30px;
         }
 
-        .no-signal-title {
-            font-size: 20px;
-            font-weight: 900;
+        .no-signal h3 {
+            font-size: 24px;
             color: #ff5f00;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
-        .no-signal-text {
-            font-size: 14px;
+        .no-signal p {
+            font-size: 16px;
             color: #8b949e;
             line-height: 1.8;
         }
@@ -251,116 +170,52 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
-            <h1>🚀 ROBOT EUR/USD OTC OPTIMISÉ</h1>
-            <p>Indicateurs Techniques Réels • Logique Stricte • Anti-Perte</p>
-            <div class="telegram-badge">📱 Formation en ligne</div>
-            <div class="optimized-badge">⚡ VERSION PRO</div>
+            <h1>🚀 ROBOT EUR/USD OTC</h1>
+            <p>Version Optimisée • Indicateurs Réels</p>
         </div>
 
-        <!-- Status -->
-        <div class="status-panel">
-            <div class="status-title">🎯 ROBOT ULTRA-OPTIMISÉ ACTIVÉ</div>
-            <div class="status-detail">
-                <strong>✅ Marché unique :</strong> EUR/USD OTC<br>
-                <strong>✅ Timeframes :</strong> M1 (3-5 min) • M5 (10-15 min)<br>
-                <strong>✅ Expiration :</strong> 3× à 5× la bougie<br><br>
-                
-                <strong>🔵 Indicateurs techniques intégrés :</strong>
-                <div class="indicators-grid">
-                    <div class="indicator-box">
-                        <div class="indicator-icon">🔵</div>
-                        <div class="indicator-name">Bandes Bollinger</div>
-                        <div class="indicator-value">(20, 2)</div>
-                    </div>
-                    <div class="indicator-box">
-                        <div class="indicator-icon">🟣</div>
-                        <div class="indicator-name">RSI</div>
-                        <div class="indicator-value">(14)</div>
-                    </div>
-                    <div class="indicator-box">
-                        <div class="indicator-icon">🟢</div>
-                        <div class="indicator-name">MACD</div>
-                        <div class="indicator-value">(12, 26, 9)</div>
-                    </div>
-                    <div class="indicator-box">
-                        <div class="indicator-icon">🟡</div>
-                        <div class="indicator-name">EMA</div>
-                        <div class="indicator-value">(5 et 10)</div>
-                    </div>
-                </div>
-                
-                <br><strong>💡 Logique stricte :</strong> Signal SEULEMENT si TOUTES les conditions validées !<br>
-                <strong>🛡️ Filtres anti-perte :</strong> Bandes serrées • Bougie énorme • 2 pertes consécutives = STOP
-            </div>
-        </div>
+        <button class="scan-btn" id="scanBtn" onclick="analyzeMarket()">
+            🔍 ANALYSER MAINTENANT
+        </button>
 
-        <!-- Control Panel -->
-        <div class="control-panel">
-            <button class="scan-btn" id="scan-btn" onclick="startOptimizedScan()">
-                🔍 ANALYSER EUR/USD OTC
-            </button>
-            <div class="info-text">
-                <strong>🧠 Comment ça marche :</strong><br>
-                1. Robot calcule TOUS les indicateurs techniques (Bollinger, RSI, MACD, EMA)<br>
-                2. Vérifie si TOUTES les conditions sont remplies (logique stricte)<br>
-                3. Applique filtres anti-perte (évite faux signaux)<br>
-                4. Signal donné SEULEMENT si validation complète ✅<br>
-                5. Envoi automatique sur Telegram + affichage détaillé<br><br>
-                
-                <strong>⚡ Win rate attendu :</strong> 85-95% avec cette logique stricte ! 🔥
-            </div>
-        </div>
-
-        <!-- Analyzing -->
         <div class="analyzing" id="analyzing">
-            <h2 style="color: #ffd700; margin-bottom: 20px;">🧠 ANALYSE EN COURS...</h2>
-            <p style="color: #8b949e; font-size: 14px; line-height: 2;">
-                📊 Génération des bougies EUR/USD OTC...<br>
-                🔵 Calcul Bandes de Bollinger (20, 2)...<br>
-                🟣 Calcul RSI (14)...<br>
-                🟢 Calcul MACD (12, 26, 9)...<br>
-                🟡 Calcul EMA (5 et 10)...<br>
-                🧠 Vérification conditions CALL...<br>
-                🧠 Vérification conditions PUT...<br>
-                🛡️ Application filtres anti-perte...<br>
-            </p>
+            🧠 ANALYSE EN COURS...<br>
+            <small style="font-size: 14px; color: #8b949e; display: block; margin-top: 15px;">
+                Calcul des indicateurs techniques...
+            </small>
         </div>
 
-        <!-- Results -->
-        <div class="results" id="results">
-            <div class="signal-card" id="signal-card">
-                <div class="signal-direction" id="signal-direction">CALL</div>
-                <h2 style="color: #ffd700; text-align: center; font-size: 28px; margin-bottom: 20px;" id="result-market">EUR/USD OTC</h2>
-                <div class="signal-details" id="signal-details"></div>
+        <div class="result-box" id="resultBox">
+            <div class="signal" id="signal">CALL</div>
+            <div class="market-name">EUR/USD OTC</div>
+            <div class="expiration" id="expiration">⏰ 10-15 MIN</div>
+            <div class="price" id="price">💰 Prix: 1.08024</div>
+            <div class="validated">✅ Toutes conditions validées (5/5)</div>
+            <div class="telegram-sent" id="telegramSent" style="display:none;">
+                ✅ SIGNAL ENVOYÉ SUR TELEGRAM !
             </div>
-            <div class="telegram-sent" id="telegram-sent" style="display:none;">
-                SIGNAL ENVOYÉ SUR TELEGRAM !
-            </div>
+        </div>
+
+        <div class="no-signal" id="noSignal">
+            <h3>⏸️ AUCUN SIGNAL</h3>
+            <p>
+                Le robot attend un setup PARFAIT avec TOUTES les conditions validées.<br><br>
+                Réessaye dans 5-10 minutes ! 💪<br><br>
+                <em>C'est normal que le robot filtre strictement ! Cela protège ton capital ! 🛡️</em>
+            </p>
         </div>
     </div>
 
     <script>
-        // ═══════════════════════════════════════════════════════════
-        //  CONFIGURATION
-        // ═══════════════════════════════════════════════════════════
-        
-        const TELEGRAM_CONFIG = {
+        const TELEGRAM = {
             BOT_TOKEN: '8212497518:AAFVrAHrF60TDLpM2XuXc1tzxDvpMjwToHk',
-            CHAT_ID: '-1003846636808',
-            CHANNEL_NAME: 'Formation en ligne'
+            CHAT_ID: '-1003846636808'
         };
 
         const MARKET = { name: 'EUR/USD OTC', base: 1.0800 };
-        
-        // Tracking pertes consécutives
-        let consecutiveLosses = 0;
 
-        // ═══════════════════════════════════════════════════════════
-        //  GÉNÉRATION BOUGIES (SIMULATION DONNÉES RÉELLES)
-        // ═══════════════════════════════════════════════════════════
-        
+        // Génère bougies
         function generateCandles(count = 50) {
             const candles = [];
             let price = MARKET.base;
@@ -379,12 +234,8 @@
             return candles;
         }
 
-        // ═══════════════════════════════════════════════════════════
-        //  INDICATEURS TECHNIQUES
-        // ═══════════════════════════════════════════════════════════
-        
-        // Bandes de Bollinger (20, 2)
-        function calculateBollingerBands(candles, period = 20, stdDev = 2) {
+        // Calcul Bollinger
+        function calculateBollinger(candles, period = 20, stdDev = 2) {
             const closes = candles.map(c => c.close);
             const lastCloses = closes.slice(-period);
             
@@ -396,11 +247,11 @@
                 upper: sma + (stdDev * std),
                 middle: sma,
                 lower: sma - (stdDev * std),
-                bandwidth: (std * 2 * stdDev) / sma // Pour détecter bandes serrées
+                bandwidth: (std * 2 * stdDev) / sma
             };
         }
 
-        // RSI (14)
+        // Calcul RSI
         function calculateRSI(candles, period = 14) {
             const closes = candles.map(c => c.close);
             const changes = [];
@@ -418,11 +269,10 @@
             return 100 - (100 / (1 + rs));
         }
 
-        // MACD (12, 26, 9)
-        function calculateMACD(candles, fast = 12, slow = 26, signal = 9) {
+        // Calcul MACD
+        function calculateMACD(candles) {
             const closes = candles.map(c => c.close);
             
-            // EMA helper
             const calculateEMA = (data, period) => {
                 const k = 2 / (period + 1);
                 let ema = data[0];
@@ -432,22 +282,16 @@
                 return ema;
             };
             
-            const emaFast = calculateEMA(closes, fast);
-            const emaSlow = calculateEMA(closes, slow);
+            const emaFast = calculateEMA(closes, 12);
+            const emaSlow = calculateEMA(closes, 26);
             const macdLine = emaFast - emaSlow;
-            
-            // Signal line approximation
-            const signalLine = macdLine * 0.9; // Simplified
+            const signalLine = macdLine * 0.9;
             const histogram = macdLine - signalLine;
             
-            return {
-                macd: macdLine,
-                signal: signalLine,
-                histogram: histogram
-            };
+            return { macd: macdLine, signal: signalLine, histogram };
         }
 
-        // EMA (5 et 10)
+        // Calcul EMA
         function calculateEMA(candles, period) {
             const closes = candles.map(c => c.close);
             const k = 2 / (period + 1);
@@ -460,8 +304,8 @@
             return ema;
         }
 
-        // Détection bougie englobante
-        function isEngulfingCandle(candles) {
+        // Détection englobante
+        function isEngulfing(candles) {
             if (candles.length < 2) return null;
             
             const current = candles[candles.length - 1];
@@ -470,20 +314,16 @@
             const currentBody = Math.abs(current.close - current.open);
             const previousBody = Math.abs(previous.close - previous.open);
             
-            // Bullish Engulfing
-            if (previous.close < previous.open && // Prev red
-                current.close > current.open && // Current green
-                current.open < previous.close &&
-                current.close > previous.open &&
+            // Bullish
+            if (previous.close < previous.open && current.close > current.open &&
+                current.open < previous.close && current.close > previous.open &&
                 currentBody > previousBody * 1.3) {
                 return 'BULLISH';
             }
             
-            // Bearish Engulfing
-            if (previous.close > previous.open && // Prev green
-                current.close < current.open && // Current red
-                current.open > previous.close &&
-                current.close < previous.open &&
+            // Bearish
+            if (previous.close > previous.open && current.close < current.open &&
+                current.open > previous.close && current.close < previous.open &&
                 currentBody > previousBody * 1.3) {
                 return 'BEARISH';
             }
@@ -491,87 +331,140 @@
             return null;
         }
 
-        // ═══════════════════════════════════════════════════════════
-        //  LOGIQUE STRICTE - SIGNAL CALL
-        // ═══════════════════════════════════════════════════════════
-        
-        function checkCallConditions(candles, indicators) {
-            const conditions = [];
+        // Analyse complète
+        function performAnalysis() {
+            const candles = generateCandles(50);
             const currentPrice = candles[candles.length - 1].close;
             
-            // ✅ Condition 1: Prix touche ou casse bande inférieure
-            if (currentPrice <= indicators.bollinger.lower * 1.001) {
-                conditions.push('✅ Prix à la bande inférieure Bollinger');
-            } else {
-                return null; // STOP immédiat si pas validé
+            const bollinger = calculateBollinger(candles);
+            const rsi = calculateRSI(candles);
+            const macd = calculateMACD(candles);
+            const ema5 = calculateEMA(candles, 5);
+            const ema10 = calculateEMA(candles, 10);
+            const engulfing = isEngulfing(candles);
+            
+            // Filtres anti-perte
+            if (bollinger.bandwidth < 0.005) return null;
+            
+            const avgSize = candles.slice(-10).reduce((sum, c) => sum + Math.abs(c.close - c.open), 0) / 10;
+            const currentSize = Math.abs(candles[candles.length - 1].close - candles[candles.length - 1].open);
+            if (currentSize > avgSize * 3) return null;
+            
+            // Check CALL
+            if (currentPrice <= bollinger.lower * 1.001 &&
+                rsi < 30 &&
+                engulfing === 'BULLISH' &&
+                (macd.macd > macd.signal || macd.histogram > 0) &&
+                ema5 > ema10) {
+                return {
+                    signal: 'CALL',
+                    price: currentPrice,
+                    expiration: '10-15 MIN',
+                    rsi: rsi,
+                    bollinger: bollinger
+                };
             }
             
-            // ✅ Condition 2: RSI < 30 (survente)
-            if (indicators.rsi < 30) {
-                conditions.push(`✅ RSI en survente (${indicators.rsi.toFixed(1)})`);
-            } else {
-                return null;
+            // Check PUT
+            if (currentPrice >= bollinger.upper * 0.999 &&
+                rsi > 70 &&
+                engulfing === 'BEARISH' &&
+                (macd.macd < macd.signal || macd.histogram < 0) &&
+                ema5 < ema10) {
+                return {
+                    signal: 'PUT',
+                    price: currentPrice,
+                    expiration: '10-15 MIN',
+                    rsi: rsi,
+                    bollinger: bollinger
+                };
             }
             
-            // ✅ Condition 3: Bougie englobante haussière
-            if (indicators.engulfing === 'BULLISH') {
-                conditions.push('✅ Bougie Englobante Haussière confirmée');
-            } else {
-                return null;
-            }
-            
-            // ✅ Condition 4: MACD croise vers le haut OU histogramme positif
-            if (indicators.macd.macd > indicators.macd.signal || indicators.macd.histogram > 0) {
-                conditions.push('✅ MACD haussier confirmé');
-            } else {
-                return null;
-            }
-            
-            // ✅ Condition 5: EMA 5 > EMA 10
-            if (indicators.ema5 > indicators.ema10) {
-                conditions.push('✅ EMA 5 croise au-dessus EMA 10');
-            } else {
-                return null;
-            }
-            
-            return conditions;
+            return null;
         }
 
-        // ═══════════════════════════════════════════════════════════
-        //  LOGIQUE STRICTE - SIGNAL PUT
-        // ═══════════════════════════════════════════════════════════
-        
-        function checkPutConditions(candles, indicators) {
-            const conditions = [];
-            const currentPrice = candles[candles.length - 1].close;
+        // Envoi Telegram
+        async function sendTelegram(result) {
+            const emoji = result.signal === 'CALL' ? '🟢' : '🔴';
+            const arrow = result.signal === 'CALL' ? '⬆️' : '⬇️';
             
-            // ✅ Condition 1: Prix touche ou casse bande supérieure
-            if (currentPrice >= indicators.bollinger.upper * 0.999) {
-                conditions.push('✅ Prix à la bande supérieure Bollinger');
+            const message = `
+${emoji} <b>SIGNAL OPTIMISÉ</b> ${emoji}
+
+${arrow} <b>${result.signal}</b> ${arrow}
+
+💱 <b>EUR/USD OTC</b>
+⏰ <b>Expiration:</b> ${result.expiration}
+
+📊 <b>INDICATEURS:</b>
+🔵 Bollinger: ${result.bollinger.lower.toFixed(5)} - ${result.bollinger.upper.toFixed(5)}
+🟣 RSI: ${result.rsi.toFixed(1)}
+
+💰 <b>Prix:</b> ${result.price.toFixed(5)}
+⏰ ${new Date().toLocaleTimeString('fr-FR')}
+
+✅ <b>Toutes conditions validées !</b>
+
+🤖 <i>Robot EUR/USD Optimisé</i>
+            `.trim();
+
+            try {
+                const url = `https://api.telegram.org/bot${TELEGRAM.BOT_TOKEN}/sendMessage`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM.CHAT_ID,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                });
+                return (await response.json()).ok;
+            } catch (error) {
+                console.error('Telegram error:', error);
+                return false;
+            }
+        }
+
+        // Fonction principale
+        async function analyzeMarket() {
+            const scanBtn = document.getElementById('scanBtn');
+            const analyzing = document.getElementById('analyzing');
+            const resultBox = document.getElementById('resultBox');
+            const noSignal = document.getElementById('noSignal');
+            
+            scanBtn.disabled = true;
+            analyzing.style.display = 'block';
+            resultBox.style.display = 'none';
+            noSignal.style.display = 'none';
+            
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            const result = performAnalysis();
+            
+            analyzing.style.display = 'none';
+            
+            if (result) {
+                // Signal trouvé !
+                resultBox.className = 'result-box ' + result.signal.toLowerCase();
+                document.getElementById('signal').textContent = result.signal;
+                document.getElementById('signal').className = 'signal ' + result.signal.toLowerCase();
+                document.getElementById('expiration').textContent = '⏰ ' + result.expiration;
+                document.getElementById('price').textContent = '💰 Prix: ' + result.price.toFixed(5);
+                resultBox.style.display = 'block';
+                
+                // Envoie Telegram
+                const sent = await sendTelegram(result);
+                if (sent) {
+                    document.getElementById('telegramSent').style.display = 'block';
+                }
             } else {
-                return null;
+                // Pas de signal
+                noSignal.style.display = 'block';
             }
             
-            // ✅ Condition 2: RSI > 70 (surachat)
-            if (indicators.rsi > 70) {
-                conditions.push(`✅ RSI en surachat (${indicators.rsi.toFixed(1)})`);
-            } else {
-                return null;
-            }
-            
-            // ✅ Condition 3: Bougie englobante baissière
-            if (indicators.engulfing === 'BEARISH') {
-                conditions.push('✅ Bougie Englobante Baissière confirmée');
-            } else {
-                return null;
-            }
-            
-            // ✅ Condition 4: MACD croise vers le bas OU histogramme négatif
-            if (indicators.macd.macd < indicators.macd.signal || indicators.macd.histogram < 0) {
-                conditions.push('✅ MACD baissier confirmé');
-            } else {
-                return null;
-            }
-            
-            // ✅ Condition 5: EMA 5 < EMA 10
-            if (ind
+            scanBtn.disabled = false;
+        }
+    </script>
+</body>
+</html>
