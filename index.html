@@ -343,38 +343,82 @@
             const ema10 = calculateEMA(candles, 10);
             const engulfing = isEngulfing(candles);
             
-            // Filtres anti-perte
-            if (bollinger.bandwidth < 0.005) return null;
+            // Filtres anti-perte (SEULEMENT les critiques)
+            if (bollinger.bandwidth < 0.003) return null; // Réduit de 0.005 à 0.003
             
             const avgSize = candles.slice(-10).reduce((sum, c) => sum + Math.abs(c.close - c.open), 0) / 10;
             const currentSize = Math.abs(candles[candles.length - 1].close - candles[candles.length - 1].open);
-            if (currentSize > avgSize * 3) return null;
+            if (currentSize > avgSize * 4) return null; // Changé de 3 à 4
             
-            // Check CALL
-            if (currentPrice <= bollinger.lower * 1.001 &&
-                rsi < 30 &&
-                engulfing === 'BULLISH' &&
-                (macd.macd > macd.signal || macd.histogram > 0) &&
-                ema5 > ema10) {
+            // Check CALL (conditions assouplies - minimum 3/5)
+            let callScore = 0;
+            let callConditions = [];
+            
+            if (currentPrice <= bollinger.lower * 1.003) { // Tolérance augmentée
+                callScore++;
+                callConditions.push('Prix proche bande inférieure');
+            }
+            if (rsi < 35) { // Changé de 30 à 35
+                callScore++;
+                callConditions.push('RSI en zone survente');
+            }
+            if (engulfing === 'BULLISH') {
+                callScore++;
+                callConditions.push('Pattern haussier détecté');
+            }
+            if (macd.macd > macd.signal || macd.histogram > -0.00001) { // Tolérance
+                callScore++;
+                callConditions.push('MACD favorable');
+            }
+            if (ema5 >= ema10 * 0.9999) { // Tolérance
+                callScore++;
+                callConditions.push('EMA alignées');
+            }
+            
+            if (callScore >= 3) { // Minimum 3/5 conditions
                 return {
                     signal: 'CALL',
                     price: currentPrice,
-                    expiration: '10-15 MIN',
+                    expiration: callScore >= 4 ? '10-15 MIN' : '5-10 MIN',
+                    score: callScore,
+                    conditions: callConditions,
                     rsi: rsi,
                     bollinger: bollinger
                 };
             }
             
-            // Check PUT
-            if (currentPrice >= bollinger.upper * 0.999 &&
-                rsi > 70 &&
-                engulfing === 'BEARISH' &&
-                (macd.macd < macd.signal || macd.histogram < 0) &&
-                ema5 < ema10) {
+            // Check PUT (conditions assouplies - minimum 3/5)
+            let putScore = 0;
+            let putConditions = [];
+            
+            if (currentPrice >= bollinger.upper * 0.997) { // Tolérance augmentée
+                putScore++;
+                putConditions.push('Prix proche bande supérieure');
+            }
+            if (rsi > 65) { // Changé de 70 à 65
+                putScore++;
+                putConditions.push('RSI en zone surachat');
+            }
+            if (engulfing === 'BEARISH') {
+                putScore++;
+                putConditions.push('Pattern baissier détecté');
+            }
+            if (macd.macd < macd.signal || macd.histogram < 0.00001) { // Tolérance
+                putScore++;
+                putConditions.push('MACD favorable');
+            }
+            if (ema5 <= ema10 * 1.0001) { // Tolérance
+                putScore++;
+                putConditions.push('EMA alignées');
+            }
+            
+            if (putScore >= 3) { // Minimum 3/5 conditions
                 return {
                     signal: 'PUT',
                     price: currentPrice,
-                    expiration: '10-15 MIN',
+                    expiration: putScore >= 4 ? '10-15 MIN' : '5-10 MIN',
+                    score: putScore,
+                    conditions: putConditions,
                     rsi: rsi,
                     bollinger: bollinger
                 };
@@ -387,23 +431,30 @@
         async function sendTelegram(result) {
             const emoji = result.signal === 'CALL' ? '🟢' : '🔴';
             const arrow = result.signal === 'CALL' ? '⬆️' : '⬇️';
+            const stars = '⭐'.repeat(result.score);
+            const quality = result.score === 5 ? 'EXCELLENT' : 
+                           result.score === 4 ? 'TRÈS BON' : 'BON';
             
             const message = `
-${emoji} <b>SIGNAL OPTIMISÉ</b> ${emoji}
+${emoji} <b>SIGNAL ${quality}</b> ${emoji}
 
 ${arrow} <b>${result.signal}</b> ${arrow}
 
 💱 <b>EUR/USD OTC</b>
 ⏰ <b>Expiration:</b> ${result.expiration}
+${stars} <b>Score:</b> ${result.score}/5
 
 📊 <b>INDICATEURS:</b>
 🔵 Bollinger: ${result.bollinger.lower.toFixed(5)} - ${result.bollinger.upper.toFixed(5)}
 🟣 RSI: ${result.rsi.toFixed(1)}
 
+✅ <b>Conditions validées (${result.conditions.length}):</b>
+${result.conditions.map(c => '• ' + c).join('\n')}
+
 💰 <b>Prix:</b> ${result.price.toFixed(5)}
 ⏰ ${new Date().toLocaleTimeString('fr-FR')}
 
-✅ <b>Toutes conditions validées !</b>
+💡 <b>Conseil:</b> ${result.score >= 4 ? 'Signal fort, trade avec confiance !' : 'Signal valide, trade prudemment !'}
 
 🤖 <i>Robot EUR/USD Optimisé</i>
             `.trim();
@@ -451,6 +502,14 @@ ${arrow} <b>${result.signal}</b> ${arrow}
                 document.getElementById('signal').className = 'signal ' + result.signal.toLowerCase();
                 document.getElementById('expiration').textContent = '⏰ ' + result.expiration;
                 document.getElementById('price').textContent = '💰 Prix: ' + result.price.toFixed(5);
+                
+                // Affiche le score
+                const scoreText = result.score === 5 ? 'EXCELLENT' : 
+                                 result.score === 4 ? 'TRÈS BON' : 'BON';
+                const stars = '⭐'.repeat(result.score);
+                document.querySelector('.validated').innerHTML = 
+                    `✅ Signal ${scoreText} (${result.score}/5)<br>${stars}`;
+                
                 resultBox.style.display = 'block';
                 
                 // Envoie Telegram
@@ -467,4 +526,5 @@ ${arrow} <b>${result.signal}</b> ${arrow}
         }
     </script>
 </body>
-</html>
+    </html>
+    
