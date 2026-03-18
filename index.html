@@ -41,29 +41,29 @@
         .stats-panel {
             background: rgba(0, 255, 157, 0.1);
             border: 2px solid #00ff9d;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
         }
 
         .stat-box {
             background: #1e2749;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 8px;
             text-align: center;
         }
 
         .stat-value {
-            font-size: 28px;
+            font-size: 22px;
             font-weight: 900;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         .stat-value.good { color: #00ff9d; }
@@ -224,17 +224,32 @@
         }
 
         .signal {
-            font-size: 100px;
+            font-size: 180px;
             font-weight: 900;
-            margin: 25px 0;
-            text-shadow: 0 0 40px currentColor;
+            margin: 50px 0;
+            text-shadow: 0 0 60px currentColor;
+            letter-spacing: 15px;
         }
 
         .signal.call { color: #00ff9d; }
         .signal.put { color: #ff0062; }
 
         .confidence {
+            font-size: 32px;
+            margin: 30px 0;
+            font-weight: 900;
+        }
+
+        .market-info {
+            font-size: 28px;
+            color: #ffd700;
+            margin: 25px 0;
+            font-weight: 700;
+        }
+
+        .exp-info {
             font-size: 24px;
+            color: #e8e8f0;
             margin: 20px 0;
         }
 
@@ -337,8 +352,8 @@
 
         <!-- Stats Panel -->
         <div class="stats-panel">
-            <div style="text-align: center; font-size: 18px; font-weight: 900; color: #ffd700; margin-bottom: 15px;">
-                📊 STATISTIQUES EN TEMPS RÉEL
+            <div style="text-align: center; font-size: 14px; font-weight: 900; color: #ffd700; margin-bottom: 10px;">
+                📊 STATS
             </div>
             <div class="stats-grid">
                 <div class="stat-box">
@@ -423,13 +438,13 @@
         <!-- Result -->
         <div class="result-box" id="result">
             <div class="signal" id="signal">CALL</div>
-            <div style="font-size: 24px; color: #ffd700;" id="result-market">EUR/USD OTC</div>
-            <div style="font-size: 20px; margin: 15px 0;" id="result-exp">⏰ 3 minutes</div>
-            <div class="confidence" id="confidence">⭐⭐⭐⭐⭐ Confiance 85%</div>
+            <div class="market-info" id="result-market">EUR/USD OTC</div>
+            <div class="exp-info" id="result-exp">⏰ 3 minutes</div>
+            <div class="confidence" id="confidence">⭐⭐⭐⭐⭐</div>
             
             <div class="result-actions">
-                <button class="action-btn win-btn" onclick="reportWin()">✅ J'AI GAGNÉ</button>
-                <button class="action-btn loss-btn" onclick="reportLoss()">❌ J'AI PERDU</button>
+                <button class="action-btn win-btn" onclick="reportWin()">✅ GAGNÉ</button>
+                <button class="action-btn loss-btn" onclick="reportLoss()">❌ PERDU</button>
             </div>
             
             <button class="action-btn reset-btn" onclick="reset()" style="margin-top: 15px; width: 100%;">
@@ -609,9 +624,4 @@
             
             const progressInterval = setInterval(() => {
                 progress += Math.random() * 15;
-                if (progress > 95) progress = 95;
-                progressBar.style.width = progress + '%';
-                progressBar.textContent = Math.floor(progress) + '%';
-            }, 300);
-            
-            await new Promise(re
+      
