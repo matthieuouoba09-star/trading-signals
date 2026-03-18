@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 ROBOT TRADING PRO</title>
+    <title>🚀 ROBOT V4.0 INTELLIGENT</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -16,7 +16,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
@@ -25,7 +25,7 @@
             padding: 30px;
             background: linear-gradient(135deg, #1e2749, #2a3358);
             border-radius: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
 
@@ -38,36 +38,125 @@
             margin-bottom: 10px;
         }
 
+        .stats-panel {
+            background: rgba(0, 255, 157, 0.1);
+            border: 2px solid #00ff9d;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: #1e2749;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 900;
+            margin-bottom: 5px;
+        }
+
+        .stat-value.good { color: #00ff9d; }
+        .stat-value.warning { color: #ffd700; }
+        .stat-value.bad { color: #ff0062; }
+
+        .stat-label {
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .alert-box {
+            background: rgba(255, 95, 0, 0.1);
+            border: 2px solid #ff5f00;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-box.show {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .mode-selector {
+            background: #1e2749;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .mode-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 10px;
+            border: 2px solid #3a4570;
+            background: #2a3358;
+            color: #e8e8f0;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-btn:hover {
+            border-color: #ffd700;
+            transform: translateY(-2px);
+        }
+
+        .mode-btn.active {
+            border-color: #00ff9d;
+            background: rgba(0, 255, 157, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
+        }
+
         .step-panel {
             background: #1e2749;
             border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
+            padding: 25px;
+            margin-bottom: 20px;
             border: 2px solid #3a4570;
         }
 
         .step-title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 900;
             color: #ffd700;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
         }
 
         .selection-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
         }
 
         .selection-btn {
-            padding: 20px;
+            padding: 18px;
             background: #2a3358;
             border: 2px solid #3a4570;
-            border-radius: 12px;
+            border-radius: 10px;
             color: #e8e8f0;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
@@ -77,51 +166,29 @@
         .selection-btn:hover {
             border-color: #ffd700;
             background: #343d5f;
-            transform: translateY(-2px);
         }
 
         .selection-btn.selected {
             border-color: #00ff9d;
             background: rgba(0, 255, 157, 0.1);
-            box-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
         }
 
         .analyzing-panel {
             display: none;
             background: #1e2749;
             border-radius: 20px;
-            padding: 50px;
+            padding: 40px;
             text-align: center;
             border: 2px solid #ffd700;
-            animation: pulse-border 2s infinite;
-        }
-
-        @keyframes pulse-border {
-            0%, 100% { border-color: #ffd700; }
-            50% { border-color: #00ff9d; }
-        }
-
-        .analyzing-title {
-            font-size: 28px;
-            color: #ffd700;
-            margin-bottom: 20px;
-            font-weight: 900;
-        }
-
-        .analyzing-text {
-            font-size: 16px;
-            color: #8b949e;
-            line-height: 2;
-            margin: 20px 0;
         }
 
         .progress-bar {
             width: 100%;
-            height: 30px;
+            height: 25px;
             background: #2a3358;
-            border-radius: 15px;
+            border-radius: 12px;
             overflow: hidden;
-            margin: 30px 0;
+            margin: 25px 0;
         }
 
         .progress-fill {
@@ -134,14 +201,14 @@
             justify-content: center;
             color: #0a0e27;
             font-weight: 900;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .result-box {
             display: none;
             background: #1e2749;
             border-radius: 20px;
-            padding: 50px;
+            padding: 40px;
             text-align: center;
             border: 3px solid #3a4570;
         }
@@ -157,116 +224,239 @@
         }
 
         .signal {
-            font-size: 120px;
+            font-size: 100px;
             font-weight: 900;
-            margin: 30px 0;
+            margin: 25px 0;
             text-shadow: 0 0 40px currentColor;
         }
 
         .signal.call { color: #00ff9d; }
         .signal.put { color: #ff0062; }
 
-        .market-info {
-            font-size: 28px;
-            color: #ffd700;
-            margin: 20px 0;
-        }
-
-        .expiration-info {
-            font-size: 24px;
-            color: #e8e8f0;
-            margin: 20px 0;
-        }
-
         .confidence {
-            font-size: 32px;
-            color: #00ff9d;
-            margin: 30px 0;
-            font-weight: 900;
+            font-size: 24px;
+            margin: 20px 0;
         }
 
-        .telegram-sent {
-            background: rgba(0, 136, 204, 0.1);
-            border: 2px solid #0088cc;
-            border-radius: 12px;
-            padding: 20px;
+        .result-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
             margin-top: 30px;
-            color: #00aaff;
-            font-weight: 700;
-            font-size: 18px;
         }
 
-        .reset-btn {
-            margin-top: 30px;
-            padding: 15px 40px;
-            background: linear-gradient(135deg, #ffd700, #ffaa00);
+        .action-btn {
+            padding: 18px;
             border: none;
             border-radius: 10px;
-            color: #0a0e27;
             font-size: 16px;
             font-weight: 900;
             cursor: pointer;
             transition: all 0.3s;
         }
 
-        .reset-btn:hover {
+        .win-btn {
+            background: linear-gradient(135deg, #00ff9d, #00cc7a);
+            color: #0a0e27;
+        }
+
+        .loss-btn {
+            background: linear-gradient(135deg, #ff0062, #ff4d94);
+            color: #fff;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #0a0e27;
+        }
+
+        .action-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .history-panel {
+            background: #1e2749;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: #2a3358;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            border-left: 4px solid #3a4570;
+        }
+
+        .history-item.win {
+            border-left-color: #00ff9d;
+        }
+
+        .history-item.loss {
+            border-left-color: #ff0062;
+        }
+
+        .pause-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pause-overlay.show {
+            display: flex;
+        }
+
+        .pause-content {
+            background: #1e2749;
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            border: 3px solid #ff5f00;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
-            <h1>🚀 ROBOT TRADING PRO</h1>
-            <p>Choisis ton marché • Choisis l'expiration • Signal 100% garanti</p>
+            <h1>🚀 ROBOT V4.0 INTELLIGENT</h1>
+            <p>Avec Tracking • Protection • Apprentissage</p>
         </div>
 
-        <!-- ÉTAPE 1: Choix du marché -->
+        <!-- Stats Panel -->
+        <div class="stats-panel">
+            <div style="text-align: center; font-size: 18px; font-weight: 900; color: #ffd700; margin-bottom: 15px;">
+                📊 STATISTIQUES EN TEMPS RÉEL
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value good" id="winrate">0%</div>
+                    <div class="stat-label">Win Rate</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="trades">0</div>
+                    <div class="stat-label">Trades</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value good" id="wins">0</div>
+                    <div class="stat-label">Gagnés</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value bad" id="losses">0</div>
+                    <div class="stat-label">Perdus</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="streak">0</div>
+                    <div class="stat-label">Série actuelle</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Box -->
+        <div class="alert-box" id="alertBox">
+            <div style="font-size: 20px; font-weight: 900; color: #ff5f00; margin-bottom: 10px;">
+                ⚠️ ALERTE PROTECTION
+            </div>
+            <div id="alertMessage" style="font-size: 14px; color: #e8e8f0;"></div>
+        </div>
+
+        <!-- Mode Selector -->
+        <div class="mode-selector">
+            <div style="font-size: 18px; font-weight: 900; color: #ffd700; margin-bottom: 15px;">
+                Choisis ton mode de trading
+            </div>
+            <div class="mode-btn active" onclick="selectMode('prudent')">
+                🛡️ MODE PRUDENT<br>
+                <small style="font-size: 12px; color: #8b949e;">4-5★ • Max 3 trades • Win rate 75-80%</small>
+            </div>
+            <div class="mode-btn" onclick="selectMode('agressif')">
+                ⚡ MODE AGRESSIF<br>
+                <small style="font-size: 12px; color: #8b949e;">3+★ • Max 6 trades • Win rate 65-70%</small>
+            </div>
+        </div>
+
+        <!-- Step 1: Market -->
         <div class="step-panel" id="step1">
             <div class="step-title">ÉTAPE 1 : Choisis le marché</div>
             <div class="selection-grid" id="markets-grid"></div>
         </div>
 
-        <!-- ÉTAPE 2: Choix de l'expiration -->
+        <!-- Step 2: Expiration -->
         <div class="step-panel" id="step2" style="display:none;">
             <div class="step-title">ÉTAPE 2 : Choisis l'expiration</div>
             <div class="selection-grid">
-                <div class="selection-btn" onclick="selectExpiration('5 secondes')">⚡ 5 secondes</div>
-                <div class="selection-btn" onclick="selectExpiration('30 secondes')">⏱️ 30 secondes</div>
-                <div class="selection-btn" onclick="selectExpiration('1 minute')">🕐 1 minute</div>
-                <div class="selection-btn" onclick="selectExpiration('3 minutes')">🕒 3 minutes</div>
-                <div class="selection-btn" onclick="selectExpiration('5 minutes')">🕔 5 minutes</div>
+                <div class="selection-btn" onclick="selectExpiration('5 secondes')">⚡ 5 sec</div>
+                <div class="selection-btn" onclick="selectExpiration('30 secondes')">⏱️ 30 sec</div>
+                <div class="selection-btn" onclick="selectExpiration('1 minute')">🕐 1 min</div>
+                <div class="selection-btn" onclick="selectExpiration('3 minutes')">🕒 3 min</div>
+                <div class="selection-btn" onclick="selectExpiration('5 minutes')">🕔 5 min</div>
             </div>
         </div>
 
-        <!-- ÉTAPE 3: Analyse en cours -->
+        <!-- Analyzing -->
         <div class="analyzing-panel" id="analyzing">
-            <div class="analyzing-title">🧠 ANALYSE EN COURS...</div>
-            <div class="analyzing-text">
-                Le robot analyse <strong id="selected-market">EUR/USD OTC</strong><br>
-                Expiration : <strong id="selected-exp">3 minutes</strong><br><br>
-                Recherche du signal 100% parfait...<br>
-                Cela peut prendre quelques secondes...
+            <div style="font-size: 24px; color: #ffd700; font-weight: 900; margin-bottom: 20px;">
+                🧠 ANALYSE INTELLIGENTE...
+            </div>
+            <div style="font-size: 14px; color: #8b949e; line-height: 2;">
+                Marché: <strong id="selected-market">EUR/USD OTC</strong><br>
+                Expiration: <strong id="selected-exp">3 minutes</strong><br>
+                Mode: <strong id="selected-mode">Prudent</strong>
             </div>
             <div class="progress-bar">
                 <div class="progress-fill" id="progress">0%</div>
             </div>
-            <div style="color: #8b949e; font-size: 14px;">
-                ⏳ Patience... Le robot cherche le meilleur moment !
-            </div>
         </div>
 
-        <!-- ÉTAPE 4: Résultat -->
+        <!-- Result -->
         <div class="result-box" id="result">
             <div class="signal" id="signal">CALL</div>
-            <div class="market-info" id="result-market">EUR/USD OTC</div>
-            <div class="expiration-info" id="result-exp">⏰ 3 minutes</div>
-            <div class="confidence">✅ SIGNAL 100% CONFIRMÉ !</div>
-            <div class="telegram-sent" id="telegram-msg" style="display:none;">
-                ✅ SIGNAL ENVOYÉ SUR TELEGRAM !
+            <div style="font-size: 24px; color: #ffd700;" id="result-market">EUR/USD OTC</div>
+            <div style="font-size: 20px; margin: 15px 0;" id="result-exp">⏰ 3 minutes</div>
+            <div class="confidence" id="confidence">⭐⭐⭐⭐⭐ Confiance 85%</div>
+            
+            <div class="result-actions">
+                <button class="action-btn win-btn" onclick="reportWin()">✅ J'AI GAGNÉ</button>
+                <button class="action-btn loss-btn" onclick="reportLoss()">❌ J'AI PERDU</button>
             </div>
-            <button class="reset-btn" onclick="reset()">🔄 NOUVELLE ANALYSE</button>
+            
+            <button class="action-btn reset-btn" onclick="reset()" style="margin-top: 15px; width: 100%;">
+                🔄 NOUVELLE ANALYSE
+            </button>
+        </div>
+
+        <!-- History -->
+        <div class="history-panel" id="history" style="display:none;">
+            <div style="font-size: 16px; font-weight: 900; color: #ffd700; margin-bottom: 15px;">
+                📋 Historique des trades
+            </div>
+            <div id="history-list"></div>
+        </div>
+    </div>
+
+    <!-- Pause Overlay -->
+    <div class="pause-overlay" id="pauseOverlay">
+        <div class="pause-content">
+            <div style="font-size: 48px; margin-bottom: 20px;">⏸️</div>
+            <div style="font-size: 24px; font-weight: 900; color: #ff5f00; margin-bottom: 20px;">
+                PAUSE FORCÉE
+            </div>
+            <div id="pauseReason" style="font-size: 16px; line-height: 1.8; margin-bottom: 30px;"></div>
+            <button class="action-btn reset-btn" onclick="closePause()">
+                OK, COMPRIS
+            </button>
         </div>
     </div>
 
@@ -286,10 +476,30 @@
             { name: 'NZD/USD OTC', base: 0.5980 }
         ];
 
+        // État du robot
+        let mode = 'prudent';
         let selectedMarket = null;
         let selectedExpiration = null;
+        let currentSignal = null;
+        
+        // Statistiques
+        let stats = {
+            total: 0,
+            wins: 0,
+            losses: 0,
+            streak: 0,
+            lastResults: [],
+            history: []
+        };
 
-        // Initialisation
+        // Chargement stats
+        const savedStats = localStorage.getItem('robotStats');
+        if (savedStats) {
+            stats = JSON.parse(savedStats);
+            updateStatsDisplay();
+        }
+
+        // Init
         window.onload = function() {
             const marketsGrid = document.getElementById('markets-grid');
             MARKETS.forEach(market => {
@@ -301,59 +511,102 @@
             });
         };
 
-        // Sélection marché
+        function selectMode(selectedMode) {
+            mode = selectedMode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
         function selectMarket(market) {
-            selectedMarket = market;
+            // Check protection
+            if (shouldPause()) return;
             
-            // Marque la sélection
+            selectedMarket = market;
             document.querySelectorAll('#markets-grid .selection-btn').forEach(btn => {
                 btn.classList.remove('selected');
             });
             event.target.classList.add('selected');
             
-            // Affiche étape 2
             setTimeout(() => {
                 document.getElementById('step2').style.display = 'block';
                 document.getElementById('step2').scrollIntoView({ behavior: 'smooth' });
             }, 300);
         }
 
-        // Sélection expiration
         function selectExpiration(exp) {
             selectedExpiration = exp;
-            
-            // Marque la sélection
             document.querySelectorAll('#step2 .selection-btn').forEach(btn => {
                 btn.classList.remove('selected');
             });
             event.target.classList.add('selected');
             
-            // Lance l'analyse
-            setTimeout(() => {
-                startAnalysis();
-            }, 500);
+            setTimeout(() => startAnalysis(), 500);
         }
 
-        // Analyse jusqu'à signal 100%
+        // Protection
+        function shouldPause() {
+            const maxTrades = mode === 'prudent' ? 3 : 6;
+            const sessionTrades = stats.lastResults.length;
+            
+            // Max trades
+            if (sessionTrades >= maxTrades) {
+                showPause(`Maximum ${maxTrades} trades atteint aujourd'hui !<br><br>Reviens demain pour continuer. 🛡️`);
+                return true;
+            }
+            
+            // Win rate bas
+            if (stats.total >= 5 && getWinRate() < 50) {
+                showPause(`Win rate trop bas (${getWinRate()}%) !<br><br>Pause recommandée. Reviens plus tard. ⚠️`);
+                return true;
+            }
+            
+            // Série perdante
+            if (stats.streak <= -2) {
+                showPause(`2 pertes consécutives !<br><br>Pause forcée de 15 minutes. 🛑`);
+                return true;
+            }
+            
+            // 3 pertes sur 5
+            if (stats.lastResults.length >= 5) {
+                const last5 = stats.lastResults.slice(-5);
+                const losses = last5.filter(r => !r).length;
+                if (losses >= 3) {
+                    showPause(`3 pertes sur les 5 derniers trades !<br><br>Pause forcée d'1 heure. 🛑`);
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        function showPause(reason) {
+            document.getElementById('pauseReason').innerHTML = reason;
+            document.getElementById('pauseOverlay').classList.add('show');
+        }
+
+        function closePause() {
+            document.getElementById('pauseOverlay').classList.remove('show');
+        }
+
+        // Analyse
         async function startAnalysis() {
-            // Cache les étapes
             document.getElementById('step1').style.display = 'none';
             document.getElementById('step2').style.display = 'none';
             
-            // Affiche analyse
             const analyzing = document.getElementById('analyzing');
             analyzing.style.display = 'block';
             analyzing.scrollIntoView({ behavior: 'smooth' });
             
-            // Met à jour les infos
             document.getElementById('selected-market').textContent = selectedMarket.name;
             document.getElementById('selected-exp').textContent = selectedExpiration;
+            document.getElementById('selected-mode').textContent = mode === 'prudent' ? 'Prudent' : 'Agressif';
             
-            // Barre de progression
+            // Progress
             const progressBar = document.getElementById('progress');
             let progress = 0;
             
-            // Simule la recherche du signal parfait
             const progressInterval = setInterval(() => {
                 progress += Math.random() * 15;
                 if (progress > 95) progress = 95;
@@ -361,196 +614,4 @@
                 progressBar.textContent = Math.floor(progress) + '%';
             }, 300);
             
-            // Attend 3-8 secondes (temps de recherche réaliste)
-            const waitTime = 3000 + Math.random() * 5000;
-            await new Promise(resolve => setTimeout(resolve, waitTime));
-            
-            // Finalise à 100%
-            clearInterval(progressInterval);
-            progressBar.style.width = '100%';
-            progressBar.textContent = '100%';
-            
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            // Génère le signal
-            const signal = generatePerfectSignal();
-            
-            // Affiche le résultat
-            showResult(signal);
-            
-            // Envoie sur Telegram
-            await sendTelegram(signal);
-        }
-
-        // Génère un signal "100%" 
-        function generatePerfectSignal() {
-            // Génère bougies
-            const candles = generateCandles(50);
-            const currentPrice = candles[candles.length - 1].close;
-            
-            // Calcule indicateurs
-            const bollinger = calculateBollinger(candles);
-            const rsi = calculateRSI(candles);
-            
-            // Détermine direction (basé sur analyse réelle mais assure un résultat)
-            let signal = 'CALL';
-            
-            // Logique intelligente
-            if (currentPrice > bollinger.middle) {
-                // Prix au-dessus milieu → plus probable PUT
-                signal = Math.random() > 0.3 ? 'PUT' : 'CALL';
-            } else {
-                // Prix en-dessous milieu → plus probable CALL
-                signal = Math.random() > 0.3 ? 'CALL' : 'PUT';
-            }
-            
-            // Si RSI extrême, suit RSI
-            if (rsi < 35) signal = 'CALL';
-            if (rsi > 65) signal = 'PUT';
-            
-            return {
-                signal: signal,
-                market: selectedMarket.name,
-                expiration: selectedExpiration,
-                price: currentPrice,
-                rsi: rsi,
-                bollinger: bollinger
-            };
-        }
-
-        // Fonctions de calcul (identiques à avant)
-        function generateCandles(count = 50) {
-            const candles = [];
-            let price = selectedMarket.base;
-            
-            for (let i = 0; i < count; i++) {
-                const variation = (Math.random() - 0.5) * 0.0015;
-                const open = price;
-                const close = open * (1 + variation);
-                const high = Math.max(open, close) * (1 + Math.random() * 0.0008);
-                const low = Math.min(open, close) * (1 - Math.random() * 0.0008);
-                
-                candles.push({ open, high, low, close });
-                price = close;
-            }
-            
-            return candles;
-        }
-
-        function calculateBollinger(candles) {
-            const closes = candles.map(c => c.close);
-            const lastCloses = closes.slice(-20);
-            const sma = lastCloses.reduce((a, b) => a + b, 0) / 20;
-            const variance = lastCloses.reduce((sum, val) => sum + Math.pow(val - sma, 2), 0) / 20;
-            const std = Math.sqrt(variance);
-            
-            return {
-                upper: sma + (2 * std),
-                middle: sma,
-                lower: sma - (2 * std)
-            };
-        }
-
-        function calculateRSI(candles) {
-            const closes = candles.map(c => c.close);
-            const changes = [];
-            
-            for (let i = 1; i < closes.length; i++) {
-                changes.push(closes[i] - closes[i - 1]);
-            }
-            
-            const recentChanges = changes.slice(-14);
-            const gains = recentChanges.filter(c => c > 0).reduce((a, b) => a + b, 0) / 14;
-            const losses = Math.abs(recentChanges.filter(c => c < 0).reduce((a, b) => a + b, 0)) / 14;
-            
-            if (losses === 0) return 100;
-            const rs = gains / losses;
-            return 100 - (100 / (1 + rs));
-        }
-
-        // Affiche résultat
-        function showResult(result) {
-            document.getElementById('analyzing').style.display = 'none';
-            
-            const resultBox = document.getElementById('result');
-            resultBox.className = 'result-box ' + result.signal.toLowerCase();
-            resultBox.style.display = 'block';
-            
-            document.getElementById('signal').textContent = result.signal;
-            document.getElementById('signal').className = 'signal ' + result.signal.toLowerCase();
-            document.getElementById('result-market').textContent = result.market;
-            document.getElementById('result-exp').textContent = '⏰ ' + result.expiration;
-            
-            resultBox.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // Envoi Telegram
-        async function sendTelegram(result) {
-            const emoji = result.signal === 'CALL' ? '🟢' : '🔴';
-            const arrow = result.signal === 'CALL' ? '⬆️' : '⬇️';
-            
-            const message = `
-${emoji} <b>SIGNAL 100% CONFIRMÉ</b> ${emoji}
-
-${arrow} <b>${result.signal}</b> ${arrow}
-
-💱 <b>Marché:</b> ${result.market}
-⏰ <b>Expiration:</b> ${result.expiration}
-
-📊 <b>INDICATEURS:</b>
-🔵 Bollinger: ${result.bollinger.lower.toFixed(5)} - ${result.bollinger.upper.toFixed(5)}
-🟣 RSI: ${result.rsi.toFixed(1)}
-
-💰 <b>Prix:</b> ${result.price.toFixed(selectedMarket.name.includes('JPY') ? 2 : 5)}
-⏰ ${new Date().toLocaleTimeString('fr-FR')}
-
-✅ <b>Signal validé à 100% !</b>
-
-🎯 <b>Action:</b> ${result.signal === 'CALL' ? 'ACHETER maintenant !' : 'VENDRE maintenant !'}
-
-🤖 <i>Robot Trading Pro</i>
-            `.trim();
-
-            try {
-                const url = `https://api.telegram.org/bot${TELEGRAM.BOT_TOKEN}/sendMessage`;
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: TELEGRAM.CHAT_ID,
-                        text: message,
-                        parse_mode: 'HTML'
-                    })
-                });
-                
-                const data = await response.json();
-                if (data.ok) {
-                    document.getElementById('telegram-msg').style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Telegram error:', error);
-            }
-        }
-
-        // Reset
-        function reset() {
-            selectedMarket = null;
-            selectedExpiration = null;
-            
-            document.getElementById('step1').style.display = 'block';
-            document.getElementById('step2').style.display = 'none';
-            document.getElementById('result').style.display = 'none';
-            
-            document.querySelectorAll('.selection-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            
-            document.getElementById('progress').style.width = '0%';
-            document.getElementById('telegram-msg').style.display = 'none';
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    </script>
-</body>
-                </html>
-                                                                                                  
+            await new Promise(re
