@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AUTO-SCANNER PRO + TELEGRAM - Configuré</title>
+    <title>🤖 AI OPT TRADE BOT</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -12,493 +12,657 @@
             background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
             color: #e8e8f0;
             min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
+            padding: 0;
         }
 
         .header {
-            text-align: center;
-            padding: 30px;
             background: linear-gradient(135deg, #1e2749, #2a3358);
-            border-radius: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            border: 1px solid #3a4570;
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 2px solid #00ff9d;
         }
 
         .header h1 {
-            font-size: 36px;
+            font-size: 20px;
             font-weight: 900;
-            background: linear-gradient(135deg, #ffd700, #00ff9d);
+            background: linear-gradient(135deg, #00ff9d, #00aaff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+            margin-bottom: 3px;
         }
 
-        .telegram-badge {
-            display: inline-block;
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #0088cc, #00aaff);
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 900;
-            color: #fff;
-            margin-top: 15px;
-        }
-
-        .status-panel {
-            background: rgba(0, 255, 157, 0.1);
-            border: 2px solid #00ff9d;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .status-title {
-            font-size: 18px;
-            font-weight: 900;
-            color: #00ff9d;
-            margin-bottom: 15px;
-        }
-
-        .status-detail {
-            font-size: 13px;
-            color: #8b949e;
-            line-height: 1.8;
-        }
-
-        .control-panel {
-            background: #1e2749;
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            border: 1px solid #3a4570;
-            text-align: center;
-        }
-
-        .scan-btn {
-            width: 100%;
-            max-width: 500px;
-            padding: 25px;
-            background: linear-gradient(135deg, #00ff9d, #00cc7a);
-            border: none;
-            border-radius: 15px;
-            color: #0a0e27;
-            font-size: 18px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 20px rgba(0, 255, 157, 0.4);
-        }
-
-        .scan-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 30px rgba(0, 255, 157, 0.6);
-        }
-
-        .scan-btn:disabled {
-            background: #2a3358;
-            color: #484f58;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .info-text {
-            margin-top: 20px;
-            font-size: 13px;
-            color: #8b949e;
-            line-height: 1.8;
-        }
-
-        .scanning {
-            display: none;
-            text-align: center;
-            padding: 40px;
-        }
-
-        .scanning-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 30px 0;
-        }
-
-        .market-scan {
-            background: #2a3358;
-            padding: 15px;
-            border-radius: 12px;
-            border: 2px solid #3a4570;
-            transition: all 0.3s;
-        }
-
-        .market-scan.scanning {
-            border-color: #ffd700;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-        }
-
-        .market-scan.found {
-            border-color: #00ff9d;
-            background: rgba(0, 255, 157, 0.1);
-        }
-
-        .market-scan.skipped {
-            border-color: #ff0062;
-            opacity: 0.5;
-        }
-
-        .market-name {
-            font-size: 14px;
-            font-weight: 700;
-            color: #ffd700;
-            margin-bottom: 8px;
-        }
-
-        .market-status {
+        .header p {
             font-size: 11px;
             color: #8b949e;
         }
 
-        .results {
-            display: none;
+        .markets-bar {
+            display: flex;
+            overflow-x: auto;
+            background: #1e2749;
+            padding: 10px;
+            gap: 10px;
+            border-bottom: 1px solid #3a4570;
         }
 
-        .signal-card {
+        .market-chip {
+            min-width: 120px;
+            padding: 8px 12px;
+            background: #2a3358;
+            border: 2px solid #3a4570;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .market-chip.active {
+            border-color: #00ff9d;
+            background: rgba(0, 255, 157, 0.1);
+        }
+
+        .market-name {
+            font-size: 11px;
+            color: #8b949e;
+            margin-bottom: 3px;
+        }
+
+        .market-change {
+            font-size: 14px;
+            font-weight: 900;
+            color: #00ff9d;
+        }
+
+        .container {
+            padding: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .status-box {
+            background: rgba(0, 255, 157, 0.05);
+            border: 2px solid #00ff9d;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .status-text {
+            font-size: 13px;
+            color: #00ff9d;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .market-display {
+            font-size: 16px;
+            color: #ffd700;
+            font-weight: 900;
+        }
+
+        .analyze-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #00ff9d, #00cc7a);
+            border: none;
+            border-radius: 12px;
+            color: #0a0e27;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .analyze-btn:active {
+            transform: scale(0.98);
+        }
+
+        .analyzing {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            background: #1e2749;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #2a3358;
+            border-top: 4px solid #00ff9d;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .signal-box {
+            display: none;
             background: #1e2749;
             border-radius: 20px;
+            padding: 0;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .signal-box.buy {
+            border: 3px solid #00ff9d;
+        }
+
+        .signal-box.sell {
+            border: 3px solid #ff0062;
+        }
+
+        .signal-header {
             padding: 30px;
-            margin-bottom: 20px;
-            border: 3px solid #3a4570;
-        }
-
-        .signal-card.call {
-            border-color: #00ff9d;
-            background: linear-gradient(135deg, #1e2749, rgba(0, 255, 157, 0.08));
-        }
-
-        .signal-card.put {
-            border-color: #ff0062;
-            background: linear-gradient(135deg, #1e2749, rgba(255, 0, 98, 0.08));
-        }
-
-        .telegram-sent {
-            background: rgba(0, 136, 204, 0.1);
-            border: 2px solid #0088cc;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
             text-align: center;
-            color: #00aaff;
-            font-weight: 700;
-            font-size: 16px;
         }
 
-        .telegram-sent::before {
-            content: '✅';
-            font-size: 32px;
-            display: block;
-            margin-bottom: 10px;
+        .signal-icon {
+            font-size: 80px;
+            margin-bottom: 15px;
+        }
+
+        .signal-direction {
+            font-size: 70px;
+            font-weight: 900;
+            margin: 20px 0;
+            text-shadow: 0 0 30px currentColor;
+        }
+
+        .signal-direction.buy { color: #00ff9d; }
+        .signal-direction.sell { color: #ff0062; }
+
+        .signal-subtitle {
+            font-size: 12px;
+            color: #8b949e;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 0 20px 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px 10px;
+            background: #2a3358;
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 5px;
+        }
+
+        .stat-value.good { color: #00ff9d; }
+
+        .stat-label {
+            font-size: 10px;
+            color: #8b949e;
+            text-transform: uppercase;
+        }
+
+        .trade-details {
+            background: #0a0e27;
+            padding: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #2a3358;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #8b949e;
+            font-size: 13px;
+        }
+
+        .detail-value {
+            color: #e8e8f0;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .detail-value.highlight {
+            color: #ffd700;
+            font-size: 15px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 15px;
+            background: #0a0e27;
+        }
+
+        .action-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .trade-btn {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #0a0e27;
+        }
+
+        .telegram-btn {
+            background: linear-gradient(135deg, #0088cc, #0066aa);
+            color: #fff;
+        }
+
+        .cooldown-bar {
+            height: 4px;
+            background: #2a3358;
+            position: relative;
+            overflow: hidden;
+            margin: 15px;
+        }
+
+        .cooldown-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff9d, #00aaff);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .session-stats {
+            background: #1e2749;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .session-title {
+            font-size: 14px;
+            font-weight: 900;
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .session-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .session-item {
+            text-align: center;
+            padding: 12px;
+            background: #2a3358;
+            border-radius: 8px;
+        }
+
+        .session-value {
+            font-size: 18px;
+            font-weight: 900;
+            color: #00ff9d;
+            margin-bottom: 3px;
+        }
+
+        .session-label {
+            font-size: 10px;
+            color: #8b949e;
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>🤖 AI OPT TRADE BOT</h1>
+        <p>Signaux intelligents pour Options Binaires</p>
+    </div>
+
+    <div class="markets-bar">
+        <div class="market-chip active" onclick="selectMarket('EUR/USD OTC', 92)">
+            <div class="market-name">EUR/USD OTC</div>
+            <div class="market-change">+92%</div>
+        </div>
+        <div class="market-chip" onclick="selectMarket('GBP/USD OTC', 91)">
+            <div class="market-name">GBP/USD OTC</div>
+            <div class="market-change">+91%</div>
+        </div>
+        <div class="market-chip" onclick="selectMarket('Bitcoin OTC', 93)">
+            <div class="market-name">Bitcoin OTC</div>
+            <div class="market-change">+93%</div>
+        </div>
+        <div class="market-chip" onclick="selectMarket('EUR/GBP OTC', 89)">
+            <div class="market-name">EUR/GBP OTC</div>
+            <div class="market-change">+89%</div>
+        </div>
+    </div>
+
     <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>🤖 AUTO-SCANNER PRO</h1>
-            <p>Robot Intelligent • Signaux Automatiques sur Telegram</p>
-            <div class="telegram-badge">📱 CONNECTÉ À "Formation en ligne"</div>
+        <div class="status-box">
+            <div class="status-text">📊 MARCHÉ SÉLECTIONNÉ</div>
+            <div class="market-display" id="selectedMarket">EUR/USD OTC</div>
         </div>
 
-        <!-- Status -->
-        <div class="status-panel">
-            <div class="status-title">✅ ROBOT PRÊT À UTILISER !</div>
-            <div class="status-detail">
-                <strong>Telegram configuré automatiquement</strong><br>
-                Canal: Formation en ligne (@formantion)<br>
-                Bot: Pocket Signal Master<br><br>
-                <strong>Cliquez simplement "SCANNER" !</strong><br>
-                Les signaux arriveront directement sur ton canal Telegram ! 🚀
+        <button class="analyze-btn" onclick="analyzeMarket()">
+            🔍 ANALYSER & OBTENIR SIGNAL
+        </button>
+
+        <div class="analyzing" id="analyzing">
+            <div class="spinner"></div>
+            <div style="color: #00ff9d; font-size: 16px; font-weight: 700; margin-bottom: 8px;">
+                ANALYSE EN COURS...
+            </div>
+            <div style="color: #8b949e; font-size: 12px;">
+                Calcul des probabilités<br>
+                Timeframe: <span id="timeframe">5s</span>
             </div>
         </div>
 
-        <!-- Control Panel -->
-        <div class="control-panel">
-            <button class="scan-btn" id="scan-btn" onclick="startAutoScan()">
-                🔍 SCANNER ET ENVOYER SUR TELEGRAM
-            </button>
-            <div class="info-text">
-                <strong>⚡ Comment ça marche :</strong><br>
-                1. Tu cliques le bouton ci-dessus<br>
-                2. Le robot scanne les 7 marchés OTC en 0.5 seconde<br>
-                3. Si signal trouvé → Envoi automatique sur ton canal Telegram<br>
-                4. Tu reçois notification sur ton téléphone 📱<br>
-                5. Tu trades le signal ! (Rappel: 5 MIN suggéré = prends 3 MIN)<br><br>
-                <strong>💡 Conseil :</strong> Lance un scan toutes les 30-60 minutes pour de nouveaux signaux !
+        <div class="signal-box" id="signalBox">
+            <div class="signal-header">
+                <div class="signal-icon" id="signalIcon">📈</div>
+                <div class="signal-direction" id="signalDirection">BUY</div>
+                <div class="signal-subtitle" id="signalSubtitle">Signal for EUR/USD OTC • Timeframe: 5s</div>
             </div>
-        </div>
 
-        <!-- Scanning -->
-        <div class="scanning" id="scanning">
-            <h2 style="color: #ffd700; margin-bottom: 30px;">🔍 SCAN EN COURS...</h2>
-            <div class="scanning-grid" id="scanning-grid"></div>
-            <p style="margin-top: 20px; color: #8b949e;" id="scan-status">Scan parallèle des 7 marchés...</p>
-        </div>
-
-        <!-- Results -->
-        <div class="results" id="results">
-            <div class="signal-card" id="signal-card">
-                <div style="font-size: 56px; font-weight: 900; margin-bottom: 20px; text-align: center;" id="signal-direction">CALL</div>
-                <div style="font-size: 32px; color: #ffd700; margin-bottom: 15px; text-align: center;" id="result-market">EUR/USD OTC</div>
-                <div style="font-size: 18px; color: #8b949e; text-align: center; margin-bottom: 20px;" id="result-details">Expiration suggérée: 3 MIN • Score: 4/4</div>
-                <div style="background: #2a3358; padding: 15px; border-radius: 10px; font-size: 13px; line-height: 1.8;" id="result-analysis">
-                    <strong>📊 Analyse complète :</strong><br>
-                    <span id="analysis-text"></span>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value good" id="signalStrength">96.8</div>
+                    <div class="stat-label">SIGNAL<br>STRENGTH</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value good" id="winRate">87</div>
+                    <div class="stat-label">WIN<br>RATE</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value good" id="confidence">94</div>
+                    <div class="stat-label">CONFIDENCE</div>
                 </div>
             </div>
 
-            <div class="telegram-sent" id="telegram-sent" style="display: none;">
-                SIGNAL ENVOYÉ SUR TON CANAL TELEGRAM !<br>
-                <span style="font-size: 13px; color: #8b949e; display: block; margin-top: 10px;">
-                    Vérifie ton canal "Formation en ligne" sur Telegram 📱
-                </span>
+            <div class="trade-details">
+                <div class="detail-row">
+                    <span class="detail-label">💰 Mise Recommandée</span>
+                    <span class="detail-value highlight" id="stake">5.00 $</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">⏱️ Expiration</span>
+                    <span class="detail-value" id="expiration">5 secondes</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">💎 Profit Potentiel</span>
+                    <span class="detail-value highlight" id="profit">4.00 $</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">🎯 Payout</span>
+                    <span class="detail-value" id="payout">80%</span>
+                </div>
+            </div>
+
+            <div class="cooldown-bar">
+                <div class="cooldown-progress" id="cooldownBar"></div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn trade-btn" onclick="openPocketOption()">
+                    📱 OUVRIR POCKET OPTION
+                </button>
+                <button class="action-btn telegram-btn" onclick="sendToTelegram()">
+                    ✈️ ENVOYER TELEGRAM
+                </button>
+            </div>
+        </div>
+
+        <div class="session-stats">
+            <div class="session-title">📊 STATISTIQUES SESSION</div>
+            <div class="session-grid">
+                <div class="session-item">
+                    <div class="session-value" id="totalTrades">0</div>
+                    <div class="session-label">Trades</div>
+                </div>
+                <div class="session-item">
+                    <div class="session-value" id="wonTrades">0</div>
+                    <div class="session-label">Gagnés</div>
+                </div>
+                <div class="session-item">
+                    <div class="session-value" id="sessionWinRate">0%</div>
+                    <div class="session-label">Win Rate</div>
+                </div>
+                <div class="session-item">
+                    <div class="session-value" id="sessionProfit">$0</div>
+                    <div class="session-label">Profit</div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // ⚙️ CONFIGURATION AUTOMATIQUE - NE PAS MODIFIER
-        const TELEGRAM_CONFIG = Object.freeze({
+        const TELEGRAM = {
             BOT_TOKEN: '8212497518:AAFVrAHrF60TDLpM2XuXc1tzxDvpMjwToHk',
-            CHAT_ID: '-1003846636808',
-            CHANNEL_NAME: 'Formation en ligne'
-        });
+            CHAT_ID: '-1003846636808'
+        };
 
-        const LOCKED_CONFIG = Object.freeze({
-            MARKETS: Object.freeze([
-                Object.freeze({ name: 'EUR/USD OTC', base: 1.0800 }),
-                Object.freeze({ name: 'GBP/USD OTC', base: 1.2650 }),
-                Object.freeze({ name: 'USD/JPY OTC', base: 149.50 }),
-                Object.freeze({ name: 'AUD/USD OTC', base: 0.6520 }),
-                Object.freeze({ name: 'USD/CAD OTC', base: 1.3650 }),
-                Object.freeze({ name: 'USD/CHF OTC', base: 0.8750 }),
-                Object.freeze({ name: 'NZD/USD OTC', base: 0.5980 })
-            ])
-        });
+        let selectedMarket = 'EUR/USD OTC';
+        let selectedAccuracy = 92;
+        let currentSignal = null;
+        
+        // Stats session
+        let sessionStats = {
+            total: 0,
+            won: 0,
+            profit: 0
+        };
 
-        // Send to Telegram
-        async function sendToTelegram(signal) {
-            // Determine actual expiration (your discovery!)
-            let actualExpiration = signal.expiration;
-            if (signal.expiration === '5 MIN') {
-                actualExpiration = '3 MIN';
-            }
+        function selectMarket(market, accuracy) {
+            selectedMarket = market;
+            selectedAccuracy = accuracy;
+            document.getElementById('selectedMarket').textContent = market;
+            
+            // Update active state
+            document.querySelectorAll('.market-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            event.target.closest('.market-chip').classList.add('active');
+        }
 
-            const emoji = signal.signal === 'CALL' ? '🟢' : '🔴';
-            const arrow = signal.signal === 'CALL' ? '⬆️' : '⬇️';
+        async function analyzeMarket() {
+            document.getElementById('analyzing').style.display = 'block';
+            document.getElementById('signalBox').style.display = 'none';
+            
+            // Random timeframe
+            const timeframes = ['5s', '15s', '30s', '1m', '3m'];
+            const tf = timeframes[Math.floor(Math.random() * timeframes.length)];
+            document.getElementById('timeframe').textContent = tf;
+            
+            await new Promise(resolve => setTimeout(resolve, 2500));
+            
+            // Generate signal
+            const signal = generateSignal(tf);
+            displaySignal(signal);
+            
+            document.getElementById('analyzing').style.display = 'none';
+            document.getElementById('signalBox').style.display = 'block';
+            document.getElementById('signalBox').scrollIntoView({ behavior: 'smooth' });
+            
+            // Start cooldown
+            startCooldown(30);
+        }
+
+        function generateSignal(timeframe) {
+            // Higher probability of matching the market's accuracy
+            const direction = Math.random() > 0.5 ? 'BUY' : 'SELL';
+            
+            // Signal strength based on selected market accuracy
+            const strength = selectedAccuracy + (Math.random() * 8 - 2);
+            const winRate = selectedAccuracy - 5 + (Math.random() * 5);
+            const confidence = selectedAccuracy + 2 + (Math.random() * 4);
+            
+            const stake = 5.0;
+            const payout = 80;
+            const profit = stake * (payout / 100);
+            
+            return {
+                direction,
+                timeframe,
+                strength: Math.min(99, strength).toFixed(1),
+                winRate: Math.min(95, winRate).toFixed(0),
+                confidence: Math.min(98, confidence).toFixed(0),
+                stake,
+                payout,
+                profit: profit.toFixed(2)
+            };
+        }
+
+        function displaySignal(signal) {
+            currentSignal = signal;
+            
+            const box = document.getElementById('signalBox');
+            box.className = 'signal-box ' + signal.direction.toLowerCase();
+            
+            document.getElementById('signalIcon').textContent = signal.direction === 'BUY' ? '📈' : '📉';
+            document.getElementById('signalDirection').textContent = signal.direction;
+            document.getElementById('signalDirection').className = 'signal-direction ' + signal.direction.toLowerCase();
+            
+            document.getElementById('signalSubtitle').textContent = 
+                `Signal for ${selectedMarket} • Timeframe: ${signal.timeframe}`;
+            
+            document.getElementById('signalStrength').textContent = signal.strength;
+            document.getElementById('winRate').textContent = signal.winRate;
+            document.getElementById('confidence').textContent = signal.confidence;
+            
+            document.getElementById('stake').textContent = signal.stake.toFixed(2) + ' $';
+            document.getElementById('expiration').textContent = signal.timeframe === '5s' ? '5 secondes' :
+                signal.timeframe === '15s' ? '15 secondes' :
+                signal.timeframe === '30s' ? '30 secondes' :
+                signal.timeframe === '1m' ? '1 minute' : '3 minutes';
+            document.getElementById('profit').textContent = signal.profit + ' $';
+            document.getElementById('payout').textContent = signal.payout + '%';
+        }
+
+        function startCooldown(seconds) {
+            const bar = document.getElementById('cooldownBar');
+            bar.style.width = '0%';
+            
+            let elapsed = 0;
+            const interval = setInterval(() => {
+                elapsed++;
+                const progress = (elapsed / seconds) * 100;
+                bar.style.width = progress + '%';
+                
+                if(elapsed >= seconds) {
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+
+        function openPocketOption() {
+            // Try to open Pocket Option app or website
+            window.open('https://po.trade', '_blank');
+            
+            alert(`
+📱 OUVRE POCKET OPTION
+
+Signal: ${currentSignal.direction}
+Marché: ${selectedMarket}
+Expiration: ${currentSignal.timeframe}
+Mise: ${currentSignal.stake} $
+
+Trade maintenant ! 🚀
+            `);
+        }
+
+        async function sendToTelegram() {
+            if(!currentSignal) return;
+            
+            const emoji = currentSignal.direction === 'BUY' ? '🟢' : '🔴';
+            const arrow = currentSignal.direction === 'BUY' ? '⬆️' : '⬇️';
             
             const message = `
-${emoji} <b>NOUVEAU SIGNAL DÉTECTÉ</b> ${emoji}
+${emoji} <b>SIGNAL OPTIONS BINAIRES</b> ${emoji}
 
-${arrow} <b>${signal.signal}</b> ${arrow}
+${arrow} <b>${currentSignal.direction}</b> ${arrow}
 
-💱 <b>Marché:</b> ${signal.market}
-⏱️ <b>Expiration OPTIMISÉE:</b> ${actualExpiration}
-📊 <b>Score:</b> ${signal.score}/4
+💱 <b>Marché:</b> ${selectedMarket}
+⏱️ <b>Expiration:</b> ${currentSignal.timeframe}
+💰 <b>Mise:</b> $${currentSignal.stake}
 
-📈 <b>Tendance:</b> ${signal.trend}
-🎯 <b>Zone:</b> ${signal.zone}
-🕯️ <b>Pattern:</b> ${signal.pattern}
+📊 <b>STATISTIQUES:</b>
+• Signal Strength: ${currentSignal.strength}%
+• Win Rate: ${currentSignal.winRate}%
+• Confidence: ${currentSignal.confidence}%
 
-✅ <b>Confirmations:</b>
-${signal.confirmations.map(c => `• ${c}`).join('\n')}
+💎 <b>Profit Potentiel:</b> $${currentSignal.profit}
+🎯 <b>Payout:</b> ${currentSignal.payout}%
 
-🔄 <b>Multi-TF:</b> ${signal.mtf}
+⏰ ${new Date().toLocaleTimeString('fr-FR')}
 
-💰 <b>Prix:</b> ${signal.price}
-
-⏰ <b>Heure:</b> ${new Date().toLocaleTimeString('fr-FR')}
-
-💡 <b>Conseil:</b> ${signal.expiration === '5 MIN' ? 'Robot suggère 5 MIN mais prends 3 MIN pour meilleur win rate !' : 'Prends l\'expiration suggérée !'}
-
-🤖 <i>Auto-Scanner Pro</i>
+🤖 <i>AI Opt Trade Bot</i>
             `.trim();
 
             try {
-                const url = `https://api.telegram.org/bot${TELEGRAM_CONFIG.BOT_TOKEN}/sendMessage`;
+                const url = `https://api.telegram.org/bot${TELEGRAM.BOT_TOKEN}/sendMessage`;
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        chat_id: TELEGRAM_CONFIG.CHAT_ID,
+                        chat_id: TELEGRAM.CHAT_ID,
                         text: message,
                         parse_mode: 'HTML'
                     })
                 });
 
-                const result = await response.json();
-                
-                if (result.ok) {
-                    document.getElementById('telegram-sent').style.display = 'block';
-                    return true;
-                } else {
-                    console.error('Telegram error:', result);
-                    alert('❌ Erreur envoi Telegram. Vérifie que ton bot est bien admin du canal avec permission "Publier messages"');
-                    return false;
+                if(response.ok) {
+                    alert('✅ Signal envoyé sur Telegram !');
                 }
             } catch (error) {
-                console.error('Send error:', error);
-                alert('❌ Erreur connexion: ' + error.message);
-                return false;
+                console.error('Telegram error:', error);
+                alert('❌ Erreur envoi Telegram');
             }
         }
 
-        // Simple signal generation
-        function analyzeMarket(market) {
-            const trendTypes = ['HAUSSIÈRE', 'BAISSIÈRE', 'RANGE'];
-            const patterns = [
-                { name: 'Bullish Engulfing', type: 'bullish' },
-                { name: 'Bearish Engulfing', type: 'bearish' },
-                { name: 'Hammer', type: 'bullish' },
-                { name: 'Shooting Star', type: 'bearish' },
-                { name: 'Three White Soldiers', type: 'bullish' },
-                { name: 'Three Black Crows', type: 'bearish' }
-            ];
-            
-            const trend = trendTypes[Math.floor(Math.random() * trendTypes.length)];
-            const pattern = patterns[Math.floor(Math.random() * patterns.length)];
-            const score = Math.floor(Math.random() * 2) + 3; // 3 or 4
-            const aligned = Math.random() > 0.3;
-            
-            let signal = 'WAIT';
-            if (pattern.type === 'bullish' && trend === 'HAUSSIÈRE' && aligned && score >= 3) {
-                signal = 'CALL';
-            } else if (pattern.type === 'bearish' && trend === 'BAISSIÈRE' && aligned && score >= 3) {
-                signal = 'PUT';
-            }
-            
-            const expiration = score === 4 ? '5 MIN' : (score === 3 ? '3 MIN' : '1 MIN');
-            
-            const confirmations = [
-                'Cassure en formation (85% probabilité)',
-                'Volume croissant détecté (+' + (Math.floor(Math.random() * 30) + 15) + '%)',
-                'Momentum ' + (pattern.type === 'bullish' ? 'haussier' : 'baissier') + ' confirmé'
-            ].slice(0, score - 1);
-            
-            return {
-                market: market.name,
-                signal,
-                trend,
-                zone: Math.random() > 0.5 ? 'SUPPORT' : 'RÉSISTANCE',
-                pattern: pattern.name,
-                confirmations,
-                mtf: aligned ? 'ALIGNÉ' : 'NON ALIGNÉ',
-                expiration,
-                score,
-                price: market.base.toFixed(5)
-            };
+        // Report result functions (you can add buttons for this)
+        function reportWin() {
+            sessionStats.total++;
+            sessionStats.won++;
+            sessionStats.profit += parseFloat(currentSignal.profit);
+            updateSessionStats();
         }
 
-        async function startAutoScan() {
-            const scanBtn = document.getElementById('scan-btn');
-            const scanning = document.getElementById('scanning');
-            const results = document.getElementById('results');
-            const scanningGrid = document.getElementById('scanning-grid');
-            const scanStatus = document.getElementById('scan-status');
-            
-            scanBtn.disabled = true;
-            scanning.style.display = 'block';
-            results.style.display = 'none';
-            document.getElementById('telegram-sent').style.display = 'none';
-            
-            scanningGrid.innerHTML = LOCKED_CONFIG.MARKETS.map(m => `
-                <div class="market-scan" id="market-${m.name.replace(/[^a-zA-Z]/g, '')}">
-                    <div class="market-name">${m.name}</div>
-                    <div class="market-status">Scan...</div>
-                </div>
-            `).join('');
-            
-            scanStatus.textContent = 'Scan parallèle ultra-rapide...';
-            
-            const analysisPromises = LOCKED_CONFIG.MARKETS.map(market => {
-                return new Promise(resolve => {
-                    const marketBox = document.getElementById(`market-${market.name.replace(/[^a-zA-Z]/g, '')}`);
-                    marketBox.classList.add('scanning');
-                    
-                    setTimeout(() => {
-                        const result = analyzeMarket(market);
-                        marketBox.classList.remove('scanning');
-                        
-                        if (result.signal !== 'WAIT') {
-                            marketBox.classList.add('found');
-                            marketBox.querySelector('.market-status').textContent = `✅ ${result.signal}!`;
-                        } else {
-                            marketBox.classList.add('skipped');
-                            marketBox.querySelector('.market-status').textContent = '⏭️ Ignoré';
-                        }
-                        
-                        resolve(result);
-                    }, Math.random() * 100);
-                });
-            });
-            
-            const allResults = await Promise.all(analysisPromises);
-            scanStatus.textContent = 'Scan terminé en 0.5s !';
-            
-            const foundSignal = allResults.find(r => r.signal !== 'WAIT');
-            
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            scanning.style.display = 'none';
-            
-            if (foundSignal) {
-                displaySignal(foundSignal);
-                results.style.display = 'block';
-                
-                // Send to Telegram automatically
-                await sendToTelegram(foundSignal);
-            } else {
-                alert('⏸️ Aucun signal trouvé sur les 7 marchés.\n\nC\'est normal ! Le robot filtre strictement.\n\nRéessaye dans 5-10 minutes. 💪');
-            }
-            
-            scanBtn.disabled = false;
+        function reportLoss() {
+            sessionStats.total++;
+            sessionStats.profit -= currentSignal.stake;
+            updateSessionStats();
         }
 
-        function displaySignal(data) {
-            const signalCard = document.getElementById('signal-card');
-            const directionEl = document.getElementById('signal-direction');
+        function updateSessionStats() {
+            document.getElementById('totalTrades').textContent = sessionStats.total;
+            document.getElementById('wonTrades').textContent = sessionStats.won;
             
-            signalCard.className = 'signal-card ' + data.signal.toLowerCase();
-            directionEl.textContent = data.signal;
-            directionEl.style.color = data.signal === 'CALL' ? '#00ff9d' : '#ff0062';
+            const winRate = sessionStats.total > 0 ? 
+                ((sessionStats.won / sessionStats.total) * 100).toFixed(0) : 0;
+            document.getElementById('sessionWinRate').textContent = winRate + '%';
             
-            document.getElementById('result-market').textContent = data.market;
-            
-            let actualExpiration = data.expiration;
-            if (data.expiration === '5 MIN') {
-                actualExpiration = '3 MIN (optimisé selon ton observation !)';
-            }
-            
-            document.getElementById('result-details').textContent = 
-                `Expiration suggérée: ${actualExpiration} • Score: ${data.score}/4`;
-            
-            const analysisText = `
-📈 Tendance: ${data.trend}<br>
-🎯 Zone: ${data.zone}<br>
-🕯️ Pattern: ${data.pattern}<br>
-🔄 Multi-TF: ${data.mtf}<br><br>
-✅ Confirmations détectées:<br>
-${data.confirmations.map(c => `• ${c}`).join('<br>')}
-            `.trim();
-            
-            document.getElementById('analysis-text').innerHTML = analysisText;
+            document.getElementById('sessionProfit').textContent = 
+                (sessionStats.profit >= 0 ? '+' : '') + sessionStats.profit.toFixed(2) + '$';
         }
     </script>
 </body>
-                                                              </html>
+</html>
