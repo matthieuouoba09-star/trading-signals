@@ -180,4 +180,30 @@ function calculateMACD(prices){const ema12=calculateEMA(prices,12);const ema26=c
 function calculateEMA(prices,period){const k=2/(period+1);let ema=prices[0];for(let i=1;i<prices.length;i++){ema=(prices[i]*k)+(ema*(1-k))}return ema}
 function calculateBollingerBands(prices,period,stdDev){const lastPrices=prices.slice(-period);const sma=lastPrices.reduce((a,b)=>a+b,0)/period;const variance=lastPrices.reduce((sum,val)=>sum+Math.pow(val-sma,2),0)/period;const std=Math.sqrt(variance);return{upper:sma+(stdDev*std),middle:sma,lower:sma-(stdDev*std)}}
 function displaySignal(signal){currentSignal=signal;const box=document.getElementById('signalBox');box.className='signal-container '+signal.direction.toLowerCase();document.getElementById('signalIcon').textContent=signal.direction==='BUY'?'📈':'📉';document.getElementById('signalDirection').textContent=signal.direction;document.getElementById('signalDirection').className='signal-direction '+signal.direction.toLowerCase();document.getElementById('signalSubtitle').textContent=`Signal for ${selectedMarket} • ${selectedTimeframe}`;document.getElementById('signalStrength').textContent=signal.signalStrength;document.getElementById('winRate').textContent=signal.winRate;document.getElementById('confidence').textContent=signal.confidence;setTimeout(()=>{document.getElementById('confidenceBar').style.width=signal.confidence+'%'},100);document.getElementById('stake').textContent='$'+signal.stake.toFixed(2);const expText=selectedTimeframe==='5s'?'5 seconds':selectedTimeframe==='15s'?'15 seconds':selectedTimeframe==='30s'?'30 seconds':selectedTimeframe==='1m'?'1 minute':'3 minutes';document.getElementById('expiration').textContent=expText;document.getElementById('profit').textContent='$'+signal.profit;document.getElementById('payout').textContent=signal.payout+'%'}
-function openPocketOption(){window.open('https://po.trade','_blank');alert(`📱 OPEN
+function openPocketOption(){window.open('https://po.trade','_blank');alert(`📱 OPEN POCKET OPTION\n\nSignal: ${currentSignal.direction}\nMarket: ${selectedMarket}\nTimeframe: ${selectedTimeframe}\nStake: $${currentSignal.stake}\n\nTrade now! 🚀`)}
+async function sendToTelegram(){if(!currentSignal)return;const emoji=currentSignal.direction==='BUY'?'🟢':'🔴';const arrow=currentSignal.direction==='BUY'?'⬆️':'⬇️';const message=`
+${emoji} <b>AI OPT TRADE BOT PRO</b> ${emoji}
+
+${arrow} <b>${currentSignal.direction}</b> ${arrow}
+
+💱 <b>Market:</b> ${selectedMarket}
+⏱️ <b>Timeframe:</b> ${selectedTimeframe}
+💰 <b>Stake:</b> $${currentSignal.stake}
+
+📊 <b>ANALYSIS:</b>
+• Signal Strength: ${currentSignal.signalStrength}%
+• Win Rate: ${currentSignal.winRate}%
+• Confidence: ${currentSignal.confidence}%
+• RSI(14): ${currentSignal.rsi}
+
+💎 <b>Expected Profit:</b> $${currentSignal.profit}
+🎯 <b>Payout:</b> ${currentSignal.payout}%
+
+⏰ ${new Date().toLocaleTimeString('fr-FR')}
+
+🤖 <i>Advanced Technical Analysis</i>
+`.trim();try{const url=`https://api.telegram.org/bot${TELEGRAM.BOT_TOKEN}/sendMessage`;const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:TELEGRAM.CHAT_ID,text:message,parse_mode:'HTML'})});if(response.ok){alert('✅ Signal sent to Telegram!')}}catch(error){console.error('Telegram error:',error)}}
+window.onload=function(){generatePriceHistory()};
+</script>
+</body>
+</html>
