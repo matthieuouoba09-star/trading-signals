@@ -1,154 +1,188 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V36 PRO - MATTHIEU EDITION</title>
-    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-    <style>
-        :root { --bg: #030303; --neon: #00f2ff; --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; }
-        body { font-family: 'Orbitron', sans-serif, Arial; background: var(--bg); color: white; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        
-        .container { width: 100%; max-width: 450px; background: #000; border: 1px solid #1a1a1a; border-radius: 25px; padding: 15px; box-shadow: 0 0 30px rgba(0, 242, 255, 0.1); }
-        .user-sig { text-align: center; font-size: 22px; font-weight: 900; color: var(--gold); text-shadow: 0 0 10px var(--gold); margin-bottom: 15px; letter-spacing: 2px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEGIS V36 PRO - MATTHIEU EDITION</title>
 
-        /* Dashboard Multi-TF */
-        .tf-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        .tf-box { background: #080808; border: 1px solid #222; padding: 10px; border-radius: 12px; text-align: center; font-size: 9px; }
-        .status-txt { display: block; margin-top: 5px; font-weight: bold; color: #444; text-transform: uppercase; }
+<script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 
-        /* Chart & Price */
-        .price-now { text-align: center; font-size: 36px; font-weight: 900; color: #fff; margin-bottom: 10px; font-family: monospace; }
-        #chart-container { height: 240px; width: 100%; margin-bottom: 15px; border-radius: 15px; border: 1px solid #1a1a1a; overflow: hidden; }
+<style>
+:root { --bg:#030303; --neon:#00f2ff; --win:#00ff88; --loss:#ff0044; --gold:#ffcc00; }
 
-        /* Monitor */
-        .monitor { height: 180px; background: #000; border-radius: 20px; border: 2px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: 0.3s; overflow: hidden;}
-        .signal-res { font-size: 40px; font-weight: 900; text-transform: uppercase; }
+body {
+    background: var(--bg);
+    color: white;
+    font-family: Arial;
+    display:flex;
+    justify-content:center;
+}
 
-        .targets { display: flex; width: 90%; justify-content: space-around; margin-top: 15px; border-top: 1px solid #111; padding-top: 12px; }
-        .val-pro { font-family: monospace; font-size: 14px; font-weight: bold; }
+.container {
+    width:100%;
+    max-width:420px;
+}
 
-        button { 
-            width: 100%; padding: 22px; margin-top: 20px; border-radius: 15px; border: none; 
-            background: #fff; color: #000; font-weight: 900; font-size: 18px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255,255,255,0.1);
-        }
-        button:disabled { background: #111; color: #444; cursor: not-allowed; }
-    </style>
+.price-now {
+    text-align:center;
+    font-size:30px;
+    margin:10px 0;
+}
+
+#chart-container {
+    height:250px;
+}
+
+button {
+    width:100%;
+    padding:15px;
+    margin-top:15px;
+    font-weight:bold;
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
-    <div class="user-sig">MATTHIEU PRO</div>
 
-    <div class="tf-container">
-        <div class="tf-box">STRUCTURE 4H <span id="s-4h" class="status-txt">Attente...</span></div>
-        <div class="tf-box">FLUX 30M <span id="s-30m" class="status-txt">Attente...</span></div>
-        <div class="tf-box">CONFIRM 15M <span id="s-15m" class="status-txt">Attente...</span></div>
-    </div>
+<div class="price-now" id="price">0.00000</div>
+<div id="chart-container"></div>
 
-    <div class="price-now" id="live-price">0.00000</div>
-    <div id="chart-container"></div>
+<button onclick="analyse()">ANALYSER</button>
 
-    <div class="monitor" id="mainBox">
-        <div id="loader-msg" style="color:var(--neon); font-size: 11px;">SYSTÈME PRÊT - ANALYSE TOP-DOWN</div>
-        <div id="result-ui" style="display:none; text-align:center; width: 100%;">
-            <div class="signal-res" id="sig-val">---</div>
-            <div class="targets">
-                <div style="text-align:left"><span style="color:#555; font-size:10px">TAKE PROFIT</span><br><span class="val-pro" style="color:var(--win)" id="tp-val">0.00000</span></div>
-                <div style="text-align:right"><span style="color:#555; font-size:10px">STOP LOSS</span><br><span class="val-pro" style="color:var(--loss)" id="sl-val">0.00000</span></div>
-            </div>
-        </div>
-    </div>
+<div id="result"></div>
 
-    <button id="snipe-btn" onclick="lancerAnalysePro()" disabled>CHARGEMENT DU MARCHÉ...</button>
 </div>
 
 <script>
-    let candleSeries;
-    let currentPrice = 0;
-    let marketData = [];
 
-    // 1. Initialisation Graphique (Le marché normal en bougies)
-    const chart = LightweightCharts.createChart(document.getElementById('chart-container'), {
-        layout: { backgroundColor: '#000000', textColor: '#d1d4dc' },
-        grid: { vertLines: { color: '#0a0a0a' }, horzLines: { color: '#0a0a0a' } },
-        timeScale: { borderColor: '#111', timeVisible: true },
-    });
-    candleSeries = chart.addCandlestickSeries({ 
-        upColor: '#00ff88', downColor: '#ff0044', borderVisible: false, 
-        wickUpColor: '#00ff88', wickDownColor: '#ff0044' 
-    });
+// ==========================
+// 📊 CHART
+// ==========================
+const chart = LightweightCharts.createChart(document.getElementById('chart-container'), {
+    layout: { backgroundColor: '#000', textColor: '#fff' }
+});
 
-    // 2. Connexion Deriv Live
-    const ws = new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1');
-    ws.onopen = () => {
-        ws.send(JSON.stringify({ "ticks_history": "frxEURUSD", "count": 60, "end": "latest", "style": "candles", "subscribe": 1 }));
-    };
+const candleSeries = chart.addCandlestickSeries();
 
-    ws.onmessage = (msg) => {
-        const data = JSON.parse(msg.data);
-        if (data.candles) {
-            const history = data.candles.map(c => ({ time: c.epoch, open: c.open, high: c.high, low: c.low, close: c.close }));
-            candleSeries.setData(history);
-            marketData = data.candles.map(c => c.close);
-            document.getElementById('snipe-btn').disabled = false;
-            document.getElementById('snipe-btn').innerText = "ANALYSER MAINTENANT";
-        }
-        if (data.tick) {
-            currentPrice = data.tick.quote;
-            document.getElementById('live-price').innerText = currentPrice.toFixed(5);
-            candleSeries.update({ time: Math.floor(Date.now()/1000), open: currentPrice, high: currentPrice+0.00002, low: currentPrice-0.00002, close: currentPrice });
-            marketData.push(currentPrice);
-            if(marketData.length > 100) marketData.shift();
-        }
-    };
+let candles = [];
+let prices = [];
 
-    // 3. ANALYSE PROFESSIONNELLE (4H -> 30M -> 15M)
-    async function lancerAnalysePro() {
-        const btn = document.getElementById('snipe-btn');
-        btn.disabled = true;
-        document.getElementById('result-ui').style.display = 'none';
-        document.getElementById('loader-msg').style.display = 'block';
-        document.getElementById('loader-msg').innerText = "ANALYSE EN COURS...";
+// ==========================
+// 🔌 WEBSOCKET DERIV
+// ==========================
+const ws = new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1');
 
-        // Reset visuel
-        const ids = ['s-4h', 's-30m', 's-15m'];
-        ids.forEach(id => { document.getElementById(id).innerText = "Analyse..."; document.getElementById(id).style.color = "#444"; });
+ws.onopen = () => {
+    ws.send(JSON.stringify({
+        ticks_history: "frxEURUSD",
+        style: "candles",
+        count: 100,
+        granularity: 60
+    }));
+};
 
-        // --- ÉTAPE 1 : DIRECTION 4H ---
-        await new Promise(r => setTimeout(r, 1000));
-        const trend4H = marketData[marketData.length-1] > marketData[0] ? "BULL" : "BEAR";
-        document.getElementById('s-4h').innerText = trend4H === "BULL" ? "HAUSSIER ↑" : "BAISSIER ↓";
-        document.getElementById('s-4h').style.color = trend4H === "BULL" ? "var(--win)" : "var(--loss)";
+ws.onmessage = (msg) => {
+    const data = JSON.parse(msg.data);
 
-        // --- ÉTAPE 2 : CONFIRMATION 30M ---
-        await new Promise(r => setTimeout(r, 800));
-        document.getElementById('s-30m').innerText = "CONFIRMÉ";
-        document.getElementById('s-30m').style.color = "var(--neon)";
+    if (data.candles) {
+        candles = data.candles.map(c => ({
+            time: c.epoch,
+            open: +c.open,
+            high: +c.high,
+            low: +c.low,
+            close: +c.close
+        }));
 
-        // --- ÉTAPE 3 : ENTRÉE 15M ---
-        await new Promise(r => setTimeout(r, 800));
-        document.getElementById('s-15m').innerText = "PRÊT";
-        document.getElementById('s-15m').style.color = "var(--gold)";
+        candleSeries.setData(candles);
+        prices = candles.map(c => c.close);
 
-        // --- RÉSULTAT FINAL ---
-        document.getElementById('loader-msg').style.display = 'none';
-        document.getElementById('result-ui').style.display = 'block';
-        
-        const direction = trend4H === "BULL" ? "ACHAT (CALL)" : "VENTE (PUT)";
-        const sig = document.getElementById('sig-val');
-        sig.innerText = direction;
-        sig.style.color = trend4H === "BULL" ? "var(--win)" : "var(--loss)";
-        document.getElementById('mainBox').style.borderColor = sig.style.color;
-
-        // Calcul SL / TP (Ratio de pro)
-        const pips = 0.00180;
-        document.getElementById('tp-val').innerText = (trend4H === "BULL" ? currentPrice + pips : currentPrice - pips).toFixed(5);
-        document.getElementById('sl-val').innerText = (trend4H === "BULL" ? currentPrice - (pips/2) : currentPrice + (pips/2)).toFixed(5);
-
-        setTimeout(() => { btn.disabled = false; btn.innerText = "NOUVELLE ANALYSE"; }, 5000);
+        document.getElementById("price").innerText = prices[prices.length-1].toFixed(5);
     }
+};
+
+// ==========================
+// 📈 INDICATEURS
+// ==========================
+
+// EMA
+function EMA(data, period) {
+    let k = 2 / (period + 1);
+    let ema = data[0];
+
+    for (let i = 1; i < data.length; i++) {
+        ema = data[i] * k + ema * (1 - k);
+    }
+    return ema;
+}
+
+// RSI
+function RSI(data, period = 14) {
+    let gains = 0, losses = 0;
+
+    for (let i = data.length - period; i < data.length - 1; i++) {
+        let diff = data[i + 1] - data[i];
+        if (diff >= 0) gains += diff;
+        else losses -= diff;
+    }
+
+    let rs = gains / losses;
+    return 100 - (100 / (1 + rs));
+}
+
+// ==========================
+// 🧠 ANALYSE PRO
+// ==========================
+function analyse() {
+
+    if (prices.length < 50) return;
+
+    const ema20 = EMA(prices, 20);
+    const ema50 = EMA(prices, 50);
+    const rsi = RSI(prices);
+
+    const last = prices[prices.length - 1];
+    const prev = prices[prices.length - 2];
+
+    let trend = ema20 > ema50 ? "HAUSSIER" : "BAISSIER";
+
+    let signal = "ATTENTE";
+
+    if (trend === "HAUSSIER" && rsi < 70 && last > prev) {
+        signal = "ACHAT (CALL)";
+    }
+
+    if (trend === "BAISSIER" && rsi > 30 && last < prev) {
+        signal = "VENTE (PUT)";
+    }
+
+    // 📊 Volatilité
+    const volatility = Math.abs(prices[prices.length-1] - prices[prices.length-10]);
+
+    let tp, sl;
+
+    if (signal.includes("ACHAT")) {
+        tp = last + volatility;
+        sl = last - (volatility / 2);
+    } else if (signal.includes("VENTE")) {
+        tp = last - volatility;
+        sl = last + (volatility / 2);
+    }
+
+    // ==========================
+    // 📢 AFFICHAGE
+    // ==========================
+    document.getElementById("result").innerHTML = `
+        <h3>Tendance: ${trend}</h3>
+        <h2>Signal: ${signal}</h2>
+        <p>RSI: ${rsi.toFixed(2)}</p>
+        <p>TP: ${tp ? tp.toFixed(5) : "-"}</p>
+        <p>SL: ${sl ? sl.toFixed(5) : "-"}</p>
+    `;
+}
+
 </script>
+
 </body>
-    </html>
+</html>
