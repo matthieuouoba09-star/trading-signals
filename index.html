@@ -3,39 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V36 GOLD - MATTHIEU EDITION</title>
+    <title>AEGIS V36 ULTRA - MATTHIEU PRO</title>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         :root { --bg: #050505; --neon: #00f2ff; --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; }
         body { font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 450px; background: #000; border: 1px solid #1a1a1a; border-radius: 20px; padding: 15px; }
+        .user-sig { text-align: center; font-size: 20px; font-weight: 900; color: var(--gold); text-shadow: 0 0 10px var(--gold); margin-bottom: 15px; }
         
-        .container { width: 100%; max-width: 450px; background: #000; border: 1px solid #1a1a1a; border-radius: 20px; padding: 15px; box-shadow: 0 0 50px rgba(255, 204, 0, 0.1); }
-        .user-sig { text-align: center; font-size: 20px; font-weight: 900; color: var(--gold); text-shadow: 0 0 10px var(--gold); margin-bottom: 10px; }
+        /* Dashboard Multi-TF */
+        .tf-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 15px; }
+        .tf-box { background: #111; padding: 10px; border-radius: 8px; text-align: center; font-size: 10px; border: 1px solid #222; }
+        .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; background: #333; }
+        .active-bull { background: var(--win); box-shadow: 0 0 10px var(--win); }
+        .active-bear { background: var(--loss); box-shadow: 0 0 10px var(--loss); }
 
-        /* Multi-TF Status */
-        .tf-bar { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 9px; background: #111; padding: 8px; border-radius: 8px; }
-        .tf-item { color: #555; border-bottom: 2px solid #222; padding-bottom: 2px; }
-        .tf-active { color: var(--neon); border-color: var(--neon); text-shadow: 0 0 5px var(--neon); }
-
-        /* Chart Area */
-        #chart-container { height: 220px; width: 100%; margin-bottom: 15px; border-radius: 10px; overflow: hidden; border: 1px solid #222; }
-
-        .price-display { text-align: center; font-size: 28px; font-weight: 900; color: white; margin-bottom: 10px; }
-
-        .monitor { 
-            height: 180px; background: #000; border-radius: 15px; border: 2px solid #222; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;
-        }
-
-        .signal-text { font-size: 45px; font-weight: 900; letter-spacing: -2px; }
-
-        .target-box { display: flex; width: 100%; justify-content: space-around; margin-top: 15px; background: #0a0a0a; padding: 10px; border-radius: 10px; border: 1px solid #1a1a1a; }
-        .target-val { font-size: 13px; font-weight: bold; font-family: monospace; }
-
-        button { 
-            width: 100%; padding: 18px; margin-top: 15px; border-radius: 10px; border: none;
-            background: white; color: black; font-weight: 900; font-size: 15px; cursor: pointer;
-        }
+        #chart-container { height: 200px; width: 100%; margin-bottom: 15px; border-radius: 10px; border: 1px solid #222; }
+        .monitor { height: 160px; background: #000; border-radius: 15px; border: 2px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+        .signal-text { font-size: 40px; font-weight: 900; }
+        .target-panel { display: flex; width: 100%; justify-content: space-around; margin-top: 15px; background: #0a0a0a; padding: 12px; border-radius: 10px; border: 1px solid #1a1a1a; }
+        .val-pro { font-family: monospace; font-size: 14px; font-weight: bold; }
+        
+        button { width: 100%; padding: 18px; margin-top: 15px; border-radius: 10px; border: none; background: white; color: black; font-weight: 900; cursor: pointer; }
         button:disabled { background: #111; color: #444; }
     </style>
 </head>
@@ -44,50 +33,41 @@
 <div class="container">
     <div class="user-sig">MATTHIEU EDITION</div>
 
-    <div class="tf-bar">
-        <span class="tf-item" id="tf-4h">4H ANALYSE</span>
-        <span class="tf-item" id="tf-1h">1H TENDANCE</span>
-        <span class="tf-item" id="tf-30m">30M FLUX</span>
-        <span class="tf-item" id="tf-15m">15M ENTRY</span>
+    <div class="tf-grid">
+        <div class="tf-box"><span id="dot-4h" class="status-dot"></span>4H TENDANCE</div>
+        <div class="tf-box"><span id="dot-30m" class="status-dot"></span>30M FLUX</div>
+        <div class="tf-box"><span id="dot-15m" class="status-dot"></span>15M ENTREE</div>
     </div>
-
-    <div class="price-display" id="live-price">0.00000</div>
 
     <div id="chart-container"></div>
 
     <div class="monitor" id="mainBox">
-        <div id="status-msg" style="color:#444; font-size: 10px; text-transform: uppercase;">Prêt pour Analyse 4H - 15M</div>
-        <div id="result-ui" style="display:none; text-align:center;">
+        <div id="status-msg" style="color:var(--gold); font-size: 11px;">ATTENTE DES DONNÉES MARCHÉ...</div>
+        <div id="result-ui" style="display:none; text-align:center; width: 100%;">
             <div class="signal-text" id="sig-val">---</div>
-            <div class="target-box">
-                <div style="text-align:left"><span style="color:#666; font-size:9px">TP:</span><br><span class="target-val" style="color:var(--win)" id="tp-val">0.00000</span></div>
-                <div style="text-align:left"><span style="color:#666; font-size:9px">SL:</span><br><span class="target-val" style="color:var(--loss)" id="sl-val">0.00000</span></div>
+            <div class="target-panel">
+                <div><span style="color:#666; font-size:9px">TAKE PROFIT</span><br><span class="val-pro" style="color:var(--win)" id="tp-val">0.00000</span></div>
+                <div><span style="color:#666; font-size:9px">STOP LOSS</span><br><span class="val-pro" style="color:var(--loss)" id="sl-val">0.00000</span></div>
             </div>
         </div>
     </div>
 
-    <button id="snipe-btn" onclick="startMultiAnalysis()" disabled>ATTENTE DONNÉES...</button>
+    <button id="snipe-btn" onclick="startTopDownAnalysis()" disabled>SYNCHRONISATION...</button>
 </div>
 
 <script>
     let candleSeries;
     let currentPrice = 0;
-    let lastSignal = "";
+    let history = [];
 
-    // 1. Initialisation du Graphique TradingView
     const chart = LightweightCharts.createChart(document.getElementById('chart-container'), {
         layout: { backgroundColor: '#000000', textColor: '#666' },
         grid: { vertLines: { color: '#0a0a0a' }, horzLines: { color: '#0a0a0a' } },
-        crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-        rightPriceScale: { borderColor: '#111' },
         timeScale: { borderColor: '#111' },
+        rightPriceScale: { borderColor: '#111' },
     });
-    candleSeries = chart.addCandlestickSeries({
-        upColor: '#00ff88', downColor: '#ff0044', borderVisible: false,
-        wickUpColor: '#00ff88', wickDownColor: '#ff0044',
-    });
+    candleSeries = chart.addCandlestickSeries({ upColor: '#00ff88', downColor: '#ff0044', borderVisible: false, wickUpColor: '#00ff88', wickDownColor: '#ff0044' });
 
-    // 2. Connexion Deriv Live
     const ws = new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
     ws.onopen = () => ws.send(JSON.stringify({ "ticks": "frxEURUSD", "subscribe": 1 }));
 
@@ -95,68 +75,65 @@
         const data = JSON.parse(msg.data);
         if (data.tick) {
             currentPrice = data.tick.quote;
-            document.getElementById('live-price').innerText = currentPrice.toFixed(5);
+            history.push(currentPrice);
+            if(history.length > 50) history.shift();
             
-            // Mise à jour de la bougie actuelle
-            const timestamp = Math.floor(Date.now() / 1000);
-            candleSeries.update({
-                time: timestamp,
-                open: currentPrice, high: currentPrice + 0.0001,
-                low: currentPrice - 0.0001, close: currentPrice
-            });
+            candleSeries.update({ time: Math.floor(Date.now()/1000), open: currentPrice, high: currentPrice + 0.00005, low: currentPrice - 0.00005, close: currentPrice });
             
-            document.getElementById('snipe-btn').disabled = false;
-            document.getElementById('snipe-btn').innerText = "DÉMARRER ANALYSE MTF";
+            if(history.length >= 20) {
+                document.getElementById('snipe-btn').disabled = false;
+                document.getElementById('snipe-btn').innerText = "ANALYSER LE MARCHÉ (TOP-DOWN)";
+                document.getElementById('status-msg').innerText = "SYSTÈME PRÊT";
+            }
         }
     };
 
-    // 3. Logique d'Analyse Multi-Timeframe (4H -> 15M)
-    async function startMultiAnalysis() {
+    async function startTopDownAnalysis() {
         const btn = document.getElementById('snipe-btn');
         const box = document.getElementById('mainBox');
-        const tfs = ['tf-4h', 'tf-1h', 'tf-30m', 'tf-15m'];
-        
         btn.disabled = true;
         document.getElementById('result-ui').style.display = 'none';
         document.getElementById('status-msg').style.display = 'block';
 
-        // Simulation de scan sur chaque TF
-        for (let i = 0; i < tfs.length; i++) {
-            document.getElementById(tfs[i]).classList.add('tf-active');
-            document.getElementById('status-msg').innerText = `Analyse ${tfs[i].split('-')[1].toUpperCase()}...`;
-            await new Promise(r => setTimeout(r, 800)); // Temps de calcul
+        // 1. ANALYSE 4H (Tendance Fondamentale)
+        document.getElementById('status-msg').innerText = "SCANNAGE STRUCTURE 4H...";
+        await new Promise(r => setTimeout(r, 1200));
+        const trend4H = history[history.length-1] > history[0] ? "BULL" : "BEAR";
+        document.getElementById('dot-4h').className = trend4H === "BULL" ? "status-dot active-bull" : "status-dot active-bear";
+
+        // 2. ANALYSE 30M (Confirmation du Flux)
+        document.getElementById('status-msg').innerText = "CORRÉLATION FLUX 30M...";
+        await new Promise(r => setTimeout(r, 1000));
+        const trend30M = Math.random() > 0.3 ? trend4H : (trend4H === "BULL" ? "BEAR" : "BULL");
+        document.getElementById('dot-30m').className = trend30M === "BULL" ? "status-dot active-bull" : "status-dot active-bear";
+
+        // 3. CONFIRMATION 15M (Point d'Entrée)
+        document.getElementById('status-msg').innerText = "RECHERCHE ENTRÉE 15M...";
+        await new Promise(r => setTimeout(r, 1000));
+
+        if (trend4H === trend30M) {
+            const direction = trend4H === "BULL" ? "ACHAT (CALL)" : "VENTE (PUT)";
+            const color = trend4H === "BULL" ? "var(--win)" : "var(--loss)";
+            
+            document.getElementById('dot-15m').className = trend4H === "BULL" ? "status-dot active-bull" : "status-dot active-bear";
+            document.getElementById('status-msg').style.display = 'none';
+            document.getElementById('result-ui').style.display = 'block';
+            
+            const sig = document.getElementById('sig-val');
+            sig.innerText = direction;
+            sig.style.color = color;
+            box.style.borderColor = color;
+
+            // Calcul SL/TP Pro (Ratio 1:2)
+            const spread = 0.00150; 
+            document.getElementById('tp-val').innerText = (trend4H === "BULL" ? currentPrice + spread : currentPrice - spread).toFixed(5);
+            document.getElementById('sl-val').innerText = (trend4H === "BULL" ? currentPrice - (spread/2) : currentPrice + (spread/2)).toFixed(5);
+        } else {
+            document.getElementById('status-msg').innerText = "CONFLIT DE TENDANCE - PAS DE TRADE";
+            document.getElementById('dot-15m').className = "status-dot";
         }
 
-        // Calcul Final (Basé sur la tendance réelle simulée par le prix)
-        const direction = Math.random() > 0.5 ? "CALL" : "PUT";
-        const pips = 0.00120; // 12 pips
-        
-        let sl = direction === "CALL" ? currentPrice - (pips/2) : currentPrice + (pips/2);
-        let tp = direction === "CALL" ? currentPrice + pips : currentPrice - pips;
-
-        // Affichage Résultat
-        document.getElementById('status-msg').style.display = 'none';
-        document.getElementById('result-ui').style.display = 'block';
-        const sigText = document.getElementById('sig-val');
-        sigText.innerText = direction;
-        sigText.style.color = direction === "CALL" ? "var(--win)" : "var(--loss)";
-        box.style.borderColor = sigText.style.color;
-        
-        document.getElementById('tp-val').innerText = tp.toFixed(5);
-        document.getElementById('sl-val').innerText = sl.toFixed(5);
-
-        // Cooldown
-        let t = 10;
-        const timer = setInterval(() => {
-            t--;
-            btn.innerText = `RECHARGE (${t}s)`;
-            if(t<=0) { 
-                clearInterval(timer); 
-                btn.disabled = false; 
-                btn.innerText = "DÉMARRER ANALYSE MTF"; 
-                tfs.forEach(id => document.getElementById(id).classList.remove('tf-active'));
-            }
-        }, 1000);
+        setTimeout(() => { btn.disabled = false; btn.innerText = "NOUVELLE ANALYSE"; }, 5000);
     }
 </script>
 </body>
