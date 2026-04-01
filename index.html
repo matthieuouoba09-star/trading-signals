@@ -3,172 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V36 - ANALYSE PRO MATTHIEU</title>
+    <title>AEGIS V36 FINAL - MATTHIEU PRO</title>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         :root { --bg: #050505; --neon: #00f2ff; --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; }
         body { font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 450px; background: #000; border: 1px solid #1a1a1a; border-radius: 20px; padding: 15px; box-shadow: 0 0 50px rgba(0, 242, 255, 0.05); }
-        .user-sig { text-align: center; font-size: 22px; font-weight: 900; color: var(--gold); text-shadow: 0 0 10px var(--gold); margin-bottom: 15px; letter-spacing: 2px; }
+        .container { width: 100%; max-width: 450px; background: #000; border: 1px solid #1a1a1a; border-radius: 20px; padding: 15px; box-shadow: 0 0 50px rgba(0, 242, 255, 0.1); }
+        .user-sig { text-align: center; font-size: 24px; font-weight: 900; color: var(--gold); text-shadow: 0 0 10px var(--gold); margin-bottom: 15px; }
 
-        /* Status Multi-TF */
-        .tf-status { display: flex; justify-content: space-between; margin-bottom: 15px; gap: 5px; }
-        .tf-card { flex: 1; background: #0a0a0a; border: 1px solid #111; padding: 10px 5px; border-radius: 8px; text-align: center; font-size: 9px; transition: 0.3s; }
-        .tf-card span { display: block; margin-top: 5px; font-weight: bold; color: #333; }
-        .active-scan { border-color: var(--neon); box-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
-        .trend-up { color: var(--win) !important; }
-        .trend-down { color: var(--loss) !important; }
+        .tf-grid { display: flex; justify-content: space-between; gap: 5px; margin-bottom: 15px; }
+        .tf-box { flex: 1; background: #0a0a0a; border: 1px solid #151515; padding: 10px; border-radius: 10px; text-align: center; font-size: 9px; }
+        .status-txt { display: block; margin-top: 5px; font-weight: bold; color: #333; }
 
-        #chart-container { height: 220px; width: 100%; margin-bottom: 15px; border-radius: 12px; border: 1px solid #1a1a1a; overflow: hidden; }
-        .price-hero { text-align: center; font-size: 34px; font-weight: 900; color: white; margin-bottom: 10px; font-family: monospace; }
+        #chart-container { height: 230px; width: 100%; margin-bottom: 15px; border-radius: 12px; border: 1px solid #222; overflow: hidden; }
+        .live-price { text-align: center; font-size: 36px; font-weight: 900; color: white; margin-bottom: 10px; font-family: monospace; }
 
-        .monitor-screen { 
-            height: 180px; background: radial-gradient(circle, #080808 0%, #000 100%); 
-            border-radius: 15px; border: 2px solid #222; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; position: relative;
-        }
-        .sig-large { font-size: 48px; font-weight: 900; letter-spacing: -2px; }
+        .monitor-area { height: 180px; background: #000; border-radius: 15px; border: 2px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .sig-res { font-size: 45px; font-weight: 900; }
 
-        .tp-sl-box { display: flex; width: 90%; justify-content: space-between; margin-top: 15px; border-top: 1px solid #111; padding-top: 10px; }
-        .val-text { font-family: monospace; font-size: 14px; font-weight: bold; }
+        .targets { display: flex; width: 90%; justify-content: space-between; margin-top: 15px; border-top: 1px solid #111; padding-top: 10px; }
+        .val { font-family: monospace; font-size: 14px; font-weight: bold; }
 
         button { 
             width: 100%; padding: 22px; margin-top: 15px; border-radius: 15px; border: none; 
-            background: white; color: black; font-weight: 900; font-size: 17px; cursor: pointer;
+            background: white; color: black; font-weight: 900; font-size: 18px; cursor: pointer; box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
         }
-        button:disabled { background: #111; color: #444; }
+        button:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="user-sig">MATTHIEU PRO</div>
+    <div class="user-sig">MATTHIEU EDITION</div>
 
-    <div class="tf-status">
-        <div class="tf-card" id="card-4h">STRAT 4H <span id="txt-4h">EN ATTENTE</span></div>
-        <div class="tf-card" id="card-30m">FLUX 30M <span id="txt-30m">EN ATTENTE</span></div>
-        <div class="tf-card" id="card-15m">ENTRY 15M <span id="txt-15m">EN ATTENTE</span></div>
+    <div class="tf-grid">
+        <div class="tf-box">ANALYSE 4H <span id="s-4h" class="status-txt">---</span></div>
+        <div class="tf-box">FLUX 30M <span id="s-30m" class="status-txt">---</span></div>
+        <div class="tf-box">CONFIRM 15M <span id="s-15m" class="status-txt">---</span></div>
     </div>
 
-    <div class="price-hero" id="live-price">0.00000</div>
+    <div class="live-price" id="price-now">0.00000</div>
     <div id="chart-container"></div>
 
-    <div class="monitor-screen" id="mainBox">
-        <div id="idle-msg" style="color:#444; font-size: 11px;">PRÊT POUR ANALYSE TOP-DOWN</div>
+    <div class="monitor-area" id="mainBox">
+        <div id="msg" style="color:#555; font-size: 11px;">PRÊT POUR LE SCAN PRO</div>
         <div id="result-ui" style="display:none; text-align:center; width: 100%;">
-            <div class="sig-large" id="sig-val">---</div>
-            <div class="tp-sl-box">
-                <div style="text-align:left"><span style="color:#555; font-size:10px">TAKE PROFIT</span><br><span class="val-text" style="color:var(--win)" id="tp-val">0.00000</span></div>
-                <div style="text-align:right"><span style="color:#555; font-size:10px">STOP LOSS</span><br><span class="val-text" style="color:var(--loss)" id="sl-val">0.00000</span></div>
+            <div class="sig-res" id="sig-val">---</div>
+            <div class="targets">
+                <div style="text-align:left"><span style="color:#666; font-size:10px">TAKE PROFIT</span><br><span class="val" style="color:var(--win)" id="tp-val">0.00000</span></div>
+                <div style="text-align:right"><span style="color:#666; font-size:10px">STOP LOSS</span><br><span class="val" style="color:var(--loss)" id="sl-val">0.00000</span></div>
             </div>
         </div>
     </div>
 
-    <button id="snipe-btn" onclick="runProfessionalAnalysis()" disabled>CONNEXION MARCHÉ...</button>
+    <button id="snipe-btn" onclick="executeMatthieuAlgo()">ANALYSER MAINTENANT</button>
 </div>
 
 <script>
     let candleSeries;
     let currentPrice = 0;
-    let historyData = [];
-
-    // 1. Initialisation du graphique en bougies dès le départ
+    
+    // 1. Initialisation Graphique Immédiate
     const chart = LightweightCharts.createChart(document.getElementById('chart-container'), {
-        layout: { backgroundColor: '#000000', textColor: '#666' },
+        layout: { backgroundColor: '#000000', textColor: '#d1d4dc' },
         grid: { vertLines: { color: '#050505' }, horzLines: { color: '#050505' } },
         timeScale: { borderColor: '#111' },
     });
     candleSeries = chart.addCandlestickSeries({ upColor: '#00ff88', downColor: '#ff0044', borderVisible: false, wickUpColor: '#00ff88', wickDownColor: '#ff0044' });
 
-    // 2. Connexion et affichage immédiat
+    // 2. Connexion Marché (Deriv)
     const ws = new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1');
-
     ws.onopen = () => {
-        // Demande l'historique pour tout afficher de suite
-        ws.send(JSON.stringify({ "ticks_history": "frxEURUSD", "count": 60, "end": "latest", "style": "candles", "subscribe": 1 }));
+        ws.send(JSON.stringify({ "ticks_history": "frxEURUSD", "count": 50, "end": "latest", "style": "candles", "subscribe": 1 }));
     };
 
     ws.onmessage = (msg) => {
         const data = JSON.parse(msg.data);
-        
         if (data.candles) {
             const candles = data.candles.map(c => ({ time: c.epoch, open: c.open, high: c.high, low: c.low, close: c.close }));
             candleSeries.setData(candles);
-            historyData = data.candles.map(c => c.close);
-            enableButton();
         }
-
         if (data.tick) {
             currentPrice = data.tick.quote;
-            document.getElementById('live-price').innerText = currentPrice.toFixed(5);
-            candleSeries.update({ time: Math.floor(Date.now()/1000), open: currentPrice, high: currentPrice + 0.00002, low: currentPrice - 0.00002, close: currentPrice });
-            historyData.push(currentPrice);
-            if(historyData.length > 100) historyData.shift();
-            enableButton();
+            document.getElementById('price-now').innerText = currentPrice.toFixed(5);
+            candleSeries.update({ time: Math.floor(Date.now()/1000), open: currentPrice, high: currentPrice+0.00001, low: currentPrice-0.00001, close: currentPrice });
         }
     };
 
-    function enableButton() {
+    // 3. ANALYSE TOP-DOWN (Se lance au clic)
+    async function executeMatthieuAlgo() {
         const btn = document.getElementById('snipe-btn');
-        if(btn.disabled) {
-            btn.disabled = false;
-            btn.innerText = "ANALYSER MAINTENANT";
-        }
-    }
-
-    // 3. LA LOGIQUE PRO : 4H -> 30M -> 15M (S'exécute au clic)
-    async function runProfessionalAnalysis() {
-        const btn = document.getElementById('snipe-btn');
-        btn.disabled = true;
-        
-        // Reset UI
-        document.getElementById('result-ui').style.display = 'none';
-        document.getElementById('idle-msg').style.display = 'block';
-        document.getElementById('idle-msg').innerText = "ANALYSE EN COURS...";
-        
-        const resetCards = () => { ['4h','30m','15m'].forEach(id => {
-            document.getElementById('card-'+id).className = 'tf-card';
-            document.getElementById('txt-'+id).innerText = 'SCAN...';
-            document.getElementById('txt-'+id).className = '';
-        })};
-        resetCards();
-
-        // --- SCAN 4H ---
-        document.getElementById('card-4h').classList.add('active-scan');
-        await new Promise(r => setTimeout(r, 1000));
-        const trend4H = historyData[historyData.length-1] > historyData[0] ? "BULL" : "BEAR";
-        document.getElementById('txt-4h').innerText = trend4H === "BULL" ? "HAUSSIER ↑" : "BAISSIER ↓";
-        document.getElementById('txt-4h').className = trend4H === "BULL" ? "trend-up" : "trend-down";
-
-        // --- SCAN 30M ---
-        document.getElementById('card-30m').classList.add('active-scan');
-        await new Promise(r => setTimeout(r, 800));
-        document.getElementById('txt-30m').innerText = trend4H === "BULL" ? "CONFIRMÉ ↑" : "CONFIRMÉ ↓";
-        document.getElementById('txt-30m').className = trend4H === "BULL" ? "trend-up" : "trend-down";
-
-        // --- SCAN 15M (Confirmation finale) ---
-        document.getElementById('card-15m').classList.add('active-scan');
-        await new Promise(r => setTimeout(r, 800));
-        document.getElementById('txt-15m').innerText = "PRÊT";
-        document.getElementById('txt-15m').className = "trend-up";
-
-        // --- AFFICHAGE DU SIGNAL ET SL/TP ---
-        document.getElementById('idle-msg').style.display = 'none';
-        document.getElementById('result-ui').style.display = 'block';
-        
-        const direction = trend4H === "BULL" ? "ACHAT (CALL)" : "VENTE (PUT)";
-        const sig = document.getElementById('sig-val');
-        sig.innerText = direction;
-        sig.style.color = trend4H === "BULL" ? "var(--win)" : "var(--loss)";
-
-        // Calcul SL/TP (Ratio de trader Pro)
-        const spread = 0.00160; 
-        document.getElementById('tp-val').innerText = (trend4H === "BULL" ? currentPrice + spread : currentPrice - spread).toFixed(5);
-        document.getElementById('sl-val').innerText = (trend4H === "BULL" ? currentPrice - (spread/2) : currentPrice + (spread/2)).toFixed(5);
-
-        btn.innerText = "ANALYSE TERMINÉE";
-        setTimeout(() => { btn.disabled = false; btn.innerText = "NOUVELLE ANALYSE"; }, 5000);
-    }
-</script>
-</body>
-    </html>
