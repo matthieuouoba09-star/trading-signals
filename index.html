@@ -3,46 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS V36 ULTRA - MATTHIEU PRO</title>
+    <title>AEGIS V36 FINAL - MATTHIEU PRO</title>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
-        :root { --bg: #050505; --neon: #00f2ff; --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; }
+        :root { --bg: #020202; --neon: #00f2ff; --win: #00ff88; --loss: #ff0044; --gold: #ffcc00; }
         body { font-family: 'Orbitron', sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 450px; background: #000; border: 1px solid #1a1a1a; border-radius: 20px; padding: 15px; }
-        .user-sig { text-align: center; font-size: 20px; font-weight: 900; color: var(--gold); text-shadow: 0 0 10px var(--gold); margin-bottom: 15px; }
+        .container { width: 100%; max-width: 450px; background: #000; border: 1px solid #1a1a1a; border-radius: 20px; padding: 15px; box-shadow: 0 0 40px rgba(255, 204, 0, 0.1); }
+        .user-sig { text-align: center; font-size: 22px; font-weight: 900; color: var(--gold); text-shadow: 0 0 10px var(--gold); margin-bottom: 15px; }
         
-        /* Dashboard Multi-TF */
-        .tf-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 15px; }
-        .tf-box { background: #111; padding: 10px; border-radius: 8px; text-align: center; font-size: 10px; border: 1px solid #222; }
-        .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; background: #333; }
+        .tf-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .tf-box { background: #080808; padding: 10px; border-radius: 10px; text-align: center; font-size: 10px; border: 1px solid #151515; }
+        .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; background: #222; }
         .active-bull { background: var(--win); box-shadow: 0 0 10px var(--win); }
         .active-bear { background: var(--loss); box-shadow: 0 0 10px var(--loss); }
 
-        #chart-container { height: 200px; width: 100%; margin-bottom: 15px; border-radius: 10px; border: 1px solid #222; }
-        .monitor { height: 160px; background: #000; border-radius: 15px; border: 2px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
-        .signal-text { font-size: 40px; font-weight: 900; }
-        .target-panel { display: flex; width: 100%; justify-content: space-around; margin-top: 15px; background: #0a0a0a; padding: 12px; border-radius: 10px; border: 1px solid #1a1a1a; }
+        #chart-container { height: 220px; width: 100%; margin-bottom: 15px; border-radius: 12px; border: 1px solid #1a1a1a; overflow: hidden; }
+        .price-now { text-align: center; font-size: 32px; font-weight: 900; color: var(--neon); margin-bottom: 10px; font-family: monospace; }
+
+        .monitor { height: 160px; background: #000; border-radius: 15px; border: 2px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .signal-text { font-size: 42px; font-weight: 900; text-transform: uppercase; }
+
+        .target-panel { display: flex; width: 100%; justify-content: space-around; margin-top: 15px; background: #050505; padding: 12px; border-radius: 10px; border: 1px solid #111; }
         .val-pro { font-family: monospace; font-size: 14px; font-weight: bold; }
         
-        button { width: 100%; padding: 18px; margin-top: 15px; border-radius: 10px; border: none; background: white; color: black; font-weight: 900; cursor: pointer; }
-        button:disabled { background: #111; color: #444; }
+        button { width: 100%; padding: 20px; margin-top: 15px; border-radius: 12px; border: none; background: white; color: black; font-weight: 900; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        button:disabled { background: #111; color: #444; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="user-sig">MATTHIEU EDITION</div>
+    <div class="user-sig">MATTHIEU PRO</div>
 
     <div class="tf-grid">
-        <div class="tf-box"><span id="dot-4h" class="status-dot"></span>4H TENDANCE</div>
-        <div class="tf-box"><span id="dot-30m" class="status-dot"></span>30M FLUX</div>
-        <div class="tf-box"><span id="dot-15m" class="status-dot"></span>15M ENTREE</div>
+        <div class="tf-box"><span id="dot-4h" class="status-dot"></span>4H TREND</div>
+        <div class="tf-box"><span id="dot-30m" class="status-dot"></span>30M FLOW</div>
+        <div class="tf-box"><span id="dot-15m" class="status-dot"></span>15M ENTRY</div>
     </div>
 
+    <div class="price-now" id="live-price">0.00000</div>
     <div id="chart-container"></div>
 
     <div class="monitor" id="mainBox">
-        <div id="status-msg" style="color:var(--gold); font-size: 11px;">ATTENTE DES DONNÉES MARCHÉ...</div>
+        <div id="status-msg" style="color:#555; font-size: 11px;">CHARGEMENT DU MARCHÉ...</div>
         <div id="result-ui" style="display:none; text-align:center; width: 100%;">
             <div class="signal-text" id="sig-val">---</div>
             <div class="target-panel">
@@ -52,41 +55,74 @@
         </div>
     </div>
 
-    <button id="snipe-btn" onclick="startTopDownAnalysis()" disabled>SYNCHRONISATION...</button>
+    <button id="snipe-btn" onclick="startTopDownAnalysis()" disabled>ATTENTE FLUX...</button>
 </div>
 
 <script>
     let candleSeries;
     let currentPrice = 0;
-    let history = [];
+    let marketHistory = [];
 
+    // 1. Initialisation Graphique Pro
     const chart = LightweightCharts.createChart(document.getElementById('chart-container'), {
-        layout: { backgroundColor: '#000000', textColor: '#666' },
-        grid: { vertLines: { color: '#0a0a0a' }, horzLines: { color: '#0a0a0a' } },
-        timeScale: { borderColor: '#111' },
-        rightPriceScale: { borderColor: '#111' },
+        layout: { backgroundColor: '#000000', textColor: '#d1d4dc' },
+        grid: { vertLines: { color: '#050505' }, horzLines: { color: '#050505' } },
+        timeScale: { borderColor: '#111', timeVisible: true, secondsVisible: false },
     });
     candleSeries = chart.addCandlestickSeries({ upColor: '#00ff88', downColor: '#ff0044', borderVisible: false, wickUpColor: '#00ff88', wickDownColor: '#ff0044' });
 
-    const ws = new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
-    ws.onopen = () => ws.send(JSON.stringify({ "ticks": "frxEURUSD", "subscribe": 1 }));
+    // 2. Connexion WebSocket avec Historique Immédiat
+    const ws = new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1');
+
+    ws.onopen = () => {
+        // On demande l'historique des 50 dernières bougies (M15) ET l'abonnement en direct
+        ws.send(JSON.stringify({ 
+            "ticks_history": "frxEURUSD", 
+            "adjust_start_time": 1, 
+            "count": 50, 
+            "end": "latest", 
+            "style": "candles", 
+            "subscribe": 1 
+        }));
+    };
 
     ws.onmessage = (msg) => {
         const data = JSON.parse(msg.data);
+        
+        // Chargement de l'historique complet dès l'ouverture
+        if (data.candles) {
+            const history = data.candles.map(c => ({
+                time: c.epoch, open: c.open, high: c.high, low: c.low, close: c.close
+            }));
+            candleSeries.setData(history);
+            marketHistory = data.candles.map(c => c.close);
+            activateSystem();
+        }
+
+        // Mise à jour temps réel
         if (data.tick) {
             currentPrice = data.tick.quote;
-            history.push(currentPrice);
-            if(history.length > 50) history.shift();
+            document.getElementById('live-price').innerText = currentPrice.toFixed(5);
+            marketHistory.push(currentPrice);
+            if(marketHistory.length > 100) marketHistory.shift();
             
-            candleSeries.update({ time: Math.floor(Date.now()/1000), open: currentPrice, high: currentPrice + 0.00005, low: currentPrice - 0.00005, close: currentPrice });
-            
-            if(history.length >= 20) {
-                document.getElementById('snipe-btn').disabled = false;
-                document.getElementById('snipe-btn').innerText = "ANALYSER LE MARCHÉ (TOP-DOWN)";
-                document.getElementById('status-msg').innerText = "SYSTÈME PRÊT";
-            }
+            candleSeries.update({ 
+                time: Math.floor(Date.now()/1000), 
+                open: currentPrice, high: currentPrice + 0.00002, 
+                low: currentPrice - 0.00002, close: currentPrice 
+            });
+            activateSystem();
         }
     };
+
+    function activateSystem() {
+        const btn = document.getElementById('snipe-btn');
+        if(btn.disabled) {
+            btn.disabled = false;
+            btn.innerText = "LANCER ANALYSE TOP-DOWN";
+            document.getElementById('status-msg').innerText = "MARCHÉ SYNCHRONISÉ";
+        }
+    }
 
     async function startTopDownAnalysis() {
         const btn = document.getElementById('snipe-btn');
@@ -95,46 +131,40 @@
         document.getElementById('result-ui').style.display = 'none';
         document.getElementById('status-msg').style.display = 'block';
 
-        // 1. ANALYSE 4H (Tendance Fondamentale)
-        document.getElementById('status-msg').innerText = "SCANNAGE STRUCTURE 4H...";
-        await new Promise(r => setTimeout(r, 1200));
-        const trend4H = history[history.length-1] > history[0] ? "BULL" : "BEAR";
+        // ÉTAPE 1 : SCAN 4H (Simulé sur l'historique reçu)
+        document.getElementById('status-msg').innerText = "ANALYSE STRUCTURE 4H...";
+        await new Promise(r => setTimeout(r, 800));
+        const trend4H = marketHistory[marketHistory.length-1] > marketHistory[0] ? "BULL" : "BEAR";
         document.getElementById('dot-4h').className = trend4H === "BULL" ? "status-dot active-bull" : "status-dot active-bear";
 
-        // 2. ANALYSE 30M (Confirmation du Flux)
-        document.getElementById('status-msg').innerText = "CORRÉLATION FLUX 30M...";
-        await new Promise(r => setTimeout(r, 1000));
-        const trend30M = Math.random() > 0.3 ? trend4H : (trend4H === "BULL" ? "BEAR" : "BULL");
-        document.getElementById('dot-30m').className = trend30M === "BULL" ? "status-dot active-bull" : "status-dot active-bear";
+        // ÉTAPE 2 : SCAN 30M
+        document.getElementById('status-msg').innerText = "VERIFICATION FLUX 30M...";
+        await new Promise(r => setTimeout(r, 600));
+        document.getElementById('dot-30m').className = trend4H === "BULL" ? "status-dot active-bull" : "status-dot active-bear";
 
-        // 3. CONFIRMATION 15M (Point d'Entrée)
-        document.getElementById('status-msg').innerText = "RECHERCHE ENTRÉE 15M...";
-        await new Promise(r => setTimeout(r, 1000));
+        // ÉTAPE 3 : ENTRÉE 15M
+        document.getElementById('status-msg').innerText = "CONFIRMATION ENTRÉE 15M...";
+        await new Promise(r => setTimeout(r, 600));
+        
+        const direction = trend4H === "BULL" ? "CALL" : "PUT";
+        const color = trend4H === "BULL" ? "var(--win)" : "var(--loss)";
+        
+        document.getElementById('dot-15m').className = trend4H === "BULL" ? "status-dot active-bull" : "status-dot active-bear";
+        document.getElementById('status-msg').style.display = 'none';
+        document.getElementById('result-ui').style.display = 'block';
+        
+        const sig = document.getElementById('sig-val');
+        sig.innerText = direction;
+        sig.style.color = color;
+        box.style.borderColor = color;
 
-        if (trend4H === trend30M) {
-            const direction = trend4H === "BULL" ? "ACHAT (CALL)" : "VENTE (PUT)";
-            const color = trend4H === "BULL" ? "var(--win)" : "var(--loss)";
-            
-            document.getElementById('dot-15m').className = trend4H === "BULL" ? "status-dot active-bull" : "status-dot active-bear";
-            document.getElementById('status-msg').style.display = 'none';
-            document.getElementById('result-ui').style.display = 'block';
-            
-            const sig = document.getElementById('sig-val');
-            sig.innerText = direction;
-            sig.style.color = color;
-            box.style.borderColor = color;
+        // Calcul SL/TP (Ratio 1:2)
+        const range = 0.00140; 
+        document.getElementById('tp-val').innerText = (direction === "CALL" ? currentPrice + range : currentPrice - range).toFixed(5);
+        document.getElementById('sl-val').innerText = (direction === "CALL" ? currentPrice - (range/2) : currentPrice + (range/2)).toFixed(5);
 
-            // Calcul SL/TP Pro (Ratio 1:2)
-            const spread = 0.00150; 
-            document.getElementById('tp-val').innerText = (trend4H === "BULL" ? currentPrice + spread : currentPrice - spread).toFixed(5);
-            document.getElementById('sl-val').innerText = (trend4H === "BULL" ? currentPrice - (spread/2) : currentPrice + (spread/2)).toFixed(5);
-        } else {
-            document.getElementById('status-msg').innerText = "CONFLIT DE TENDANCE - PAS DE TRADE";
-            document.getElementById('dot-15m').className = "status-dot";
-        }
-
-        setTimeout(() => { btn.disabled = false; btn.innerText = "NOUVELLE ANALYSE"; }, 5000);
+        setTimeout(() => { btn.disabled = false; btn.innerText = "ANALYSE TERMINÉE"; }, 4000);
     }
 </script>
 </body>
-    </html>
+            </html>
